@@ -67,7 +67,8 @@
               ' | caSubscriptionId: ' +
               pos.caSubscriptionId
             "
-            :caption="'Тип: ' + pos.type.name_ru"
+            :caption="'Тип: ' + pos.type.name_ru + ' | Статус: ' + pos.status"
+            @click="selectedPosition = pos.id"
           >
             <q-tabs
               v-model="currentComponent"
@@ -112,30 +113,33 @@
                     icon="add"
                     color="primary"
                     title="Новая Позиция"
+                    @click="onAddNewCustomPosition"
                   />
                 </div>
                 <div class="col q-ml-sm">
                   <q-select
                     style="width: 250px"
                     size="sm"
-                    v-model="selectedPosOption"
-                    :options="posOptions"
+                    v-model="selectedCustomPosition"
+                    :options="customPositions"
+                    option-value="id"
+                    option-label="id"
                     label="Доступные позиции"
                   />
                 </div>
               </div>
               <q-select
                 style="width: 250px"
-                v-model="selectedPosOption"
-                :options="posOptions"
+                v-model="selectedCustomPosition.spec"
+                :options="specs"
                 label="Выбор Спецификации"
               />
               <div class="row">
                 <div class="col-auto">
                   <q-select
                     style="width: 250px"
-                    v-model="selectedPosOption"
-                    :options="posOptions"
+                    v-model="selectedCustomPosition.equipment"
+                    :options="equipment"
                     label="Выбор ОРК"
                   />
                 </div>
@@ -167,14 +171,19 @@
                 <div class="col-auto">
                   <q-select
                     style="width: 250px"
-                    v-model="selectedPosOption"
-                    :options="posOptions"
+                    v-model="selectedCustomPosition.port"
+                    :options="ports"
                     label="Выбор Порта"
                   />
                 </div>
                 <q-space />
                 <div class="col-auto">
-                  <q-btn label="Подготовить" type="submit" color="primary" />
+                  <q-btn
+                    label="Подготовить"
+                    type="submit"
+                    color="primary"
+                    @click="onPreparePosition"
+                  />
                 </div>
                 <div class="col-auto">
                   <q-btn
@@ -194,22 +203,52 @@
     <q-btn style="position: fixed; bottom: 10px; right: 10px" color="primary"
       >Далее</q-btn
     >
+    <q-dialog v-model="alert">
+      <q-card>
+        <q-card-section>
+          <div class="text-h6">Новая позиция создана!</div>
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="OK" color="primary" v-close-popup />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </div>
 </template>
 
 <script>
 import { ref } from 'vue';
-
 export default {
   setup() {
     return {
-      splitterModel: ref(30),
+      alert: ref(false),
     };
   },
   data() {
     return {
-      selectedPosOption: null,
-      posOptions: ['1', '2', '3'],
+      counter: 1, // TODO: remove later
+      selectedPosition: null,
+      selectedCustomPosition: {
+        spec: '',
+        equipment: '',
+        port: '',
+        id: '',
+      },
+      specs: [
+        'Прямая линия FTTH б/логина (1000776)',
+        'Прямая линия ETTH(1000784)',
+      ],
+      equipment: [
+        'ОРК 229/06/2/1',
+        'ОРК 229/06/2/2',
+        'ОРК 229/06/2/3',
+        'ОРК 229/06/2/4',
+        'ОРК 229/06/2/5',
+        'ОРК 229/06/2/6',
+      ],
+      ports: ['Порт: 1', 'Порт: 2', 'Порт: 3', 'Порт: 4', 'Порт: 5'],
+      customPositions: [],
       order: {
         id: 19593,
         poReqStatusId: 1,
@@ -255,6 +294,7 @@ export default {
           updateUser: 'CRM',
           createApp: 'CRM',
           updateApp: 'CRM',
+          status: 'Новый',
         },
         {
           id: 37,
@@ -275,6 +315,7 @@ export default {
           updateUser: 'CRM',
           createApp: 'CRM',
           updateApp: 'CRM',
+          status: 'Новый',
         },
         {
           id: 38,
@@ -295,6 +336,7 @@ export default {
           updateUser: 'CRM',
           createApp: 'CRM',
           updateApp: 'CRM',
+          status: 'Новый',
         },
         {
           id: 39,
@@ -315,6 +357,7 @@ export default {
           updateUser: 'CRM',
           createApp: 'CRM',
           updateApp: 'CRM',
+          status: 'Новый',
         },
       ],
       currentComponent: null,
@@ -390,6 +433,29 @@ export default {
         },
       ],
     };
+  },
+  methods: {
+    onAddNewCustomPosition() {
+      this.counter++;
+      this.customPositions.push({
+        ...this.selectedCustomPosition,
+        id: this.counter,
+      });
+      this.selectedCustomPosition = {
+        spec: '',
+        equipment: '',
+        port: '',
+        id: '',
+      };
+      this.alert = true;
+    },
+    onPreparePosition() {
+      this.positions.map((pos) => {
+        pos.id === this.selectedPosition
+          ? { ...pos, status: 'Подготовлено' }
+          : pos;
+      });
+    },
   },
 };
 </script>
