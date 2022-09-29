@@ -227,6 +227,7 @@ export default {
   },
   data() {
     return {
+      shape: null,
       counter: 1, // TODO: remove later
       selectedPosition: null,
       selectedCustomPosition: {
