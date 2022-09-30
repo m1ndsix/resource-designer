@@ -57,7 +57,7 @@
 
     <div class="row">
       <div class="col-auto" style="height: 100vh">
-        <q-list v-for="pos in positions" :key="pos.id">
+        <q-list v-for="pos in prepareStore.positions" :key="pos.id">
           <q-expansion-item
             group="positions"
             expand-separator
@@ -67,18 +67,21 @@
               ' | caSubscriptionId: ' +
               pos.caSubscriptionId
             "
-            :caption="'Тип: ' + pos.type.name_ru + ' | Статус: ' + pos.status"
-            @click="selectedPosition = pos.id"
+            :caption="'Тип: ' + pos.type.name_ru"
+            @click="onChangePosition(pos)"
           >
             <q-tabs
-              v-model="currentComponent"
+              v-model="componentTab"
               vertical
-              align="left"
               class="text-primary"
-              v-for="com in components"
+              v-for="com in prepareStore.components"
               :key="com.id"
             >
-              <q-tab :name="com.id" :label="'Компонент (ID): ' + com.id">
+              <q-tab
+                :name="com.id"
+                :label="'Компонент (ID): ' + com.id"
+                @click="onChangeComponent(com)"
+              >
                 <div
                   style="
                     font-size: 0.75rem;
@@ -86,7 +89,7 @@
                     color: rgba(0, 0, 0, 0.54);
                   "
                 >
-                  Тип: {{ com.type.name_ru }}
+                  Тип: {{ com.type.name_ru }} | Статус: {{ com.status }}
                 </div>
               </q-tab>
             </q-tabs>
@@ -96,15 +99,19 @@
       <q-separator vertical />
       <div class="col">
         <q-tab-panels
-          v-model="currentComponent"
+          v-model="componentTab"
           animated
           swipeable
           vertical
           transition-prev="jump-up"
           transition-next="jump-up"
         >
-          <q-tab-panel v-for="com in components" :name="com.id" :key="com.id">
-            <q-form @submit="onSubmit" @reset="onReset">
+          <q-tab-panel
+            v-for="com in prepareStore.components"
+            :name="com.id"
+            :key="com.id"
+          >
+            <q-form>
               <div class="row flex-center">
                 <div class="col-auto">
                   <q-btn
@@ -119,10 +126,8 @@
                 <div class="col q-ml-sm">
                   <q-select
                     style="width: 250px"
-                    size="sm"
-                    v-model="selectedCustomPosition"
-                    :options="customPositions"
-                    option-value="id"
+                    v-model="prepareStore.selectedCustomPosition"
+                    :options="prepareStore.customPositions"
                     option-label="id"
                     label="Доступные позиции"
                   />
@@ -130,7 +135,7 @@
               </div>
               <q-select
                 style="width: 250px"
-                v-model="selectedCustomPosition.spec"
+                v-model="prepareStore.selectedCustomPosition.spec"
                 :options="specs"
                 label="Выбор Спецификации"
               />
@@ -138,7 +143,7 @@
                 <div class="col-auto">
                   <q-select
                     style="width: 250px"
-                    v-model="selectedCustomPosition.equipment"
+                    v-model="prepareStore.selectedCustomPosition.equipment"
                     :options="equipment"
                     label="Выбор ОРК"
                   />
@@ -171,7 +176,7 @@
                 <div class="col-auto">
                   <q-select
                     style="width: 250px"
-                    v-model="selectedCustomPosition.port"
+                    v-model="prepareStore.selectedCustomPosition.port"
                     :options="ports"
                     label="Выбор Порта"
                   />
@@ -219,23 +224,21 @@
 
 <script>
 import { ref } from 'vue';
+import { usePrepareStore } from 'stores/prepare';
+
 export default {
   setup() {
+    const prepareStore = usePrepareStore();
     return {
       alert: ref(false),
+      shape: ref('ellipse'),
+      componentTab: ref(null),
+      prepareStore,
     };
   },
   data() {
     return {
-      shape: null,
-      counter: 1, // TODO: remove later
-      selectedPosition: null,
-      selectedCustomPosition: {
-        spec: '',
-        equipment: '',
-        port: '',
-        id: '',
-      },
+      counter: 0, // TODO: remove later
       specs: [
         'Прямая линия FTTH б/логина (1000776)',
         'Прямая линия ETTH(1000784)',
@@ -249,213 +252,36 @@ export default {
         'ОРК 229/06/2/6',
       ],
       ports: ['Порт: 1', 'Порт: 2', 'Порт: 3', 'Порт: 4', 'Порт: 5'],
-      customPositions: [],
-      order: {
-        id: 19593,
-        poReqStatusId: 1,
-        poReqStatus: {
-          id: 1,
-          name_ru: 'Новый',
-          name_kz: 'Новый',
-        },
-        resourceOrderId: 0,
-        partyId: 809185,
-        commChannelId: 5,
-        divisionId: 1,
-        contactNumber: '7777777777',
-        contactName: 'test',
-        identificationNumber: '900408400706',
-        salesChannelId: 105,
-        externalId: 'l77czzl2',
-        description: 'qwerty',
-        createDate: '2022-08-24T08:33:26.000Z',
-        updateDate: '2022-08-24T08:33:26.000Z',
-        createUser: 'CRM',
-        updateUser: 'CRM',
-        createApp: 'CRM',
-        updateApp: 'CRM',
-      },
-      positions: [
-        {
-          id: 36,
-          typeId: 1,
-          type: {
-            id: 1,
-            name_ru: 'Установка',
-            name_kz: 'Установка',
-          },
-          productOfferReqId: 19593,
-          geoPlaceId: 641475,
-          oldProductOfferId: -1,
-          newProductOfferId: 30598,
-          caSubscriptionId: -1,
-          createDate: '2022-08-24T08:35:30.697Z',
-          updateDate: '2022-08-24T08:35:30.697Z',
-          createUser: 'CRM',
-          updateUser: 'CRM',
-          createApp: 'CRM',
-          updateApp: 'CRM',
-          status: 'Новый',
-        },
-        {
-          id: 37,
-          typeId: 1,
-          type: {
-            id: 1,
-            name_ru: 'Установка',
-            name_kz: 'Установка',
-          },
-          productOfferReqId: 19593,
-          geoPlaceId: 641475,
-          oldProductOfferId: -1,
-          newProductOfferId: 33801,
-          caSubscriptionId: -1,
-          createDate: '2022-09-07T04:00:29.827Z',
-          updateDate: '2022-09-07T04:00:29.827Z',
-          createUser: 'CRM',
-          updateUser: 'CRM',
-          createApp: 'CRM',
-          updateApp: 'CRM',
-          status: 'Новый',
-        },
-        {
-          id: 38,
-          typeId: 1,
-          type: {
-            id: 1,
-            name_ru: 'Установка',
-            name_kz: 'Установка',
-          },
-          productOfferReqId: 19593,
-          geoPlaceId: 641475,
-          oldProductOfferId: -1,
-          newProductOfferId: 33763,
-          caSubscriptionId: -1,
-          createDate: '2022-09-07T04:06:58.220Z',
-          updateDate: '2022-09-07T04:06:58.220Z',
-          createUser: 'CRM',
-          updateUser: 'CRM',
-          createApp: 'CRM',
-          updateApp: 'CRM',
-          status: 'Новый',
-        },
-        {
-          id: 39,
-          typeId: 1,
-          type: {
-            id: 1,
-            name_ru: 'Установка',
-            name_kz: 'Установка',
-          },
-          productOfferReqId: 19593,
-          geoPlaceId: 1112087,
-          oldProductOfferId: -1,
-          newProductOfferId: 30598,
-          caSubscriptionId: -1,
-          createDate: '2022-09-07T12:38:01.734Z',
-          updateDate: '2022-09-07T12:38:01.734Z',
-          createUser: 'CRM',
-          updateUser: 'CRM',
-          createApp: 'CRM',
-          updateApp: 'CRM',
-          status: 'Новый',
-        },
-      ],
-      currentComponent: null,
-      components: [
-        {
-          id: 58,
-          typeId: 1,
-          type: {
-            id: 1,
-            name_ru: 'Установка',
-            name_kz: 'Установка',
-          },
-          poReqItemId: '38',
-          geoPlaceId: 641475,
-          poComponentId: 1031076,
-          oldPoStructId: -1,
-          newPoStructId: 0,
-          resourceOrderItemId: -1,
-          agreementId: -1,
-          billingAccountId: -1,
-          createDate: '2022-09-07T04:06:58.220Z',
-          updateDate: '2022-09-07T04:06:58.220Z',
-          createUser: 'CRM',
-          updateUser: 'CRM',
-          createApp: 'CRM',
-          updateApp: 'CRM',
-        },
-        {
-          id: 59,
-          typeId: 1,
-          type: {
-            id: 1,
-            name_ru: 'Установка',
-            name_kz: 'Установка',
-          },
-          poReqItemId: '38',
-          geoPlaceId: 641475,
-          poComponentId: 1031076,
-          oldPoStructId: -1,
-          newPoStructId: 0,
-          resourceOrderItemId: -1,
-          agreementId: -1,
-          billingAccountId: -1,
-          createDate: '2022-09-07T04:06:58.220Z',
-          updateDate: '2022-09-07T04:06:58.220Z',
-          createUser: 'CRM',
-          updateUser: 'CRM',
-          createApp: 'CRM',
-          updateApp: 'CRM',
-        },
-        {
-          id: 60,
-          typeId: 1,
-          type: {
-            id: 1,
-            name_ru: 'Установка',
-            name_kz: 'Установка',
-          },
-          poReqItemId: '38',
-          geoPlaceId: 641475,
-          poComponentId: 1031076,
-          oldPoStructId: -1,
-          newPoStructId: 0,
-          resourceOrderItemId: -1,
-          agreementId: -1,
-          billingAccountId: -1,
-          createDate: '2022-09-07T04:06:58.220Z',
-          updateDate: '2022-09-07T04:06:58.220Z',
-          createUser: 'CRM',
-          updateUser: 'CRM',
-          createApp: 'CRM',
-          updateApp: 'CRM',
-        },
-      ],
+      positionStatusMap: {},
     };
   },
   methods: {
+    onChangePosition(position) {
+      this.prepareStore.selectedPosition = position;
+      this.resetCustomPosition();
+    },
+    onChangeComponent(component) {
+      this.prepareStore.selectedComponent = component;
+      this.resetCustomPosition();
+    },
     onAddNewCustomPosition() {
       this.counter++;
-      this.customPositions.push({
-        ...this.selectedCustomPosition,
-        id: this.counter,
-      });
-      this.selectedCustomPosition = {
+      let cusPos = { ...this.prepareStore.selectedCustomPosition };
+      cusPos.id = this.counter;
+
+      this.prepareStore.customPositions.push(cusPos);
+      this.alert = true;
+    },
+    onPreparePosition() {
+      this.prepareStore.selectedComponent.status = 'Подготовлен';
+    },
+    resetCustomPosition() {
+      this.prepareStore.selectedCustomPosition = {
         spec: '',
         equipment: '',
         port: '',
         id: '',
       };
-      this.alert = true;
-    },
-    onPreparePosition() {
-      this.positions.map((pos) => {
-        pos.id === this.selectedPosition
-          ? { ...pos, status: 'Подготовлено' }
-          : pos;
-      });
     },
   },
 };
