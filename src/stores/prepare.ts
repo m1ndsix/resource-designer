@@ -4,7 +4,6 @@ interface State {
   selectedPosition: Position | null;
   positions: Position[];
   selectedComponent: Component | null;
-  components: Component[];
   selectedCustomPosition: CustomPosition | null;
   customPositions: CustomPosition[];
 }
@@ -32,6 +31,7 @@ interface Position {
   createApp: string;
   updateApp: string;
   status: string;
+  components: Component[];
 }
 
 interface Component {
@@ -61,6 +61,60 @@ interface PosCompType {
   name_kz: string;
 }
 
+// TODO: remove later
+function initialComponents() {
+  return [
+    {
+      id: 58,
+      typeId: 1,
+      type: {
+        id: 1,
+        name_ru: 'Установка',
+        name_kz: 'Установка',
+      },
+      poReqItemId: '38',
+      geoPlaceId: 641475,
+      poComponentId: 1031076,
+      oldPoStructId: -1,
+      newPoStructId: 0,
+      resourceOrderItemId: -1,
+      agreementId: -1,
+      billingAccountId: -1,
+      createDate: '2022-09-07T04:06:58.220Z',
+      updateDate: '2022-09-07T04:06:58.220Z',
+      createUser: 'CRM',
+      updateUser: 'CRM',
+      createApp: 'CRM',
+      updateApp: 'CRM',
+      status: 'Новый',
+    },
+    {
+      id: 59,
+      typeId: 1,
+      type: {
+        id: 1,
+        name_ru: 'Установка',
+        name_kz: 'Установка',
+      },
+      poReqItemId: '38',
+      geoPlaceId: 641475,
+      poComponentId: 1031076,
+      oldPoStructId: -1,
+      newPoStructId: 0,
+      resourceOrderItemId: -1,
+      agreementId: -1,
+      billingAccountId: -1,
+      createDate: '2022-09-07T04:06:58.220Z',
+      updateDate: '2022-09-07T04:06:58.220Z',
+      createUser: 'CRM',
+      updateUser: 'CRM',
+      createApp: 'CRM',
+      updateApp: 'CRM',
+      status: 'Новый',
+    },
+  ];
+}
+
 export const usePrepareStore = defineStore('prepareStore', {
   state: (): State => {
     return {
@@ -86,6 +140,7 @@ export const usePrepareStore = defineStore('prepareStore', {
           createApp: 'CRM',
           updateApp: 'CRM',
           status: 'Новый',
+          components: initialComponents(),
         },
         {
           id: 37,
@@ -107,6 +162,7 @@ export const usePrepareStore = defineStore('prepareStore', {
           createApp: 'CRM',
           updateApp: 'CRM',
           status: 'Новый',
+          components: initialComponents(),
         },
         {
           id: 38,
@@ -128,6 +184,7 @@ export const usePrepareStore = defineStore('prepareStore', {
           createApp: 'CRM',
           updateApp: 'CRM',
           status: 'Новый',
+          components: initialComponents(),
         },
         {
           id: 39,
@@ -149,83 +206,10 @@ export const usePrepareStore = defineStore('prepareStore', {
           createApp: 'CRM',
           updateApp: 'CRM',
           status: 'Новый',
+          components: initialComponents(),
         },
       ],
       selectedComponent: null,
-      components: [
-        {
-          id: 58,
-          typeId: 1,
-          type: {
-            id: 1,
-            name_ru: 'Установка',
-            name_kz: 'Установка',
-          },
-          poReqItemId: '38',
-          geoPlaceId: 641475,
-          poComponentId: 1031076,
-          oldPoStructId: -1,
-          newPoStructId: 0,
-          resourceOrderItemId: -1,
-          agreementId: -1,
-          billingAccountId: -1,
-          createDate: '2022-09-07T04:06:58.220Z',
-          updateDate: '2022-09-07T04:06:58.220Z',
-          createUser: 'CRM',
-          updateUser: 'CRM',
-          createApp: 'CRM',
-          updateApp: 'CRM',
-          status: 'Новый',
-        },
-        {
-          id: 59,
-          typeId: 1,
-          type: {
-            id: 1,
-            name_ru: 'Установка',
-            name_kz: 'Установка',
-          },
-          poReqItemId: '38',
-          geoPlaceId: 641475,
-          poComponentId: 1031076,
-          oldPoStructId: -1,
-          newPoStructId: 0,
-          resourceOrderItemId: -1,
-          agreementId: -1,
-          billingAccountId: -1,
-          createDate: '2022-09-07T04:06:58.220Z',
-          updateDate: '2022-09-07T04:06:58.220Z',
-          createUser: 'CRM',
-          updateUser: 'CRM',
-          createApp: 'CRM',
-          updateApp: 'CRM',
-          status: 'Новый',
-        },
-        {
-          id: 60,
-          typeId: 1,
-          type: {
-            id: 1,
-            name_ru: 'Установка',
-            name_kz: 'Установка',
-          },
-          poReqItemId: '38',
-          geoPlaceId: 641475,
-          poComponentId: 1031076,
-          oldPoStructId: -1,
-          newPoStructId: 0,
-          resourceOrderItemId: -1,
-          agreementId: -1,
-          billingAccountId: -1,
-          createDate: '2022-09-07T04:06:58.220Z',
-          updateDate: '2022-09-07T04:06:58.220Z',
-          createUser: 'CRM',
-          updateUser: 'CRM',
-          createApp: 'CRM',
-          updateApp: 'CRM',
-          status: 'Новый',
-        },
-      ],
       selectedCustomPosition: {
         spec: '',
         equipment: '',

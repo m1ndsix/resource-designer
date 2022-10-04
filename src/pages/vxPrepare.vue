@@ -56,153 +56,76 @@
     </div>
 
     <div class="row">
-      <div class="col-auto" style="height: 100vh">
-        <q-list v-for="pos in prepareStore.positions" :key="pos.id">
-          <q-expansion-item
-            group="positions"
-            expand-separator
-            :label="
-              'Позиция ID: ' +
-              pos.id +
-              ' | caSubscriptionId: ' +
-              pos.caSubscriptionId
-            "
-            :caption="'Тип: ' + pos.type.name_ru"
-            @click="onChangePosition(pos)"
-          >
-            <q-tabs
-              v-model="componentTab"
-              vertical
-              class="text-primary"
-              v-for="com in prepareStore.components"
-              :key="com.id"
-            >
-              <q-tab
-                :name="com.id"
-                :label="'Компонент (ID): ' + com.id"
-                @click="onChangeComponent(com)"
-              >
-                <div
-                  style="
-                    font-size: 0.75rem;
-                    text-transform: none;
-                    color: rgba(0, 0, 0, 0.54);
-                  "
-                >
-                  Тип: {{ com.type.name_ru }} | Статус: {{ com.status }}
-                </div>
-              </q-tab>
-            </q-tabs>
-          </q-expansion-item>
-        </q-list>
-      </div>
-      <q-separator vertical />
       <div class="col">
-        <q-tab-panels
-          v-model="componentTab"
-          animated
-          swipeable
-          vertical
-          transition-prev="jump-up"
-          transition-next="jump-up"
-        >
-          <q-tab-panel
-            v-for="com in prepareStore.components"
-            :name="com.id"
-            :key="com.id"
-          >
-            <q-form>
-              <div class="row flex-center">
-                <div class="col-auto">
-                  <q-btn
-                    round
-                    size="sm"
-                    icon="add"
-                    color="primary"
-                    title="Новая Позиция"
-                    @click="onAddNewCustomPosition"
-                  />
+        <q-splitter v-model="splitterModel" style="height: 100vh">
+          <template v-slot:before>
+            <q-btn color="secondary">Назначить</q-btn>
+            <q-tree
+              ref="qtree"
+              :nodes="prepareStore.positions"
+              node-key="id"
+              label-key="id"
+              children-key="components"
+              tick-strategy="leaf"
+              v-model:selected="selected"
+              @update:selected="onNodeSelected"
+            >
+              <template v-slot:default-header="prop">
+                <div class="row items-center">
+                  <div class="text-weight-bold text-primary">
+                    {{ treeNodeHeader(prop.node) }}
+                  </div>
                 </div>
-                <div class="col q-ml-sm">
-                  <q-select
-                    style="width: 250px"
-                    v-model="prepareStore.selectedCustomPosition"
-                    :options="prepareStore.customPositions"
-                    option-label="id"
-                    label="Доступные позиции"
-                  />
-                </div>
-              </div>
-              <q-select
-                style="width: 250px"
-                v-model="prepareStore.selectedCustomPosition.spec"
-                :options="specs"
-                label="Выбор Спецификации"
-              />
-              <div class="row">
-                <div class="col-auto">
-                  <q-select
-                    style="width: 250px"
-                    v-model="prepareStore.selectedCustomPosition.equipment"
-                    :options="equipment"
-                    label="Выбор ОРК"
-                  />
-                </div>
-                <div class="col">
-                  <q-radio
-                    v-model="shape"
-                    checked-icon="task_alt"
-                    unchecked-icon="panorama_fish_eye"
-                    val="line"
-                    label="По всему дому (По адресу)"
-                  />
-                  <q-radio
-                    v-model="shape"
-                    checked-icon="task_alt"
-                    unchecked-icon="panorama_fish_eye"
-                    val="rectangle"
-                    label="по подъезду"
-                  />
-                  <q-radio
-                    v-model="shape"
-                    checked-icon="task_alt"
-                    unchecked-icon="panorama_fish_eye"
-                    val="ellipse"
-                    label="по пределу обслуживания"
-                  />
-                </div>
-              </div>
-              <div class="row flex-center">
-                <div class="col-auto">
-                  <q-select
-                    style="width: 250px"
-                    v-model="prepareStore.selectedCustomPosition.port"
-                    :options="ports"
-                    label="Выбор Порта"
-                  />
-                </div>
-                <q-space />
-                <div class="col-auto">
-                  <q-btn
-                    label="Подготовить"
-                    type="submit"
-                    color="primary"
-                    @click="onPreparePosition"
-                  />
-                </div>
-                <div class="col-auto">
-                  <q-btn
-                    label="Отменить"
-                    disabled
-                    type="reset"
-                    color="negative"
-                    class="q-ml-sm"
-                  />
-                </div>
-              </div>
-            </q-form>
-          </q-tab-panel>
-        </q-tab-panels>
+              </template>
+              <template v-slot:default-body="prop">
+                <span class="text-weight-bold">{{
+                  treeNodeBody(prop.node)
+                }}</span>
+                <span
+                  v-if="prop.node.poReqItemId"
+                  style="display: block"
+                  class="text-weight-bold"
+                  >Адрес: ул. Абая, 1</span
+                >
+              </template>
+            </q-tree>
+          </template>
+          <template v-slot:separator>
+            <q-avatar
+              color="primary"
+              text-color="white"
+              size="40px"
+              icon="drag_indicator"
+            />
+          </template>
+          <template v-slot:after>
+            <q-btn color="negative">Отменить</q-btn>
+            <q-list separator>
+              <q-item clickable v-ripple>
+                <q-item-section>
+                  <q-item-label overline>Спецификация</q-item-label>
+                  <q-item-label
+                    >Прямая линия FTTH б/логина (1000776)</q-item-label
+                  >
+                </q-item-section>
+              </q-item>
+
+              <q-item clickable v-ripple>
+                <q-item-section>
+                  <q-item-label overline>Адрес</q-item-label>
+                  <q-item-label>ул. Абая, 1</q-item-label>
+                </q-item-section>
+              </q-item>
+
+              <q-item clickable v-ripple>
+                <q-item-section>
+                  <q-item-label overline>Номер</q-item-label>
+                  <q-item-label>87777777</q-item-label>
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </template>
+        </q-splitter>
       </div>
     </div>
     <q-btn style="position: fixed; bottom: 10px; right: 10px" color="primary"
@@ -219,6 +142,107 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+    <q-dialog v-model="customPositionDialog">
+      <q-card>
+        <q-card-section class="row items-center q-pb-none">
+          <div class="text-h6">Линия</div>
+          <q-space />
+          <q-btn icon="close" flat round dense v-close-popup />
+        </q-card-section>
+        <q-card-section>
+          <q-form>
+            <div class="row flex-center">
+              <div class="col-auto">
+                <q-btn
+                  round
+                  size="sm"
+                  icon="add"
+                  color="primary"
+                  title="Новая Позиция"
+                  @click="onAddNewCustomPosition"
+                />
+              </div>
+              <div class="col q-ml-sm">
+                <q-select
+                  style="width: 250px"
+                  v-model="prepareStore.selectedCustomPosition"
+                  :options="prepareStore.customPositions"
+                  option-label="id"
+                  label="Доступные позиции"
+                />
+              </div>
+            </div>
+            <q-select
+              style="width: 250px"
+              v-model="prepareStore.selectedCustomPosition.spec"
+              :options="specs"
+              label="Выбор Спецификации"
+            />
+            <div class="row">
+              <div class="col-auto">
+                <q-select
+                  style="width: 250px"
+                  v-model="prepareStore.selectedCustomPosition.equipment"
+                  :options="equipment"
+                  label="Выбор ОРК"
+                />
+              </div>
+              <div class="col">
+                <q-radio
+                  v-model="shape"
+                  checked-icon="task_alt"
+                  unchecked-icon="panorama_fish_eye"
+                  val="line"
+                  label="По всему дому (По адресу)"
+                />
+                <q-radio
+                  v-model="shape"
+                  checked-icon="task_alt"
+                  unchecked-icon="panorama_fish_eye"
+                  val="rectangle"
+                  label="по подъезду"
+                />
+                <q-radio
+                  v-model="shape"
+                  checked-icon="task_alt"
+                  unchecked-icon="panorama_fish_eye"
+                  val="ellipse"
+                  label="по пределу обслуживания"
+                />
+              </div>
+            </div>
+            <div class="row flex-center">
+              <div class="col-auto">
+                <q-select
+                  style="width: 250px"
+                  v-model="prepareStore.selectedCustomPosition.port"
+                  :options="ports"
+                  label="Выбор Порта"
+                />
+              </div>
+              <q-space />
+              <div class="col-auto">
+                <q-btn
+                  label="Подготовить"
+                  type="submit"
+                  color="primary"
+                  @click="onPreparePosition"
+                />
+              </div>
+              <div class="col-auto">
+                <q-btn
+                  label="Отменить"
+                  disabled
+                  type="reset"
+                  color="negative"
+                  class="q-ml-sm"
+                />
+              </div>
+            </div>
+          </q-form>
+        </q-card-section>
+      </q-card>
+    </q-dialog>
   </div>
 </template>
 
@@ -231,8 +255,11 @@ export default {
     const prepareStore = usePrepareStore();
     return {
       alert: ref(false),
+      customPositionDialog: ref(false),
       shape: ref('ellipse'),
+      splitterModel: ref(50),
       componentTab: ref(null),
+      selected: ref(null),
       prepareStore,
     };
   },
@@ -256,6 +283,25 @@ export default {
     };
   },
   methods: {
+    treeNodeHeader(node) {
+      return node.poReqItemId
+        ? `Компонент (ID): ${node.id}`
+        : `Позиция (ID): ${node.id} | caSubscriptionId: ${node.caSubscriptionId}`;
+    },
+    treeNodeBody(node) {
+      return node.poReqItemId
+        ? `Тип: ${node.type.name_ru} | Статус: ${node.status}`
+        : `Тип: ${node.type.name_ru}`;
+    },
+    onNodeSelected(v) {
+      const node = this.$refs.qtree.getNodeByKey(v);
+      if (node && node.poReqItemId) {
+        this.customPositionDialog = true;
+      } else {
+        this.$refs.qtree.setExpanded(v, true);
+      }
+      this.selected = null;
+    },
     onChangePosition(position) {
       this.prepareStore.selectedPosition = position;
       this.resetCustomPosition();
