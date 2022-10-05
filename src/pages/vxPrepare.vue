@@ -59,7 +59,12 @@
       <div class="col">
         <q-splitter v-model="splitterModel" style="height: 100vh">
           <template v-slot:before>
-            <q-btn color="secondary">Назначить</q-btn>
+            <q-btn
+              color="secondary"
+              :disable="disableAppointBtn"
+              @click="onAppoint()"
+              >Назначить</q-btn
+            >
             <q-tree
               ref="qtree"
               :nodes="prepareStore.positions"
@@ -67,8 +72,8 @@
               label-key="id"
               children-key="components"
               tick-strategy="leaf"
-              v-model:selected="selected"
-              @update:selected="onNodeSelected"
+              v-model:ticked="tickedNodes"
+              @update:ticked="onNodeTicked"
             >
               <template v-slot:default-header="prop">
                 <div class="row items-center">
@@ -144,102 +149,105 @@
     </q-dialog>
     <q-dialog v-model="customPositionDialog">
       <q-card>
-        <q-card-section class="row items-center q-pb-none">
+        <q-card-section class="row">
           <div class="text-h6">Линия</div>
           <q-space />
           <q-btn icon="close" flat round dense v-close-popup />
         </q-card-section>
         <q-card-section>
-          <q-form>
-            <div class="row flex-center">
-              <div class="col-auto">
-                <q-btn
-                  round
-                  size="sm"
-                  icon="add"
-                  color="primary"
-                  title="Новая Позиция"
-                  @click="onAddNewCustomPosition"
-                />
-              </div>
-              <div class="col q-ml-sm">
-                <q-select
-                  style="width: 250px"
-                  v-model="prepareStore.selectedCustomPosition"
-                  :options="prepareStore.customPositions"
-                  option-label="id"
-                  label="Доступные позиции"
-                />
-              </div>
+          <div class="row flex-center">
+            <div class="col-auto">
+              <q-btn
+                round
+                size="sm"
+                icon="add"
+                color="primary"
+                title="Новая Позиция"
+                @click="onAddNewResource"
+              />
             </div>
-            <q-select
-              style="width: 250px"
-              v-model="prepareStore.selectedCustomPosition.spec"
-              :options="specs"
-              label="Выбор Спецификации"
-            />
-            <div class="row">
-              <div class="col-auto">
-                <q-select
-                  style="width: 250px"
-                  v-model="prepareStore.selectedCustomPosition.equipment"
-                  :options="equipment"
-                  label="Выбор ОРК"
-                />
-              </div>
-              <div class="col">
-                <q-radio
-                  v-model="shape"
-                  checked-icon="task_alt"
-                  unchecked-icon="panorama_fish_eye"
-                  val="line"
-                  label="По всему дому (По адресу)"
-                />
-                <q-radio
-                  v-model="shape"
-                  checked-icon="task_alt"
-                  unchecked-icon="panorama_fish_eye"
-                  val="rectangle"
-                  label="по подъезду"
-                />
-                <q-radio
-                  v-model="shape"
-                  checked-icon="task_alt"
-                  unchecked-icon="panorama_fish_eye"
-                  val="ellipse"
-                  label="по пределу обслуживания"
-                />
-              </div>
+            <div class="col q-ml-sm q-mb-md">
+              <q-select
+                style="width: 250px"
+                v-model="prepareStore.newResource"
+                :options="prepareStore.availableResources"
+                option-label="name"
+                label="Доступные ресурсы"
+              />
             </div>
-            <div class="row flex-center">
-              <div class="col-auto">
-                <q-select
-                  style="width: 250px"
-                  v-model="prepareStore.selectedCustomPosition.port"
-                  :options="ports"
-                  label="Выбор Порта"
-                />
-              </div>
-              <q-space />
-              <div class="col-auto">
-                <q-btn
-                  label="Подготовить"
-                  type="submit"
-                  color="primary"
-                  @click="onPreparePosition"
-                />
-              </div>
-              <div class="col-auto">
-                <q-btn
-                  label="Отменить"
-                  disabled
-                  type="reset"
-                  color="negative"
-                  class="q-ml-sm"
-                />
-              </div>
+          </div>
+          <q-separator />
+          <q-input
+            style="width: 250px"
+            v-model="prepareStore.newResource.name"
+            label="Наименование"
+          ></q-input>
+          <q-select
+            style="width: 250px"
+            v-model="prepareStore.newResource.spec"
+            :options="specs"
+            label="Выбор Спецификации"
+          />
+          <div class="row">
+            <div class="col">
+              <q-select
+                style="width: 250px"
+                v-model="prepareStore.newResource.equipment"
+                :options="equipment"
+                label="Выбор ОРК"
+              />
             </div>
-          </q-form>
+            <div class="col">
+              <q-radio
+                v-model="shape"
+                checked-icon="task_alt"
+                unchecked-icon="panorama_fish_eye"
+                val="line"
+                label="По всему дому (По адресу)"
+              />
+              <q-radio
+                v-model="shape"
+                checked-icon="task_alt"
+                unchecked-icon="panorama_fish_eye"
+                val="rectangle"
+                label="по подъезду"
+              />
+              <q-radio
+                v-model="shape"
+                checked-icon="task_alt"
+                unchecked-icon="panorama_fish_eye"
+                val="ellipse"
+                label="по пределу обслуживания"
+              />
+            </div>
+          </div>
+          <q-select
+            style="width: 250px"
+            v-model="prepareStore.newResource.port"
+            :options="ports"
+            label="Выбор Порта"
+          />
+          <div class="row flex-center">
+            <div class="col-auto"></div>
+            <q-space />
+            <div class="col-auto">
+              <q-btn
+                label="Подготовить"
+                type="submit"
+                color="primary"
+                @click="onPrepareComponent"
+              />
+            </div>
+            <div class="col-auto">
+              <q-btn
+                label="Отменить"
+                disabled
+                type="reset"
+                color="negative"
+                class="q-ml-sm"
+              />
+            </div>
+          </div>
         </q-card-section>
       </q-card>
     </q-dialog>
@@ -259,7 +267,7 @@ export default {
       shape: ref('ellipse'),
       splitterModel: ref(50),
       componentTab: ref(null),
-      selected: ref(null),
+      tickedNodes: ref(null),
       prepareStore,
     };
   },
@@ -282,6 +290,14 @@ export default {
       positionStatusMap: {},
     };
   },
+  computed: {
+    disableAppointBtn() {
+      if (this.$refs.qtree) {
+        return !this.$refs.qtree.getTickedNodes().length;
+      }
+      return false;
+    },
+  },
   methods: {
     treeNodeHeader(node) {
       return node.poReqItemId
@@ -293,40 +309,55 @@ export default {
         ? `Тип: ${node.type.name_ru} | Статус: ${node.status}`
         : `Тип: ${node.type.name_ru}`;
     },
-    onNodeSelected(v) {
-      const node = this.$refs.qtree.getNodeByKey(v);
-      if (node && node.poReqItemId) {
-        this.customPositionDialog = true;
-      } else {
-        this.$refs.qtree.setExpanded(v, true);
-      }
-      this.selected = null;
+    onNodeTicked(nodes) {
+      this.prepareStore.selectedComponent = nodes;
+    },
+    onAppoint() {
+      this.customPositionDialog = true;
+      this.resetNewResource();
     },
     onChangePosition(position) {
       this.prepareStore.selectedPosition = position;
-      this.resetCustomPosition();
+      this.resetNewResource();
     },
     onChangeComponent(component) {
       this.prepareStore.selectedComponent = component;
-      this.resetCustomPosition();
+      this.resetNewResource();
     },
-    onAddNewCustomPosition() {
-      this.counter++;
-      let cusPos = { ...this.prepareStore.selectedCustomPosition };
-      cusPos.id = this.counter;
+    onAddNewResource() {
+      let newRes = { ...this.prepareStore.newResource };
 
-      this.prepareStore.customPositions.push(cusPos);
+      this.prepareStore.availableResources.push(newRes);
       this.alert = true;
     },
-    onPreparePosition() {
-      this.prepareStore.selectedComponent.status = 'Подготовлен';
+    onPrepareComponent() {
+      const tickedNodes = this.$refs.qtree.getTickedNodes();
+      const componentsIds = tickedNodes
+        .filter((node) => node.poReqItemId)
+        .map((node) => node.id);
+      const positionsIds = tickedNodes
+        .filter((node) => node.poReqItemId)
+        .map((node) => parseInt(node.poReqItemId));
+
+      console.log(componentsIds, positionsIds);
+
+      this.prepareStore.positions.forEach((pos) => {
+        console.log(pos);
+        if (positionsIds.includes(pos.id)) {
+          pos.components.forEach((comp) => {
+            if (componentsIds.includes(comp.id)) {
+              comp.status = 'Подготовлен';
+            }
+          });
+        }
+      });
     },
-    resetCustomPosition() {
-      this.prepareStore.selectedCustomPosition = {
-        spec: '',
-        equipment: '',
-        port: '',
-        id: '',
+    resetNewResource() {
+      this.prepareStore.newResource = {
+        spec: null,
+        equipment: null,
+        port: null,
+        name: null,
       };
     },
   },
