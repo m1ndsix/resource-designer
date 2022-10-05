@@ -4,15 +4,15 @@ interface State {
   selectedPosition: Position | null;
   positions: Position[];
   selectedComponent: Component | null;
-  selectedCustomPosition: CustomPosition | null;
-  customPositions: CustomPosition[];
+  newResource: Resource | null;
+  availableResources: Resource[];
 }
 
-interface CustomPosition {
-  spec: string;
-  equipment: string;
-  port: string;
-  id: string;
+interface Resource {
+  spec: string | null;
+  equipment: string | null;
+  port: string | null;
+  name: string | null;
 }
 
 interface Position {
@@ -62,7 +62,7 @@ interface PosCompType {
 }
 
 // TODO: remove later
-function initialComponents() {
+function initialComponents36() {
   return [
     {
       id: 58,
@@ -72,7 +72,7 @@ function initialComponents() {
         name_ru: 'Установка',
         name_kz: 'Установка',
       },
-      poReqItemId: '38',
+      poReqItemId: '36',
       geoPlaceId: 641475,
       poComponentId: 1031076,
       oldPoStructId: -1,
@@ -96,7 +96,163 @@ function initialComponents() {
         name_ru: 'Установка',
         name_kz: 'Установка',
       },
+      poReqItemId: '36',
+      geoPlaceId: 641475,
+      poComponentId: 1031076,
+      oldPoStructId: -1,
+      newPoStructId: 0,
+      resourceOrderItemId: -1,
+      agreementId: -1,
+      billingAccountId: -1,
+      createDate: '2022-09-07T04:06:58.220Z',
+      updateDate: '2022-09-07T04:06:58.220Z',
+      createUser: 'CRM',
+      updateUser: 'CRM',
+      createApp: 'CRM',
+      updateApp: 'CRM',
+      status: 'Новый',
+    },
+  ];
+}
+function initialComponents37() {
+  return [
+    {
+      id: 60,
+      typeId: 1,
+      type: {
+        id: 1,
+        name_ru: 'Установка',
+        name_kz: 'Установка',
+      },
+      poReqItemId: '37',
+      geoPlaceId: 641475,
+      poComponentId: 1031076,
+      oldPoStructId: -1,
+      newPoStructId: 0,
+      resourceOrderItemId: -1,
+      agreementId: -1,
+      billingAccountId: -1,
+      createDate: '2022-09-07T04:06:58.220Z',
+      updateDate: '2022-09-07T04:06:58.220Z',
+      createUser: 'CRM',
+      updateUser: 'CRM',
+      createApp: 'CRM',
+      updateApp: 'CRM',
+      status: 'Новый',
+    },
+    {
+      id: 61,
+      typeId: 1,
+      type: {
+        id: 1,
+        name_ru: 'Установка',
+        name_kz: 'Установка',
+      },
+      poReqItemId: '37',
+      geoPlaceId: 641475,
+      poComponentId: 1031076,
+      oldPoStructId: -1,
+      newPoStructId: 0,
+      resourceOrderItemId: -1,
+      agreementId: -1,
+      billingAccountId: -1,
+      createDate: '2022-09-07T04:06:58.220Z',
+      updateDate: '2022-09-07T04:06:58.220Z',
+      createUser: 'CRM',
+      updateUser: 'CRM',
+      createApp: 'CRM',
+      updateApp: 'CRM',
+      status: 'Новый',
+    },
+  ];
+}
+function initialComponents38() {
+  return [
+    {
+      id: 62,
+      typeId: 1,
+      type: {
+        id: 1,
+        name_ru: 'Установка',
+        name_kz: 'Установка',
+      },
       poReqItemId: '38',
+      geoPlaceId: 641475,
+      poComponentId: 1031076,
+      oldPoStructId: -1,
+      newPoStructId: 0,
+      resourceOrderItemId: -1,
+      agreementId: -1,
+      billingAccountId: -1,
+      createDate: '2022-09-07T04:06:58.220Z',
+      updateDate: '2022-09-07T04:06:58.220Z',
+      createUser: 'CRM',
+      updateUser: 'CRM',
+      createApp: 'CRM',
+      updateApp: 'CRM',
+      status: 'Новый',
+    },
+    {
+      id: 63,
+      typeId: 1,
+      type: {
+        id: 1,
+        name_ru: 'Установка',
+        name_kz: 'Установка',
+      },
+      poReqItemId: '38',
+      geoPlaceId: 641475,
+      poComponentId: 1031076,
+      oldPoStructId: -1,
+      newPoStructId: 0,
+      resourceOrderItemId: -1,
+      agreementId: -1,
+      billingAccountId: -1,
+      createDate: '2022-09-07T04:06:58.220Z',
+      updateDate: '2022-09-07T04:06:58.220Z',
+      createUser: 'CRM',
+      updateUser: 'CRM',
+      createApp: 'CRM',
+      updateApp: 'CRM',
+      status: 'Новый',
+    },
+  ];
+}
+function initialComponents39() {
+  return [
+    {
+      id: 64,
+      typeId: 1,
+      type: {
+        id: 1,
+        name_ru: 'Установка',
+        name_kz: 'Установка',
+      },
+      poReqItemId: '39',
+      geoPlaceId: 641475,
+      poComponentId: 1031076,
+      oldPoStructId: -1,
+      newPoStructId: 0,
+      resourceOrderItemId: -1,
+      agreementId: -1,
+      billingAccountId: -1,
+      createDate: '2022-09-07T04:06:58.220Z',
+      updateDate: '2022-09-07T04:06:58.220Z',
+      createUser: 'CRM',
+      updateUser: 'CRM',
+      createApp: 'CRM',
+      updateApp: 'CRM',
+      status: 'Новый',
+    },
+    {
+      id: 65,
+      typeId: 1,
+      type: {
+        id: 1,
+        name_ru: 'Установка',
+        name_kz: 'Установка',
+      },
+      poReqItemId: '39',
       geoPlaceId: 641475,
       poComponentId: 1031076,
       oldPoStructId: -1,
@@ -140,7 +296,7 @@ export const usePrepareStore = defineStore('prepareStore', {
           createApp: 'CRM',
           updateApp: 'CRM',
           status: 'Новый',
-          components: initialComponents(),
+          components: initialComponents36(),
         },
         {
           id: 37,
@@ -162,7 +318,7 @@ export const usePrepareStore = defineStore('prepareStore', {
           createApp: 'CRM',
           updateApp: 'CRM',
           status: 'Новый',
-          components: initialComponents(),
+          components: initialComponents37(),
         },
         {
           id: 38,
@@ -184,7 +340,7 @@ export const usePrepareStore = defineStore('prepareStore', {
           createApp: 'CRM',
           updateApp: 'CRM',
           status: 'Новый',
-          components: initialComponents(),
+          components: initialComponents38(),
         },
         {
           id: 39,
@@ -206,17 +362,17 @@ export const usePrepareStore = defineStore('prepareStore', {
           createApp: 'CRM',
           updateApp: 'CRM',
           status: 'Новый',
-          components: initialComponents(),
+          components: initialComponents39(),
         },
       ],
       selectedComponent: null,
-      selectedCustomPosition: {
-        spec: '',
-        equipment: '',
-        port: '',
-        id: '',
+      newResource: {
+        spec: null,
+        equipment: null,
+        port: null,
+        name: '',
       },
-      customPositions: [],
+      availableResources: [],
     };
   },
   // getters: {
