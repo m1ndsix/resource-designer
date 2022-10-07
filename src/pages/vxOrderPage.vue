@@ -4,11 +4,28 @@
       <q-item-label header> Фильтр </q-item-label>
     </q-list>
   </q-drawer>
-  <q-table title="Заказы" :rows="rows" :columns="columns" row-key="name" />
+  <q-table
+    title="Заказы"
+    :rows="rows"
+    :columns="columns"
+    row-key="name"
+    selection="none"
+  >
+    <template v-slot:body-cell-action="scope">
+      <q-td>
+        <q-btn
+          v-model="scope.selected"
+          color="secondary"
+          label="Взять в работу"
+        />
+      </q-td>
+    </template>
+  </q-table>
 </template>
 
 <script>
 const columns = [
+  { name: 'action', label: 'Действие', field: 'action', align: 'left' },
   {
     name: 'name',
     required: true,
