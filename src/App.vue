@@ -7,6 +7,7 @@
         <q-tabs>
           <q-route-tab to="/" label="Заказы" />
           <q-route-tab to="/prepare" label="Обработка Заказов" />
+          <q-route-tab to="/edit-item" label="Редактирование позиции" />
         </q-tabs>
       </q-toolbar>
     </q-header>
