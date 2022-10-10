@@ -139,7 +139,7 @@
     <q-dialog v-model="alert">
       <q-card>
         <q-card-section>
-          <div class="text-h6">Новая позиция создана!</div>
+          <div class="text-h6">Новый ресурс создан!</div>
         </q-card-section>
 
         <q-card-actions align="right">
@@ -148,108 +148,11 @@
       </q-card>
     </q-dialog>
     <q-dialog v-model="customPositionDialog">
-      <q-card>
-        <q-card-section class="row">
-          <div class="text-h6">Линия</div>
-          <q-space />
-          <q-btn icon="close" flat round dense v-close-popup />
-        </q-card-section>
-        <q-card-section>
-          <div class="row flex-center">
-            <div class="col-auto">
-              <q-btn
-                round
-                size="sm"
-                icon="add"
-                color="primary"
-                title="Новая Позиция"
-                @click="onAddNewResource"
-              />
-            </div>
-            <div class="col q-ml-sm q-mb-md">
-              <q-select
-                style="width: 250px"
-                v-model="prepareStore.newResource"
-                :options="prepareStore.availableResources"
-                option-label="name"
-                label="Доступные ресурсы"
-              />
-            </div>
-          </div>
-          <q-separator />
-          <q-input
-            style="width: 250px"
-            v-model="prepareStore.newResource.name"
-            label="Наименование"
-          ></q-input>
-          <q-select
-            style="width: 250px"
-            v-model="prepareStore.newResource.spec"
-            :options="specs"
-            label="Выбор Спецификации"
-          />
-          <div class="row">
-            <div class="col">
-              <q-select
-                style="width: 250px"
-                v-model="prepareStore.newResource.equipment"
-                :options="equipment"
-                label="Выбор ОРК"
-              />
-            </div>
-            <div class="col">
-              <q-radio
-                v-model="shape"
-                checked-icon="task_alt"
-                unchecked-icon="panorama_fish_eye"
-                val="line"
-                label="По всему дому (По адресу)"
-              />
-              <q-radio
-                v-model="shape"
-                checked-icon="task_alt"
-                unchecked-icon="panorama_fish_eye"
-                val="rectangle"
-                label="по подъезду"
-              />
-              <q-radio
-                v-model="shape"
-                checked-icon="task_alt"
-                unchecked-icon="panorama_fish_eye"
-                val="ellipse"
-                label="по пределу обслуживания"
-              />
-            </div>
-          </div>
-          <q-select
-            style="width: 250px"
-            v-model="prepareStore.newResource.port"
-            :options="ports"
-            label="Выбор Порта"
-          />
-          <div class="row flex-center">
-            <div class="col-auto"></div>
-            <q-space />
-            <div class="col-auto">
-              <q-btn
-                label="Подготовить"
-                type="submit"
-                color="primary"
-                @click="onPrepareComponent"
-              />
-            </div>
-            <div class="col-auto">
-              <q-btn
-                label="Отменить"
-                disabled
-                type="reset"
-                color="negative"
-                class="q-ml-sm"
-              />
-            </div>
-          </div>
-        </q-card-section>
-      </q-card>
+      <vx-resource-form
+        :available-resources="[...prepareStore.availableResources]"
+        @on-add-new-resource="onAddNewResource"
+        @on-prepare-component="onPrepareComponent"
+      />
     </q-dialog>
   </div>
 </template>
@@ -257,6 +160,7 @@
 <script>
 import { ref } from 'vue';
 import { usePrepareStore } from 'stores/prepare';
+import VxResourceForm from '../components/vxResourceForm.vue';
 
 export default {
   setup() {
@@ -264,29 +168,16 @@ export default {
     return {
       alert: ref(false),
       customPositionDialog: ref(false),
-      shape: ref('ellipse'),
       splitterModel: ref(50),
-      componentTab: ref(null),
       tickedNodes: ref(null),
       prepareStore,
     };
   },
+  components: {
+    VxResourceForm,
+  },
   data() {
     return {
-      counter: 0, // TODO: remove later
-      specs: [
-        'Прямая линия FTTH б/логина (1000776)',
-        'Прямая линия ETTH(1000784)',
-      ],
-      equipment: [
-        'ОРК 229/06/2/1',
-        'ОРК 229/06/2/2',
-        'ОРК 229/06/2/3',
-        'ОРК 229/06/2/4',
-        'ОРК 229/06/2/5',
-        'ОРК 229/06/2/6',
-      ],
-      ports: ['Порт: 1', 'Порт: 2', 'Порт: 3', 'Порт: 4', 'Порт: 5'],
       positionStatusMap: {},
     };
   },
@@ -316,18 +207,8 @@ export default {
       this.customPositionDialog = true;
       this.resetNewResource();
     },
-    onChangePosition(position) {
-      this.prepareStore.selectedPosition = position;
-      this.resetNewResource();
-    },
-    onChangeComponent(component) {
-      this.prepareStore.selectedComponent = component;
-      this.resetNewResource();
-    },
-    onAddNewResource() {
-      let newRes = { ...this.prepareStore.newResource };
-
-      this.prepareStore.availableResources.push(newRes);
+    onAddNewResource(resource) {
+      this.prepareStore.availableResources.push(resource);
       this.alert = true;
     },
     onPrepareComponent() {
@@ -339,10 +220,7 @@ export default {
         .filter((node) => node.poReqItemId)
         .map((node) => parseInt(node.poReqItemId));
 
-      console.log(componentsIds, positionsIds);
-
       this.prepareStore.positions.forEach((pos) => {
-        console.log(pos);
         if (positionsIds.includes(pos.id)) {
           pos.components.forEach((comp) => {
             if (componentsIds.includes(comp.id)) {
@@ -351,6 +229,7 @@ export default {
           });
         }
       });
+      this.customPositionDialog = false;
     },
     resetNewResource() {
       this.prepareStore.newResource = {
