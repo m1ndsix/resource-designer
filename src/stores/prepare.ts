@@ -4,7 +4,6 @@ interface State {
   selectedPosition: Position | null;
   positions: Position[];
   selectedComponent: Component | null;
-  newResource: Resource | null;
   availableResources: Resource[];
 }
 
@@ -53,6 +52,7 @@ interface Component {
   createApp: string;
   updateApp: string;
   status: string;
+  resource: Resource | null;
 }
 
 interface PosCompType {
@@ -87,6 +87,7 @@ function initialComponents36() {
       createApp: 'CRM',
       updateApp: 'CRM',
       status: 'Новый',
+      resource: null,
     },
     {
       id: 59,
@@ -111,6 +112,7 @@ function initialComponents36() {
       createApp: 'CRM',
       updateApp: 'CRM',
       status: 'Новый',
+      resource: null,
     },
   ];
 }
@@ -139,6 +141,7 @@ function initialComponents37() {
       createApp: 'CRM',
       updateApp: 'CRM',
       status: 'Новый',
+      resource: null,
     },
     {
       id: 61,
@@ -163,6 +166,7 @@ function initialComponents37() {
       createApp: 'CRM',
       updateApp: 'CRM',
       status: 'Новый',
+      resource: null,
     },
   ];
 }
@@ -191,6 +195,7 @@ function initialComponents38() {
       createApp: 'CRM',
       updateApp: 'CRM',
       status: 'Новый',
+      resource: null,
     },
     {
       id: 63,
@@ -215,6 +220,7 @@ function initialComponents38() {
       createApp: 'CRM',
       updateApp: 'CRM',
       status: 'Новый',
+      resource: null,
     },
   ];
 }
@@ -243,6 +249,7 @@ function initialComponents39() {
       createApp: 'CRM',
       updateApp: 'CRM',
       status: 'Новый',
+      resource: null,
     },
     {
       id: 65,
@@ -267,6 +274,7 @@ function initialComponents39() {
       createApp: 'CRM',
       updateApp: 'CRM',
       status: 'Новый',
+      resource: null,
     },
   ];
 }
@@ -366,18 +374,25 @@ export const usePrepareStore = defineStore('prepareStore', {
         },
       ],
       selectedComponent: null,
-      newResource: {
-        spec: null,
-        equipment: null,
-        port: null,
-        name: '',
-      },
       availableResources: [],
     };
   },
-  // getters: {
-  //   doubleCount: (state) => state.counter * 2,
-  // },
+  getters: {
+    componentsWithResources: (state) => {
+      return state.positions.map((p) => {
+        const comps = p.components.map((c) => {
+          return {
+            compId: c.id,
+            resource: c.resource,
+          };
+        });
+        return {
+          posId: p.id,
+          components: comps,
+        };
+      });
+    },
+  },
   // actions: {
   //   increment() {
   //     this.counter++;

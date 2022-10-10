@@ -106,28 +106,28 @@
           <template v-slot:after>
             <q-btn color="negative">Отменить</q-btn>
             <q-list separator>
-              <q-item clickable v-ripple>
-                <q-item-section>
-                  <q-item-label overline>Спецификация</q-item-label>
-                  <q-item-label
-                    >Прямая линия FTTH б/логина (1000776)</q-item-label
-                  >
-                </q-item-section>
-              </q-item>
-
-              <q-item clickable v-ripple>
-                <q-item-section>
-                  <q-item-label overline>Адрес</q-item-label>
-                  <q-item-label>ул. Абая, 1</q-item-label>
-                </q-item-section>
-              </q-item>
-
-              <q-item clickable v-ripple>
-                <q-item-section>
-                  <q-item-label overline>Номер</q-item-label>
-                  <q-item-label>87777777</q-item-label>
-                </q-item-section>
-              </q-item>
+              <q-expansion-item
+                v-for="pos in prepareStore.componentsWithResources"
+                :key="pos.posId"
+                :label="'Позиция: ' + pos.posId.toString()"
+              >
+                <q-expansion-item
+                  :header-inset-level="1"
+                  :content-inset-level="2"
+                  v-for="comp in pos.components"
+                  :key="comp.compId"
+                  :label="'Компонент: ' + comp.compId"
+                >
+                  <q-item-section v-if="comp.resource">
+                    <q-item-label overline>Спецификация</q-item-label>
+                    <q-item-label>{{ comp.resource.spec }}</q-item-label>
+                    <q-item-label overline>ОРК</q-item-label>
+                    <q-item-label>{{ comp.resource.equipment }}</q-item-label>
+                    <q-item-label overline>Порт</q-item-label>
+                    <q-item-label>{{ comp.resource.port }}</q-item-label>
+                  </q-item-section>
+                </q-expansion-item>
+              </q-expansion-item>
             </q-list>
           </template>
         </q-splitter>
@@ -205,13 +205,12 @@ export default {
     },
     onAppoint() {
       this.customPositionDialog = true;
-      this.resetNewResource();
     },
     onAddNewResource(resource) {
       this.prepareStore.availableResources.push(resource);
       this.alert = true;
     },
-    onPrepareComponent() {
+    onPrepareComponent(resource) {
       const tickedNodes = this.$refs.qtree.getTickedNodes();
       const componentsIds = tickedNodes
         .filter((node) => node.poReqItemId)
@@ -225,19 +224,12 @@ export default {
           pos.components.forEach((comp) => {
             if (componentsIds.includes(comp.id)) {
               comp.status = 'Подготовлен';
+              comp.resource = resource;
             }
           });
         }
       });
       this.customPositionDialog = false;
-    },
-    resetNewResource() {
-      this.prepareStore.newResource = {
-        spec: null,
-        equipment: null,
-        port: null,
-        name: null,
-      };
     },
   },
 };

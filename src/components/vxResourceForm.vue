@@ -206,7 +206,7 @@ function onAddNewResource() {
 }
 
 function onPrepareComponent() {
-  emit('onPrepareComponent');
+  emit('onPrepareComponent', state.selectedAvailableResource);
 }
 </script>
 
