@@ -8,6 +8,15 @@
       selection="none"
       :hide-pagination="true"
     >
+      <template v-slot:body-cell-action="scope">
+        <q-td>
+          <q-btn
+            v-model="scope.selected"
+            color="secondary"
+            label="Редактировать"
+          />
+        </q-td>
+      </template>
       <template v-slot:top>
         <div class="text-h4">
           Редактирование позиции заказа
@@ -20,6 +29,12 @@
               <q-btn color="primary" label="Измеритель" />
               <q-chip square align="center" color="green"
                 >Линия в порядке</q-chip
+              >
+            </div>
+            <div class="text-h6">
+              <q-btn color="primary" label="Проверить линию" />
+              <q-chip square align="center" color="green"
+                >Соединение есть</q-chip
               >
             </div>
           </div>
@@ -35,6 +50,7 @@
 
 <script lang="ts">
 const columns = [
+  { name: 'action', label: 'Действие', field: 'action', align: 'left' },
   {
     name: 'position',
     required: true,
@@ -67,7 +83,7 @@ const columns = [
   {
     name: 'address',
     align: 'center',
-    label: 'Состояние',
+    label: 'Адрес',
     field: 'address',
     sortable: true,
   },

@@ -1,7 +1,29 @@
 <template>
   <q-drawer show-if-above bordered>
     <q-list>
-      <q-item-label header> Фильтр </q-item-label>
+      <q-item-label header> Время создания заказа </q-item-label>
+      <q-input
+        color="grey-3"
+        label-color="grey"
+        outlined
+        v-model="text"
+        label="От"
+      >
+        <template v-slot:append>
+          <q-icon name="event" color="green" />
+        </template>
+      </q-input>
+      <q-input
+        color="grey-3"
+        label-color="grey"
+        outlined
+        v-model="text"
+        label="До"
+      >
+        <template v-slot:append>
+          <q-icon name="event" color="green" />
+        </template>
+      </q-input>
     </q-list>
   </q-drawer>
   <q-table
