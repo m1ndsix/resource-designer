@@ -224,6 +224,7 @@ const rows = [
     copper: '2',
   },
 ];
+import { roApi } from 'boot/axios';
 
 export default {
   setup() {
@@ -231,6 +232,30 @@ export default {
       columns,
       rows,
     };
+  },
+  data() {
+    return {
+      orders: [],
+    };
+  },
+  mounted() {
+    roApi
+      .get(
+        'api/cpr-resource-order-be/v1.0/cpr-resource-order-manual?limit=10&offset=0',
+        {
+          headers: {
+            Authorization: '123qwerty',
+          },
+        }
+      )
+      .then((response) => {
+        //console.log(this.orders);
+        //console.log(response.data);
+        this.orders = response.data;
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
   },
 };
 </script>
