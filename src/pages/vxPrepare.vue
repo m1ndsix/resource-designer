@@ -111,22 +111,14 @@
                 :key="pos.posId"
                 :label="'Позиция: ' + pos.posId.toString()"
               >
-                <q-expansion-item
-                  :header-inset-level="1"
-                  :content-inset-level="2"
-                  v-for="comp in pos.components"
-                  :key="comp.compId"
-                  :label="'Компонент: ' + comp.compId"
+                <q-table
+                  v-if="pos.components[0].resource"
+                  hide-bottom
+                  :rows="pos.components"
+                  :columns="voixPositionsCols"
+                  row-key="id"
                 >
-                  <q-item-section v-if="comp.resource">
-                    <q-item-label overline>Спецификация</q-item-label>
-                    <q-item-label>{{ comp.resource.spec }}</q-item-label>
-                    <q-item-label overline>ОРК</q-item-label>
-                    <q-item-label>{{ comp.resource.equipment }}</q-item-label>
-                    <q-item-label overline>Порт</q-item-label>
-                    <q-item-label>{{ comp.resource.port }}</q-item-label>
-                  </q-item-section>
-                </q-expansion-item>
+                </q-table>
               </q-expansion-item>
             </q-list>
           </template>
@@ -171,15 +163,57 @@ export default {
       splitterModel: ref(50),
       tickedNodes: ref(null),
       prepareStore,
+      voixPositionsCols: [
+        {
+          name: 'id',
+          required: true,
+          label: 'ID компонента',
+          align: 'left',
+          field: (row) => row.id,
+          format: (val) => `${val}`,
+          sortable: true,
+        },
+        {
+          name: 'spec',
+          required: true,
+          label: 'Спецификация',
+          align: 'left',
+          field: (row) => row.resource.spec,
+          format: (val) => `${val}`,
+          sortable: true,
+        },
+        {
+          name: 'equipment',
+          required: true,
+          label: 'Оборудование',
+          align: 'left',
+          field: (row) => row.resource.equipment,
+          format: (val) => `${val}`,
+          sortable: true,
+        },
+        {
+          name: 'port',
+          required: true,
+          label: 'Порт',
+          align: 'left',
+          field: (row) => row.resource.port,
+          format: (val) => `${val}`,
+          sortable: true,
+        },
+        {
+          name: 'address',
+          required: true,
+          label: 'Адрес',
+          align: 'left',
+          field: (row) => row.address,
+          format: (val) => `${val}`,
+          sortable: true,
+        },
+      ],
     };
   },
   components: {
     VxResourceForm,
-  },
-  data() {
-    return {
-      positionStatusMap: {},
-    };
   },
   computed: {
     disableAppointBtn() {
