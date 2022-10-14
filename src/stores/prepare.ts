@@ -382,7 +382,8 @@ export const usePrepareStore = defineStore('prepareStore', {
       return state.positions.map((p) => {
         const comps = p.components.map((c) => {
           return {
-            compId: c.id,
+            ...c,
+            address: 'ул. Абая, 1',
             resource: c.resource,
           };
         });
