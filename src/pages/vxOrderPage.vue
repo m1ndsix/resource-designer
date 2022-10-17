@@ -1,130 +1,123 @@
 <template>
-  <q-drawer show-if-above bordered>
-    <q-list>
-      <q-item-label header> Время создания заказа </q-item-label>
-      <q-input
-        color="grey-3"
-        label-color="grey"
-        outlined
-        v-model="text"
-        label="От"
+  <div>
+    <q-drawer show-if-above bordered>
+      <q-list>
+        <q-item-label header> Время создания заказа </q-item-label>
+        <q-input
+          color="grey-3"
+          label-color="grey"
+          outlined
+          v-model="text"
+          label="От"
+        >
+          <template v-slot:append>
+            <q-icon name="event" color="green" />
+          </template>
+        </q-input>
+        <q-input
+          color="grey-3"
+          label-color="grey"
+          outlined
+          v-model="text"
+          label="До"
+        >
+          <template v-slot:append>
+            <q-icon name="event" color="green" />
+          </template>
+        </q-input>
+      </q-list>
+    </q-drawer>
+    <div>
+      <q-table
+        v-show="showSimulatedReturnData"
+        title="Заказы"
+        :rows="orderStore.orders"
+        :columns="columns"
+        row-key="name"
+        selection="none"
       >
-        <template v-slot:append>
-          <q-icon name="event" color="green" />
+        <template v-slot:body-cell-action="scope">
+          <q-td>
+            <q-btn
+              v-model="scope.selected"
+              color="secondary"
+              label="Взять в работу"
+              @click="prepareOrder(scope.row)"
+            />
+          </q-td>
         </template>
-      </q-input>
-      <q-input
-        color="grey-3"
-        label-color="grey"
-        outlined
-        v-model="text"
-        label="До"
-      >
-        <template v-slot:append>
-          <q-icon name="event" color="green" />
-        </template>
-      </q-input>
-    </q-list>
-  </q-drawer>
-  <q-table
-    title="Заказы"
-    :rows="orders"
-    :columns="columns"
-    row-key="name"
-    selection="none"
-    :pagination="pagination"
-  >
-    <template v-slot:body-cell-action="scope">
-      <q-td>
-        <q-btn
-          v-model="scope.selected"
-          color="secondary"
-          label="Взять в работу"
-        />
-      </q-td>
-    </template>
-  </q-table>
+      </q-table>
+      <q-inner-loading
+        :showing="visible"
+        label="Загрузка..."
+        label-class="text-teal"
+        label-style="font-size: 1.1em"
+      />
+    </div>
+  </div>
 </template>
 
-<script>
-const columns = [
+<script setup lang="ts">
+import { ref, reactive, onMounted } from 'vue';
+import { useOrderStore } from 'stores/order';
+import { usePrepareStore } from 'stores/prepare';
+
+const text = ref('');
+const visible = ref(false);
+const showSimulatedReturnData = ref(false);
+
+const orderStore = useOrderStore();
+const prepareStore = usePrepareStore();
+
+onMounted(() => {
+  visible.value = true;
+  orderStore.getOrders(0, 10).then(() => {
+    setTimeout(() => {
+      visible.value = false;
+      showSimulatedReturnData.value = true;
+    }, 3000);
+  });
+});
+
+function prepareOrder(order: any) {
+  orderStore.selectedOrder = { ...order };
+  prepareStore.getPoRequest(order.productOfferRequestId);
+}
+
+const columns = reactive([
   { name: 'action', label: 'Действие', field: 'action', align: 'left' },
   {
     name: 'externalId',
     required: true,
-    label: 'Номер заказа (external_id)',
+    label: 'Номер заказа',
     align: 'left',
     field: 'externalId',
-    //format: (val) => `${val}`,
-    sortable: true,
-  },
-  {
-    name: 'state',
-    align: 'center',
-    label: 'Статус',
-    field: (row) => row.stateData.name,
-    sortable: true,
-  },
-  {
-    name: 'expectedCompletionDate',
-    label: 'Запрашиваемая дата завершения',
-    field: 'expectedCompletionDate',
     sortable: true,
   },
   {
     name: 'createDate',
-    label: 'Дата создания',
-    field: (row) => date.formatDate(row.createDate, 'YYYY-MM-DD HH:mm:ss'),
+    align: 'center',
+    label: 'Создан',
+    field: 'createDate',
     sortable: true,
   },
   {
-    name: 'createApp',
-    label: 'Система (create_app)',
-    field: 'createApp',
+    name: 'updateDate',
+    label: 'Обновлен',
+    field: 'updateDate',
     sortable: true,
   },
   {
     name: 'createUser',
-    label: 'Логин создателя',
+    label: 'Оператор',
     field: 'createUser',
     sortable: true,
   },
-];
-
-import { roApi } from 'boot/axios';
-import { date } from 'quasar';
-
-export default {
-  setup() {
-    return {
-      columns,
-      //rows,
-    };
+  {
+    name: 'createApp',
+    label: 'Система',
+    field: 'createApp',
+    sortable: true,
   },
-  data() {
-    return {
-      orders: [],
-      pagination: { rowsPerPage: 10 },
-    };
-  },
-  mounted() {
-    roApi
-      .get(
-        'api/cpr-resource-order-be/v1.0/cpr-resource-order-manual?limit=10&offset=0',
-        {
-          headers: {
-            Authorization: '123qwerty',
-          },
-        }
-      )
-      .then((response) => {
-        //console.log(this.orders);
-        //console.log(response.data);
-        this.orders = response.data;
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
-  },
-};
+]);
 </script>
