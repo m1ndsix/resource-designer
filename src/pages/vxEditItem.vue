@@ -1,91 +1,6 @@
 <template>
   <q-page padding>
-    <q-table
-      title="Редактирование позиции заказа"
-      :rows="itemsExample"
-      :columns="columns"
-      row-key="name"
-      selection="none"
-      :hide-pagination="true"
-    >
-      <template v-slot:body-cell-actions="scope">
-        <q-td>
-          <div class="q-pa-md q-gutter-sm">
-            <q-btn
-              v-model="scope.selected"
-              color="primary"
-              label="Редактировать"
-            />
-            <q-btn color="secondary" label="Сохранить" />
-            <q-btn color="red" label="Отменить" />
-          </div>
-        </q-td>
-      </template>
-      <template v-slot:top>
-        <div class="text-h4">Позиция заказа по адресу ул. Абая, 100</div>
-        <br />
-        <div class="q-pa-md">
-          <div class="row q-gutter-sm">
-            <q-btn-dropdown
-              split
-              class="glossy"
-              color="primary"
-              label="Обследователь"
-            >
-              <q-list>
-                <q-item clickable v-close-popup>
-                  <q-item-section>
-                    <q-item-label>Есть ТВ</q-item-label>
-                    <q-item-label caption>Username</q-item-label>
-                  </q-item-section>
-                  <q-item-section side>
-                    <q-icon name="info" color="amber" />
-                  </q-item-section>
-                </q-item>
-              </q-list>
-            </q-btn-dropdown>
-
-            <q-btn-dropdown
-              split
-              class="glossy"
-              color="primary"
-              label="Измеритель"
-            >
-              <q-list>
-                <q-item clickable v-close-popup>
-                  <q-item-section>
-                    <q-item-label>Линия в порядке</q-item-label>
-                    <q-item-label caption>Username</q-item-label>
-                  </q-item-section>
-                  <q-item-section side>
-                    <q-icon name="info" color="amber" />
-                  </q-item-section>
-                </q-item>
-              </q-list>
-            </q-btn-dropdown>
-
-            <q-btn-dropdown
-              split
-              class="glossy"
-              color="primary"
-              label="Проверка линии"
-            >
-              <q-list>
-                <q-item clickable v-close-popup>
-                  <q-item-section>
-                    <q-item-label>Трассировка линии</q-item-label>
-                    <q-item-label caption>[{:::}]</q-item-label>
-                  </q-item-section>
-                  <q-item-section side>
-                    <q-icon name="info" color="amber" />
-                  </q-item-section>
-                </q-item>
-              </q-list>
-            </q-btn-dropdown>
-          </div>
-        </div>
-      </template>
-    </q-table>
+    <VxItemCard v-for="item in itemsExample" :key="item.id" :item="item" />
   </q-page>
 </template>
 
@@ -140,19 +55,6 @@ const columns = [
     label: 'Транспортная спецификация',
     field: 'transportCpeFuncSpecId',
     sortable: true,
-  },
-];
-
-const rows = [
-  {
-    position: '1',
-    calories: 'FTTH',
-    bronze: 'Установка',
-    calcium: 'Новая',
-    address: 'ул. Желтоксан, 100',
-    iron: 'ОРК 229/06/2/1',
-    copper: '8',
-    tts: 'ONT-2-4',
   },
 ];
 
@@ -216,13 +118,13 @@ const itemsExample = [
 ];
 
 import { defineComponent } from 'vue';
+import VxItemCard from 'src/components/vxItemCard.vue';
 export default {
   setup() {
     return {
-      rows,
-      columns,
       itemsExample,
     };
   },
+  components: { VxItemCard },
 };
 </script>
