@@ -28,10 +28,11 @@
   </q-drawer>
   <q-table
     title="Заказы"
-    :rows="rows"
+    :rows="orders"
     :columns="columns"
     row-key="name"
     selection="none"
+    :pagination="pagination"
   >
     <template v-slot:body-cell-action="scope">
       <q-td>
@@ -49,193 +50,61 @@
 const columns = [
   { name: 'action', label: 'Действие', field: 'action', align: 'left' },
   {
-    name: 'name',
+    name: 'externalId',
     required: true,
     label: 'Номер заказа (external_id)',
     align: 'left',
-    field: (row) => row.name,
-    format: (val) => `${val}`,
+    field: 'externalId',
+    //format: (val) => `${val}`,
     sortable: true,
   },
   {
-    name: 'calories',
+    name: 'state',
     align: 'center',
-    label: 'Создан (create_date)',
-    field: 'calories',
+    label: 'Статус',
+    field: (row) => row.stateData.name,
     sortable: true,
   },
   {
-    name: 'bronze',
-    label: 'Обновлен (update_date)',
-    field: 'bronze',
+    name: 'expectedCompletionDate',
+    label: 'Запрашиваемая дата завершения',
+    field: 'expectedCompletionDate',
     sortable: true,
-    sort: (a, b) => parseInt(a, 10) - parseInt(b, 10),
   },
   {
-    name: 'calcium',
-    label: 'Оператор (create_user)',
-    field: 'calcium',
+    name: 'createDate',
+    label: 'Дата создания',
+    field: (row) => date.formatDate(row.createDate, 'YYYY-MM-DD HH:mm:ss'),
     sortable: true,
-    sort: (a, b) => parseInt(a, 10) - parseInt(b, 10),
   },
   {
-    name: 'iron',
+    name: 'createApp',
     label: 'Система (create_app)',
-    field: 'iron',
+    field: 'createApp',
     sortable: true,
-    sort: (a, b) => parseInt(a, 10) - parseInt(b, 10),
   },
   {
-    name: 'copper',
-    label: 'ИД Населенного пункта (state_id)',
-    field: 'copper',
+    name: 'createUser',
+    label: 'Логин создателя',
+    field: 'createUser',
     sortable: true,
-    sort: (a, b) => parseInt(a, 10) - parseInt(b, 10),
   },
 ];
 
-const rows = [
-  {
-    name: '5823474',
-    calories: '21.09.2022',
-    bronze: '22.09.2022',
-    calcium: 'root',
-    iron: 'Activator',
-    copper: '2',
-  },
-  {
-    name: '5823474',
-    calories: '21.09.2022',
-    bronze: '22.09.2022',
-    calcium: 'root',
-    iron: 'Activator',
-    copper: '2',
-  },
-  {
-    name: '5823474',
-    calories: '21.09.2022',
-    bronze: '22.09.2022',
-    calcium: 'root',
-    iron: 'Activator',
-    copper: '2',
-  },
-  {
-    name: '5823474',
-    calories: '21.09.2022',
-    bronze: '22.09.2022',
-    calcium: 'root',
-    iron: 'Activator',
-    copper: '2',
-  },
-  {
-    name: '5823474',
-    calories: '21.09.2022',
-    bronze: '22.09.2022',
-    calcium: 'root',
-    iron: 'Activator',
-    copper: '2',
-  },
-  {
-    name: '5823474',
-    calories: '21.09.2022',
-    bronze: '22.09.2022',
-    calcium: 'root',
-    iron: 'Activator',
-    copper: '2',
-  },
-  {
-    name: '5823474',
-    calories: '21.09.2022',
-    bronze: '22.09.2022',
-    calcium: 'root',
-    iron: 'Activator',
-    copper: '2',
-  },
-  {
-    name: '5823474',
-    calories: '21.09.2022',
-    bronze: '22.09.2022',
-    calcium: 'root',
-    iron: 'Activator',
-    copper: '2',
-  },
-  {
-    name: '5823474',
-    calories: '21.09.2022',
-    bronze: '22.09.2022',
-    calcium: 'root',
-    iron: 'Activator',
-    copper: '2',
-  },
-  {
-    name: '5823474',
-    calories: '21.09.2022',
-    bronze: '22.09.2022',
-    calcium: 'root',
-    iron: 'Activator',
-    copper: '2',
-  },
-  {
-    name: '5823474',
-    calories: '21.09.2022',
-    bronze: '22.09.2022',
-    calcium: 'root',
-    iron: 'Activator',
-    copper: '2',
-  },
-  {
-    name: '5823474',
-    calories: '21.09.2022',
-    bronze: '22.09.2022',
-    calcium: 'root',
-    iron: 'Activator',
-    copper: '2',
-  },
-  {
-    name: '5823474',
-    calories: '21.09.2022',
-    bronze: '22.09.2022',
-    calcium: 'root',
-    iron: 'Activator',
-    copper: '2',
-  },
-  {
-    name: '5823474',
-    calories: '21.09.2022',
-    bronze: '22.09.2022',
-    calcium: 'root',
-    iron: 'Activator',
-    copper: '2',
-  },
-  {
-    name: '5823474',
-    calories: '21.09.2022',
-    bronze: '22.09.2022',
-    calcium: 'root',
-    iron: 'Activator',
-    copper: '2',
-  },
-  {
-    name: '5823474',
-    calories: '21.09.2022',
-    bronze: '22.09.2022',
-    calcium: 'root',
-    iron: 'Activator',
-    copper: '2',
-  },
-];
 import { roApi } from 'boot/axios';
+import { date } from 'quasar';
 
 export default {
   setup() {
     return {
       columns,
-      rows,
+      //rows,
     };
   },
   data() {
     return {
       orders: [],
+      pagination: { rowsPerPage: 10 },
     };
   },
   mounted() {
