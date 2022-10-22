@@ -60,28 +60,27 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue';
 import { useOrderStore } from 'stores/order';
-import { usePrepareStore } from 'stores/prepare';
+import { useRouter } from 'vue-router';
 
 const text = ref('');
 const visible = ref(false);
 const showSimulatedReturnData = ref(false);
 
 const orderStore = useOrderStore();
-const prepareStore = usePrepareStore();
+
+const router = useRouter();
 
 onMounted(() => {
   visible.value = true;
   orderStore.getOrders(0, 10).then(() => {
-    setTimeout(() => {
-      visible.value = false;
-      showSimulatedReturnData.value = true;
-    }, 3000);
+    visible.value = false;
+    showSimulatedReturnData.value = true;
   });
 });
 
 function prepareOrder(order: any) {
   orderStore.selectedOrder = { ...order };
-  prepareStore.getPoRequest(order.productOfferRequestId);
+  router.push('/prepare');
 }
 
 const columns = reactive([

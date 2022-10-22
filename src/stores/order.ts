@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { roApi } from 'boot/axios';
+import { roApi } from 'boot/api';
 
 interface State {
   orders: CprResourceOrderManual[];
@@ -74,7 +74,6 @@ export const useOrderStore = defineStore('orderStore', {
     };
   },
   actions: {
-    // TODO: optimize later
     async getOrders(offset: number, limit: number) {
       try {
         await roApi
@@ -82,9 +81,6 @@ export const useOrderStore = defineStore('orderStore', {
             params: {
               offset,
               limit,
-            },
-            headers: {
-              Authorization: '123qwerty',
             },
           })
           .then((response) => {

@@ -1,56 +1,56 @@
 <template>
   <div>
-    <div class="row header">
+    <div v-if="prepareStore.poRequest" class="row header">
       <div class="col info-section">
         <div class="row">
-          <div class="col">Номер(id):</div>
-          <div class="col">19593</div>
+          <div class="col">ID Коммуникации:</div>
+          <div class="col">{{ prepareStore.poRequest.id }}</div>
         </div>
         <div class="row">
           <div class="col">Статус:</div>
-          <div class="col">Новый</div>
+          <div class="col">
+            {{ prepareStore.poRequest.poReqStatus.name_ru }}
+          </div>
         </div>
         <div class="row">
-          <div class="col">partyId:</div>
-          <div class="col">809185</div>
+          <div class="col">ID Участника:</div>
+          <div class="col">{{ prepareStore.poRequest.partyId }}</div>
         </div>
       </div>
       <div class="col info-section">
         <div class="row">
-          <div class="col">commChannelId:</div>
-          <div class="col">5</div>
+          <div class="col">Адрес Коммуникации:</div>
+          <div class="col">{{ prepareStore.poRequest.commChannelId }}</div>
         </div>
         <div class="row">
-          <div class="col">divisionId:</div>
-          <div class="col">1</div>
+          <div class="col">ID Дивизиона:</div>
+          <div class="col">{{ prepareStore.poRequest.divisionId }}</div>
         </div>
         <div class="row">
-          <div class="col">salesChannelId:</div>
-          <div class="col">105</div>
+          <div class="col">ID Отдела Продаж:</div>
+          <div class="col">{{ prepareStore.poRequest.salesChannelId }}</div>
         </div>
       </div>
       <div class="col info-section">
         <div class="row">
           <div class="col">Идент. номер:</div>
-          <div class="col">900408400706</div>
+          <div class="col">
+            {{ prepareStore.poRequest.identificationNumber }}
+          </div>
         </div>
         <div class="row">
           <div class="col">Конт. тел.:</div>
-          <div class="col">7777777777</div>
+          <div class="col">{{ prepareStore.poRequest.contactNumber }}</div>
         </div>
         <div class="row">
           <div class="col">ФИО/Наименование:</div>
-          <div class="col">test</div>
+          <div class="col">{{ prepareStore.poRequest.contactName }}</div>
         </div>
       </div>
       <div class="col info-section">
         <div class="row">
-          <div class="col">externalId:</div>
-          <div class="col">l77czzl2</div>
-        </div>
-        <div class="row">
-          <div class="col">Description:</div>
-          <div class="col">qwerty</div>
+          <div class="col">Внешний ID:</div>
+          <div class="col">{{ prepareStore.poRequest.externalId }}</div>
         </div>
       </div>
     </div>
@@ -67,13 +67,14 @@
             >
             <q-tree
               ref="qtree"
-              :nodes="prepareStore.positions"
+              :nodes="getPositions"
               node-key="id"
               label-key="id"
-              children-key="components"
+              children-key="children"
               tick-strategy="leaf"
               v-model:ticked="tickedNodes"
               @update:ticked="onNodeTicked"
+              @lazy-load="onComponentsLoad"
             >
               <template v-slot:default-header="prop">
                 <div class="row items-center">
@@ -86,12 +87,6 @@
                 <span class="text-weight-bold">{{
                   treeNodeBody(prop.node)
                 }}</span>
-                <span
-                  v-if="prop.node.poReqItemId"
-                  style="display: block"
-                  class="text-weight-bold"
-                  >Адрес: ул. Абая, 1</span
-                >
               </template>
             </q-tree>
           </template>
@@ -105,7 +100,7 @@
           </template>
           <template v-slot:after>
             <q-btn color="negative">Отменить</q-btn>
-            <q-list separator>
+            <!-- <q-list separator>
               <q-expansion-item
                 v-for="pos in prepareStore.componentsWithResources"
                 :key="pos.posId"
@@ -120,7 +115,7 @@
                 >
                 </q-table>
               </q-expansion-item>
-            </q-list>
+            </q-list> -->
           </template>
         </q-splitter>
       </div>
@@ -128,7 +123,7 @@
     <q-btn style="position: fixed; bottom: 10px; right: 10px" color="primary"
       >Далее</q-btn
     >
-    <q-dialog v-model="alert">
+    <q-dialog v-model="newResourceAlert">
       <q-card>
         <q-card-section>
           <div class="text-h6">Новый ресурс создан!</div>
@@ -139,7 +134,7 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
-    <q-dialog v-model="customPositionDialog">
+    <q-dialog v-model="openResourceForm">
       <vx-resource-form
         :available-resources="[...prepareStore.availableResources]"
         @on-add-new-resource="onAddNewResource"
@@ -153,16 +148,20 @@
 import { ref } from 'vue';
 import { usePrepareStore } from 'stores/prepare';
 import VxResourceForm from '../components/vxResourceForm.vue';
+import { useOrderStore } from 'src/stores/order';
 
 export default {
   setup() {
     const prepareStore = usePrepareStore();
+    const orderStore = useOrderStore();
+
     return {
-      alert: ref(false),
-      customPositionDialog: ref(false),
+      newResourceAlert: ref(false),
+      openResourceForm: ref(false),
       splitterModel: ref(50),
       tickedNodes: ref(null),
       prepareStore,
+      orderStore,
       voixPositionsCols: [
         {
           name: 'id',
@@ -205,7 +204,7 @@ export default {
           required: true,
           label: 'Адрес',
           align: 'left',
-          field: (row) => row.address,
+          field: (row) => row.address.fullAddress,
           format: (val) => `${val}`,
           sortable: true,
         },
@@ -215,7 +214,18 @@ export default {
   components: {
     VxResourceForm,
   },
+  mounted() {
+    this.prepareStore.fetchPORequest(
+      this.orderStore.selectedOrder.productOfferRequestId
+    );
+    this.prepareStore.fetchPositions(
+      this.orderStore.selectedOrder.productOfferRequestId
+    );
+  },
   computed: {
+    getPositions() {
+      return this.prepareStore.getPositions;
+    },
     disableAppointBtn() {
       if (this.$refs.qtree) {
         return !this.$refs.qtree.getTickedNodes().length;
@@ -227,18 +237,34 @@ export default {
     treeNodeHeader(node) {
       return node.poReqItemId
         ? `Компонент (ID): ${node.id}`
-        : `Позиция (ID): ${node.id} | caSubscriptionId: ${node.caSubscriptionId}`;
+        : `Позиция (ID): ${node.id} | ID. подписки на ЛС: ${node.caSubscriptionId}`;
     },
     treeNodeBody(node) {
       return node.poReqItemId
         ? `Тип: ${node.type.name_ru} | Статус: ${node.status}`
         : `Тип: ${node.type.name_ru}`;
     },
+    onComponentsLoad({ node, done }) {
+      // this Quasar functionality will also insert components in position in the store
+      const fetchComponents = async () => {
+        const { data } = await this.prepareStore.fetchComponents(node.id);
+        const components = data.map(async (c) => {
+          // const addrResponse = await this.prepareStore.fetchAddress();
+          return {
+            ...c,
+            state: 'new',
+            address: { fullAddress: 'ул. Абая, 1/б' },
+          };
+        });
+        done(components);
+      };
+      fetchComponents();
+    },
     onNodeTicked(nodes) {
       this.prepareStore.selectedComponent = nodes;
     },
     onAppoint() {
-      this.customPositionDialog = true;
+      this.openResourceForm = true;
     },
     onAddNewResource(resource) {
       this.prepareStore.availableResources.push(resource);
@@ -263,7 +289,7 @@ export default {
           });
         }
       });
-      this.customPositionDialog = false;
+      this.openResourceForm = false;
     },
   },
 };

@@ -89,17 +89,6 @@
               label="Выбор Порта"
             />
           </div>
-          <div class="col-auto">
-            <q-btn
-              round
-              size="sm"
-              icon="add"
-              color="primary"
-              @click="onAddNewResource"
-            >
-              <q-tooltip>Создать новый ресурс</q-tooltip>
-            </q-btn>
-          </div>
         </div>
       </q-expansion-item>
     </q-card-section>
@@ -113,13 +102,6 @@
         color="primary"
         :disable="!state.selectedAvailableResource"
         @click="onPrepareComponent"
-      />
-      <q-btn
-        label="Отменить"
-        disabled
-        type="reset"
-        color="negative"
-        class="q-ml-sm"
       />
     </q-card-actions>
   </q-card>
@@ -189,7 +171,7 @@ const state: State = reactive(initialState);
   Methods
 */
 
-function onAddNewResource() {
+function onPrepareComponent() {
   state.newResource.name = `${state.newResource.equipment} | ${state.newResource.port}`;
 
   const isResourceAvailable =
@@ -203,9 +185,6 @@ function onAddNewResource() {
     emit('onAddNewResource', { ...state.newResource });
     state.newResource = { name: null, spec: null, equipment: null, port: null };
   }
-}
-
-function onPrepareComponent() {
   emit('onPrepareComponent', state.selectedAvailableResource);
 }
 </script>

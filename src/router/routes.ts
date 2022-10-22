@@ -26,7 +26,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/:catchAll(.*)*',
     name: 'Not Found',
-    component: vxErrorNotFound,
+    component: vxOrderPage,
   },
 ];
 
