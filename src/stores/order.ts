@@ -73,6 +73,11 @@ export const useOrderStore = defineStore('orderStore', {
       selectedOrder: null,
     };
   },
+  getters: {
+    orderCount: (state) => {
+      return state.orders.length;
+    },
+  },
   actions: {
     async getOrders(offset: number, limit: number) {
       try {
@@ -83,8 +88,12 @@ export const useOrderStore = defineStore('orderStore', {
               limit,
             },
           })
-          .then((response) => {
-            this.orders = response.data;
+          .then(({ data }) => {
+            if (data && data.length > 0) {
+              this.orders = data;
+            } else {
+              this.orders = [];
+            }
           });
       } catch (error) {
         console.log(error);
