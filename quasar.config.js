@@ -10,6 +10,8 @@
 
 const { configure } = require('quasar/wrappers');
 
+const localDemoPort = 3000;
+
 module.exports = configure(function (ctx) {
   return {
     eslint: {
@@ -62,7 +64,16 @@ module.exports = configure(function (ctx) {
 
       // publicPath: '/',
       // analyze: true,
-      env: { API: ctx.dev ? 'http://10.8.26.62' : 'http://10.8.26.62' },
+      env: {
+        isLocalDemo: process.env.JSON_SERVER,
+        voixUrl: process.env.JSON_SERVER
+          ? 'http://localhost'
+          : 'http://10.8.26.62',
+        psPort: process.env.JSON_SERVER ? localDemoPort : 1323,
+        cpsPort: process.env.JSON_SERVER ? localDemoPort : 1324,
+        mpPort: process.env.JSON_SERVER ? localDemoPort : 1325,
+        roPort: process.env.JSON_SERVER ? localDemoPort : 1326,
+      },
       // rawDefine: {}
       // ignorePublicFolder: true,
       // minify: false,

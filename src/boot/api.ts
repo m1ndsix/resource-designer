@@ -2,33 +2,20 @@ import { boot } from 'quasar/wrappers';
 import VueKeyCloak from '@dsb-norge/vue-keycloak-js';
 import axios from 'axios';
 
-const voixApi = (port: number) => {
+const voixUrl = process.env.voixUrl;
+
+function createVoixRouter(url: string, port: number) {
   return axios.create({
-    baseURL: `${process.env.API}:${port}`,
+    baseURL: `${url}:${port}`,
     headers: { Authorization: '123qwerty' },
   });
-};
+}
 
-const externalApi = (port: number) => {
-  return axios.create({ baseURL: `http://10.6.4.118:${port}/api` });
-};
+const psApi = createVoixRouter(voixUrl, process.env.psPort);
+const cpsApi = createVoixRouter(voixUrl, process.env.cpsPort);
+const mpApi = createVoixRouter(voixUrl, process.env.mpPort);
+const roApi = createVoixRouter(voixUrl, process.env.roPort);
 
-const psApi = axios.create({
-  baseURL: `${process.env.API}:1323`,
-  headers: { Authorization: '123qwerty' },
-});
-const cpsApi = axios.create({
-  baseURL: `${process.env.API}:1324`,
-  headers: { Authorization: '123qwerty' },
-});
-const mpApi = axios.create({
-  baseURL: `${process.env.API}:1325`,
-  headers: { Authorization: '123qwerty' },
-});
-const roApi = axios.create({
-  baseURL: `${process.env.API}:1326`,
-  headers: { Authorization: '123qwerty' },
-});
 const poApi = axios.create({ baseURL: 'http://10.6.4.118:6010/api' });
 
 export default boot(async ({ app }) => {
