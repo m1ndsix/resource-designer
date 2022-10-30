@@ -67,24 +67,21 @@
             >
             <q-tree
               ref="qtree"
-              :nodes="getPositions"
-              node-key="id"
-              label-key="id"
-              children-key="children"
+              :nodes="prepareStore.dataTree"
+              node-key="nodeKey"
               tick-strategy="leaf"
               v-model:ticked="tickedNodes"
               @update:ticked="onNodeTicked"
-              @lazy-load="onComponentsLoad"
             >
               <template v-slot:default-header="prop">
                 <div class="row items-center">
                   <div class="text-weight-bold text-primary">
-                    {{ treeNodeHeader(prop.node) }}
+                    {{ prop.node.label }}
                   </div>
                 </div>
               </template>
               <template v-slot:default-body="prop">
-                <span class="text-weight-bold">{{
+                <span v-if="prop.node" class="text-weight-bold">{{
                   treeNodeBody(prop.node)
                 }}</span>
               </template>
@@ -223,9 +220,6 @@ export default {
     );
   },
   computed: {
-    getPositions() {
-      return this.prepareStore.getPositions;
-    },
     disableAppointBtn() {
       if (this.$refs.qtree) {
         return !this.$refs.qtree.getTickedNodes().length;
@@ -234,31 +228,16 @@ export default {
     },
   },
   methods: {
-    treeNodeHeader(node) {
-      return node.poReqItemId
-        ? `Компонент (ID): ${node.id}`
-        : `Позиция (ID): ${node.id} | ID. подписки на ЛС: ${node.caSubscriptionId}`;
-    },
     treeNodeBody(node) {
-      return node.poReqItemId
-        ? `Тип: ${node.type.name_ru} | Статус: ${node.status}`
-        : `Тип: ${node.type.name_ru}`;
-    },
-    onComponentsLoad({ node, done }) {
-      // this Quasar functionality will also insert components in position in the store
-      const fetchComponents = async () => {
-        const { data } = await this.prepareStore.fetchComponents(node.id);
-        const components = data.map(async (c) => {
-          // const addrResponse = await this.prepareStore.fetchAddress();
-          return {
-            ...c,
-            state: 'new',
-            address: { fullAddress: 'ул. Абая, 1/б' },
-          };
-        });
-        done(components);
-      };
-      fetchComponents();
+      if (node.geoPlaceId) {
+        const nodeType =
+          node.type && node.type.nameRu ? node.type.nameRu : 'Не определен';
+        return node.poReqItemId
+          ? `Тип: ${nodeType} | Статус: ${node.state}`
+          : `Тип: ${nodeType}`;
+      } else {
+        return 'Адрес: ул. Абая 1/б';
+      }
     },
     onNodeTicked(nodes) {
       this.prepareStore.selectedComponent = nodes;

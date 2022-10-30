@@ -3,11 +3,24 @@ import { poApi } from 'boot/api';
 
 interface State {
   poRequest: ProductOfferRequest | null;
+  dataTree: DataTree[];
   positions: ProductOfferRequestItem[];
   selectedComponent: ProductOfferRequestItemComponent | null;
   components: ProductOfferRequestItemComponent[];
   availableResources: Resource[];
   preparedComponents: PreparedComponents[];
+}
+
+interface DataTree {
+  nodeKey: number;
+  label: string;
+  children: DataNode[];
+}
+
+interface DataNode extends ProductOfferRequest {
+  nodeKey: number;
+  label: string;
+  state: string;
 }
 
 interface ProductOfferRequest {
@@ -44,29 +57,42 @@ interface ProductOfferRequestItem {
   type?: IdNameRuKz;
   productOfferReqId?: number;
   geoPlaceId: number;
+  geoPlaceName?: string;
   oldProductOfferId: number;
+  oldProductOfferName?: string;
   newProductOfferId: number;
+  newProductOfferName?: string;
   caSubscriptionId: number;
+  agreementId: number;
+  billingAccountId: number;
   createDate?: string;
   updateDate?: string;
   createUser?: string;
   updateUser?: string;
   createApp?: string;
   updateApp?: string;
-  lazy?: boolean;
-  components?: ProductOfferRequestItemComponent[];
+  itemComponents: ProductOfferRequestItemComponent[];
 }
 
 interface ProductOfferRequestItemComponent {
   id?: number;
   typeId: number;
   type?: IdNameRuKz;
-  poReqItemId: string;
+  poReqItemId?: string;
   geoPlaceId?: number;
+  geoPlaceName?: string;
   poComponentId: number;
+  poComponentName?: string;
   oldPoStructId: number;
+  oldPoStructName?: string;
   newPoStructId: number;
+  newPoStructName?: string;
   resourceOrderItemId: number;
+  oldNumber: string;
+  newNumber: string;
+  oldCount: number;
+  newCount: number;
+  elements: number[];
   createDate?: string;
   updateDate?: string;
   createUser?: string;
@@ -91,6 +117,7 @@ export const usePrepareStore = defineStore('prepareStore', {
   state: (): State => {
     return {
       poRequest: null,
+      dataTree: [],
       positions: [],
       selectedComponent: null,
       components: [],
@@ -99,21 +126,6 @@ export const usePrepareStore = defineStore('prepareStore', {
     };
   },
   getters: {
-    getPositions: (state) => {
-      return state.positions;
-    },
-    posCompTree: (state) => {
-      return state.positions.map((p) => {
-        const comps = state.components.filter(
-          (c) => parseInt(c.poReqItemId) === p.id
-        );
-        return {
-          ...p,
-          lazy: true,
-          components: comps,
-        };
-      });
-    },
     componentsWithResources: (state) => {
       return state.positions.map((p) => {
         const comps = state.components.map((c) => {
@@ -133,7 +145,9 @@ export const usePrepareStore = defineStore('prepareStore', {
   actions: {
     fetchPORequest(poRequestId: number) {
       poApi
-        .get('/product-offer-request-be/v1.0/product-offer-request/19593')
+        .get(
+          `/product-offer-request-be/v1.0/product-offer-request/${poRequestId}`
+        )
         .then(({ data }) => {
           this.poRequest = data;
         });
@@ -141,29 +155,47 @@ export const usePrepareStore = defineStore('prepareStore', {
     fetchPositions(poRequestId: number) {
       poApi
         .get(
-          '/product-offer-request-be/v1.0/product-offer-request/19593/po-req-item'
+          `/product-offer-request-be/v1.0/product-offer-request/${poRequestId}/po-req-item`
         )
         .then(({ data }) => {
-          // TODO: fix later
-          this.positions = data.map(async (p: ProductOfferRequestItem) => {
-            // const address = await this.fetchAddress(p.geoPlaceId);
-            const address = { fullAddress: 'ул. Абая, 1/б' };
-            return {
-              addressLabel: 'ул. Абая, 1/б',
-              geoPlaceId: p.geoPlaceId,
-              children: { ...p, address: address, lazy: true },
-            };
-          });
+          if (!!data.length) {
+            this.positions = data;
+            this.dataTree = data.reduce((acc, el) => {
+              const components = el.itemComponents.map((c) => {
+                return {
+                  ...c,
+                  nodeKey: `${el.id}-${c.id}`,
+                  label: `Компонент (ID): ${c.id}`,
+                  state: 'Новый',
+                };
+              });
+              const position = {
+                ...el,
+                nodeKey: el.id,
+                children: components,
+                label: `Позиция (ID): ${el.id}`,
+              };
+              delete position.itemComponents;
+              const existingIdx = acc.findIndex(
+                (f) => f && f.nodeKey === position.geoPlaceId
+              );
+              if (existingIdx > -1) {
+                acc[existingIdx].children.push(position);
+              } else {
+                acc.push({
+                  nodeKey: position.geoPlaceId,
+                  label: `Геоместорасположение (ID): ${position.geoPlaceId}`,
+                  children: [position],
+                });
+              }
+              return acc;
+            }, []);
+          }
         });
     },
     fetchComponents(poReqItemId: number) {
       return poApi.get(
-        'product-offer-request-be/v1.0/po-req-item/38/po-req-item-component'
-      );
-    },
-    fetchAddress(geoPlaceId: number) {
-      return poApi.get(
-        'product-offer-request-be/v1.0/po-req-item/38/po-req-item-component'
+        `product-offer-request-be/v1.0/po-req-item/${poReqItemId}/po-req-item-component`
       );
     },
   },
