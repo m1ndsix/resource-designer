@@ -97,22 +97,29 @@
           </template>
           <template v-slot:after>
             <q-btn color="negative">Отменить</q-btn>
-            <!-- <q-list separator>
+            <q-list separator>
               <q-expansion-item
-                v-for="pos in prepareStore.componentsWithResources"
-                :key="pos.posId"
-                :label="'Позиция: ' + pos.posId.toString()"
+                v-for="address in prepareStore.dataTree"
+                :key="address.nodeKey"
+                :label="'Геоместорасположение (ID): ' + address.nodeKey"
               >
-                <q-table
-                  v-if="pos.components[0].resource"
-                  hide-bottom
-                  :rows="pos.components"
-                  :columns="voixPositionsCols"
-                  row-key="id"
+                <q-expansion-item
+                  v-for="pos in filterPositions(address.children)"
+                  :key="pos.nodeKey"
+                  :label="'Позиция: ' + pos.id.toString()"
+                  :header-inset-level="1"
                 >
-                </q-table>
+                  <q-table
+                    v-if="pos.children[0].resource"
+                    hide-bottom
+                    :rows="pos.children"
+                    :columns="voixPositionsCols"
+                    row-key="id"
+                  >
+                  </q-table>
+                </q-expansion-item>
               </q-expansion-item>
-            </q-list> -->
+            </q-list>
           </template>
         </q-splitter>
       </div>
@@ -120,17 +127,6 @@
     <q-btn style="position: fixed; bottom: 10px; right: 10px" color="primary"
       >Далее</q-btn
     >
-    <q-dialog v-model="newResourceAlert">
-      <q-card>
-        <q-card-section>
-          <div class="text-h6">Новый ресурс создан!</div>
-        </q-card-section>
-
-        <q-card-actions align="right">
-          <q-btn flat label="OK" color="primary" v-close-popup />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
     <q-dialog v-model="openResourceForm">
       <vx-resource-form
         :available-resources="[...prepareStore.availableResources]"
@@ -153,7 +149,6 @@ export default {
     const orderStore = useOrderStore();
 
     return {
-      newResourceAlert: ref(false),
       openResourceForm: ref(false),
       splitterModel: ref(50),
       tickedNodes: ref(null),
@@ -201,7 +196,7 @@ export default {
           required: true,
           label: 'Адрес',
           align: 'left',
-          field: (row) => row.address.fullAddress,
+          field: (row) => 'ул. Абая, 1/б',
           format: (val) => `${val}`,
           sortable: true,
         },
@@ -239,6 +234,11 @@ export default {
         return 'Адрес: ул. Абая 1/б';
       }
     },
+    filterPositions(positions) {
+      return positions.filter((pos) => {
+        return pos.children.findIndex((comp) => !!comp.resource) > -1;
+      });
+    },
     onNodeTicked(nodes) {
       this.prepareStore.selectedComponent = nodes;
     },
@@ -247,26 +247,23 @@ export default {
     },
     onAddNewResource(resource) {
       this.prepareStore.availableResources.push(resource);
-      this.alert = true;
     },
     onPrepareComponent(resource) {
       const tickedNodes = this.$refs.qtree.getTickedNodes();
-      const componentsIds = tickedNodes
-        .filter((node) => node.poReqItemId)
-        .map((node) => node.id);
-      const positionsIds = tickedNodes
-        .filter((node) => node.poReqItemId)
-        .map((node) => parseInt(node.poReqItemId));
+      const componentsIds = tickedNodes.map((node) => node.id);
+      const positionsIds = tickedNodes.map((node) => node.poReqItemId);
 
-      this.prepareStore.positions.forEach((pos) => {
-        if (positionsIds.includes(pos.id)) {
-          pos.components.forEach((comp) => {
-            if (componentsIds.includes(comp.id)) {
-              comp.status = 'Подготовлен';
-              comp.resource = resource;
-            }
-          });
-        }
+      this.prepareStore.dataTree.forEach((address) => {
+        address.children.forEach((pos) => {
+          if (positionsIds.includes(pos.id)) {
+            pos.children.forEach((comp) => {
+              if (componentsIds.includes(comp.id)) {
+                comp.state = 'Подготовлен';
+                comp.resource = resource;
+              }
+            });
+          }
+        });
       });
       this.openResourceForm = false;
     },

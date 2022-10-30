@@ -9,6 +9,7 @@
       <q-select
         style="width: 250px"
         v-model="state.selectedAvailableResource"
+        @update:model-value="resetNewResource()"
         :options="props.availableResources"
         option-label="name"
         label="Доступные ресурсы"
@@ -44,6 +45,7 @@
         <q-select
           style="width: 250px"
           v-model="state.newResource.spec"
+          @update:model-value="onNewResourceSelect"
           :options="state.specs"
           label="Выбор Спецификации"
         />
@@ -52,6 +54,7 @@
             <q-select
               style="width: 250px"
               v-model="state.newResource.equipment"
+              @update:model-value="onNewResourceSelect"
               :options="state.equipment"
               label="Выбор ОРК"
             />
@@ -85,6 +88,7 @@
             <q-select
               style="width: 250px"
               v-model="state.newResource.port"
+              @update:model-value="onNewResourceSelect"
               :options="state.ports"
               label="Выбор Порта"
             />
@@ -100,7 +104,12 @@
         label="Подготовить"
         type="submit"
         color="primary"
-        :disable="!state.selectedAvailableResource"
+        :disable="
+          (!state.newResource.equipment ||
+            !state.newResource.port ||
+            !state.newResource.spec) &&
+          !state.selectedAvailableResource
+        "
         @click="onPrepareComponent"
       />
     </q-card-actions>
@@ -171,21 +180,35 @@ const state: State = reactive(initialState);
   Methods
 */
 
+function resetNewResource() {
+  state.newResource = { name: null, spec: null, equipment: null, port: null };
+}
+
+function onNewResourceSelect() {
+  state.selectedAvailableResource = null;
+}
+
 function onPrepareComponent() {
-  state.newResource.name = `${state.newResource.equipment} | ${state.newResource.port}`;
+  state.newResource.name = state.newResource.equipment
+    ? `${state.newResource.equipment} | ${state.newResource.port}`
+    : null;
 
   const isResourceAvailable =
     props.availableResources.findIndex((r) => {
-      return r.name === state.newResource.name;
+      return r.name === state.selectedAvailableResource.name;
     }) > -1;
   if (isResourceAvailable) {
     // TODO: fix later
     console.log('Данный ресурс уже существует');
   } else {
     emit('onAddNewResource', { ...state.newResource });
-    state.newResource = { name: null, spec: null, equipment: null, port: null };
   }
-  emit('onPrepareComponent', state.selectedAvailableResource);
+  const resource =
+    state.selectedAvailableResource && state.selectedAvailableResource.name
+      ? state.selectedAvailableResource
+      : state.newResource;
+  emit('onPrepareComponent', resource);
+  resetNewResource();
 }
 </script>
 
