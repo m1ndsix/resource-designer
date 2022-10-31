@@ -81,9 +81,22 @@
                 </div>
               </template>
               <template v-slot:default-body="prop">
-                <span v-if="prop.node" class="text-weight-bold">{{
-                  treeNodeBody(prop.node)
-                }}</span>
+                <q-chip
+                  v-if="prop.node.type && prop.node.type.nameRu"
+                  dense
+                  color="blue"
+                  text-color="white"
+                >
+                  {{ prop.node.type.nameRu }}
+                </q-chip>
+                <q-chip
+                  v-if="prop.node.state"
+                  dense
+                  :color="prop.node.state === 'Новый' ? 'orange' : 'green'"
+                  text-color="white"
+                >
+                  {{ prop.node.state }}
+                </q-chip>
               </template>
             </q-tree>
           </template>
@@ -110,9 +123,8 @@
                   :header-inset-level="1"
                 >
                   <q-table
-                    v-if="pos.children[0].resource"
                     hide-bottom
-                    :rows="pos.children"
+                    :rows="filterComponents(pos.children)"
                     :columns="voixPositionsCols"
                     row-key="id"
                   >
@@ -223,21 +235,13 @@ export default {
     },
   },
   methods: {
-    treeNodeBody(node) {
-      if (node.geoPlaceId) {
-        const nodeType =
-          node.type && node.type.nameRu ? node.type.nameRu : 'Не определен';
-        return node.poReqItemId
-          ? `Тип: ${nodeType} | Статус: ${node.state}`
-          : `Тип: ${nodeType}`;
-      } else {
-        return 'Адрес: ул. Абая 1/б';
-      }
-    },
     filterPositions(positions) {
-      return positions.filter((pos) => {
-        return pos.children.findIndex((comp) => !!comp.resource) > -1;
-      });
+      return positions.filter(
+        (pos) => pos.children.findIndex((comp) => !!comp.resource) > -1
+      );
+    },
+    filterComponents(components) {
+      return components.filter((comp) => !!comp.resource);
     },
     onNodeTicked(nodes) {
       this.prepareStore.selectedComponent = nodes;
