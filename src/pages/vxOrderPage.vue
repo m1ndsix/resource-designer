@@ -54,6 +54,7 @@
 import { ref, reactive, onMounted } from 'vue';
 import { useOrderStore } from 'stores/order';
 import { useRouter } from 'vue-router';
+import { date } from 'quasar';
 
 const text = ref('');
 const isTableLoading = ref(false);
@@ -112,16 +113,25 @@ const columns = reactive([
     sortable: true,
   },
   {
-    name: 'createDate',
-    align: 'center',
-    label: 'Создан',
-    field: 'createDate',
+    name: 'stateData',
+    required: true,
+    label: 'Статус',
+    align: 'left',
+    field: (row) => row.stateData.name,
     sortable: true,
   },
   {
-    name: 'updateDate',
-    label: 'Обновлен',
-    field: 'updateDate',
+    name: 'expectedCompletionDate',
+    label: 'Запрашиваемая дата завершения',
+    field: (row) =>
+      date.formatDate(row.expectedCompletionDate, 'YYYY-MM-DD HH:mm:ss'),
+    sortable: true,
+  },
+  {
+    name: 'createDate',
+    align: 'center',
+    label: 'Создан',
+    field: (row) => date.formatDate(row.createDate, 'YYYY-MM-DD HH:mm:ss'),
     sortable: true,
   },
   {
