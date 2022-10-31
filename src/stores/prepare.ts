@@ -144,19 +144,13 @@ export const usePrepareStore = defineStore('prepareStore', {
   },
   actions: {
     fetchPORequest(poRequestId: number) {
-      poApi
-        .get(
-          `/product-offer-request-be/v1.0/product-offer-request/${poRequestId}`
-        )
-        .then(({ data }) => {
-          this.poRequest = data;
-        });
+      poApi.get(`/product-offer-request/${poRequestId}`).then(({ data }) => {
+        this.poRequest = data;
+      });
     },
     fetchPositions(poRequestId: number) {
       poApi
-        .get(
-          `/product-offer-request-be/v1.0/product-offer-request/${poRequestId}/po-req-item`
-        )
+        .get(`/product-offer-request/${poRequestId}/po-req-item`)
         .then(({ data }) => {
           if (!!data.length) {
             this.positions = data;

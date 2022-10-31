@@ -73,6 +73,9 @@ module.exports = configure(function (ctx) {
         cpsPort: process.env.JSON_SERVER ? localDemoPort : 1324,
         mpPort: process.env.JSON_SERVER ? localDemoPort : 1325,
         roPort: process.env.JSON_SERVER ? localDemoPort : 1326,
+        ktUrl: process.env.JSON_SERVER
+          ? 'http://localhost:3000'
+          : 'http://10.6.4.118:6010/api/product-offer-request-be/v1.0',
       },
       // rawDefine: {}
       // ignorePublicFolder: true,

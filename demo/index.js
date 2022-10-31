@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker/locale/ru';
 
-let data = { 'cpr-resource-order-manual': [] };
+let data = { 'cpr-resource-order-manual': [], 'product-offer-request': null };
 // Create 20 orders
 for (let i = 0; i < 20; i++) {
   let randomNumber = faker.random.numeric(6);
@@ -54,6 +54,27 @@ for (let i = 0; i < 20; i++) {
     updateUser: randomName,
     createApp: 'dev app',
     updateApp: 'dev app',
+  });
+
+  data['product-offer-request'].push({
+    id: 50000 + i,
+    divisionId: 123,
+    poReqStatusId: 1,
+    poReqStatus: { name_ru: 'Новый' },
+    resourceOrderId: 123,
+    partyId: 123,
+    commChannelId: 123,
+    identificationNumber: '123',
+    contactName: randomName,
+    contactNumber: +77074753324,
+    salesChannelId: 123,
+    description: 'Тестовый заказ',
+    createDate: randomDate,
+    updateDate: randomDate,
+    createUser: randomDate,
+    updateUser: randomDate,
+    createApp: randomDate,
+    updateApp: randomDate,
   });
 }
 

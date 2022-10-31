@@ -82,7 +82,7 @@ export const useOrderStore = defineStore('orderStore', {
     async getOrders(offset: number, limit: number) {
       try {
         await roApi
-          .get('/api/cpr-resource-order-be/v1.0/cpr-resource-order-manual', {
+          .get('/cpr-resource-order-manual', {
             params: {
               offset,
               limit,
