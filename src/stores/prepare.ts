@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { poApi } from 'boot/api';
+import _ from 'lodash';
 
 interface State {
   poRequest: ProductOfferRequest | null;
@@ -12,7 +13,7 @@ interface State {
 }
 
 interface DataTree {
-  nodeKey: number;
+  nodeKey: number | string;
   label: string;
   children: DataNode[];
 }
@@ -113,6 +114,29 @@ interface IdNameRuKz {
   name_kz: string;
 }
 
+const fakeAddress = [
+  'Инженерная ул., 499 кв. 714',
+  'набережная Окружная, 153 кв. 121',
+  'Сенная площадь, 208 кв. 721',
+  'ал. Загородная, 415 кв. 950',
+  'наб. Таежная, 329 кв. 538',
+  'набережная Дорожная, 556 кв. 980',
+  'Привольная ал., 993 кв. 690',
+  'наб. Центральная, 492 кв. 422',
+  'наб. Вольная, 005 кв. 500',
+  'Железнодорожная улица, 239 кв. 964',
+  'пл. Поселковая, 869 кв. 329',
+  'ул. Красная, 071 кв. 289',
+  'улица Покровская, 382 кв. 298',
+  'Воронежская пл., 970 кв. 956',
+  'Отрадная ул., 940 кв. 259',
+  'Безымянная аллея, 456 кв. 020',
+  'Молодежная набережная, 051 кв. 382',
+  'набережная Локомотивная, 241 кв. 786',
+  'Ореховая ул., 359 кв. 952',
+  'Сахалинская площадь, 852 кв. 470',
+];
+
 export const usePrepareStore = defineStore('prepareStore', {
   state: (): State => {
     return {
@@ -153,37 +177,41 @@ export const usePrepareStore = defineStore('prepareStore', {
         .get(`/product-offer-request/${poRequestId}/po-req-item`)
         .then(({ data }) => {
           if (!!data.length) {
-            this.positions = data;
-            this.dataTree = data.reduce((acc, el) => {
-              const components = el.itemComponents.map((c) => {
-                return {
-                  ...c,
-                  nodeKey: `${el.id}-${c.id}`,
-                  label: `Компонент (ID): ${c.id}`,
-                  state: 'Новый',
+            this.dataTree = _(data)
+              .map((pos) => {
+                const components = _(pos.itemComponents)
+                  .map((comp) => {
+                    return {
+                      ...comp,
+                      nodeKey: `${pos.id}-${comp.id}`,
+                      label: `Компонент (ID): ${comp.id}`,
+                      state: 'Новый',
+                    };
+                  })
+                  .value();
+                const position = {
+                  ...pos,
+                  nodeKey: pos.id,
+                  children: components,
+                  label: `Позиция (ID): ${pos.id}`,
                 };
-              });
-              const position = {
-                ...el,
-                nodeKey: el.id,
-                children: components,
-                label: `Позиция (ID): ${el.id}`,
-              };
-              delete position.itemComponents;
-              const existingIdx = acc.findIndex(
-                (f) => f && f.nodeKey === position.geoPlaceId
-              );
-              if (existingIdx > -1) {
-                acc[existingIdx].children.push(position);
-              } else {
-                acc.push({
-                  nodeKey: position.geoPlaceId,
-                  label: `Геоместорасположение (ID): ${position.geoPlaceId}`,
-                  children: [position],
-                });
-              }
-              return acc;
-            }, []);
+                delete position.itemComponents;
+                return position;
+              })
+              .groupBy('geoPlaceId')
+              .map((pos, geoPlaceId) => {
+                const label =
+                  pos[0].geoPlaceName ||
+                  fakeAddress[Math.floor(Math.random() * fakeAddress.length)];
+                return {
+                  label,
+                  geoPlaceId,
+                  children: pos,
+                  nodeKey: geoPlaceId,
+                };
+              })
+              .value();
+            this.positions = data;
           }
         });
     },
