@@ -110,8 +110,8 @@ interface PreparedComponents {
 
 interface IdNameRuKz {
   id: number;
-  name_ru: string;
-  name_kz: string;
+  nameRu: string;
+  nameKz: string;
 }
 
 const fakeAddress = [
@@ -150,7 +150,7 @@ export const usePrepareStore = defineStore('prepareStore', {
     };
   },
   getters: {
-    componentsWithResources: (state) => {
+    resourcesTree: (state) => {
       return state.positions.map((p) => {
         const comps = state.components.map((c) => {
           return {

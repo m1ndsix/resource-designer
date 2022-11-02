@@ -9,7 +9,7 @@
         <div class="row">
           <div class="col">Статус:</div>
           <div class="col">
-            {{ prepareStore.poRequest.poReqStatus.name_ru }}
+            {{ prepareStore.poRequest.poReqStatus.nameRu }}
           </div>
         </div>
         <div class="row">
@@ -47,12 +47,6 @@
           <div class="col">{{ prepareStore.poRequest.contactName }}</div>
         </div>
       </div>
-      <div class="col info-section">
-        <div class="row">
-          <div class="col">Внешний ID:</div>
-          <div class="col">{{ prepareStore.poRequest.externalId }}</div>
-        </div>
-      </div>
     </div>
 
     <div class="row">
@@ -65,28 +59,53 @@
                 ref="qtree"
                 node-key="nodeKey"
                 :nodes="prepareStore.dataTree"
-                :filter="treeFilter.id"
-                :filter-method="treeFilterMethod"
                 tick-strategy="leaf"
                 v-model:ticked="tickedNodes"
                 @update:ticked="onNodeTicked"
               >
                 <template v-slot:default-header="prop">
                   <div class="row items-center">
-                    <div class="text-weight-bold text-primary">
+                    <div class="text-weight-bold text-primary col">
                       {{ prop.node.label }}
+                    </div>
+                    <div class="col-auto q-ml-md">
+                      <div v-if="!prop.node.typeId">
+                        <q-btn
+                          dense
+                          rounded
+                          size="sm"
+                          color="secondary"
+                          label="Назначить"
+                          :disable="disableAppointBtn"
+                          @click="onAppoint()"
+                        ></q-btn>
+                        <q-btn
+                          dense
+                          rounded
+                          size="sm"
+                          class="q-ml-sm"
+                          color="negative"
+                          label="Отмена"
+                        ></q-btn>
+                      </div>
+
+                      <div v-else class="row flex-center">
+                        <q-chip
+                          v-if="prop.node.typeId"
+                          dense
+                          text-color="white"
+                          :color="positionTypeColor(prop.node.typeId)"
+                        >
+                          {{ positionTypeName(prop.node.typeId) }}
+                        </q-chip>
+                        <span class="text-negative">{{ 87074209537 }}</span>
+                        <span><q-icon name="arrow_right_alt" /></span>
+                        <span class="text-positive"> {{ 87473802121 }}</span>
+                      </div>
                     </div>
                   </div>
                 </template>
                 <template v-slot:default-body="prop">
-                  <q-chip
-                    v-if="prop.node.type && prop.node.type.nameRu"
-                    dense
-                    color="blue"
-                    text-color="white"
-                  >
-                    {{ prop.node.type.nameRu }}
-                  </q-chip>
                   <q-chip
                     v-if="prop.node.state"
                     dense
@@ -97,7 +116,7 @@
                   </q-chip>
                 </template>
               </q-tree>
-              <div class="col-auto">
+              <!-- <div class="col-auto">
                 <q-btn-group>
                   <q-btn
                     flat
@@ -147,7 +166,7 @@
                     @click="onAppoint()"
                   />
                 </q-btn-group>
-              </div>
+              </div> -->
             </div>
           </template>
           <template v-slot:separator>
@@ -163,12 +182,12 @@
               <q-expansion-item
                 v-for="address in prepareStore.dataTree"
                 :key="address.nodeKey"
-                :label="'Геоместорасположение (ID): ' + address.nodeKey"
+                :label="address.label"
               >
                 <q-expansion-item
                   v-for="pos in filterPositions(address.children)"
                   :key="pos.nodeKey"
-                  :label="'Позиция: ' + pos.id.toString()"
+                  :label="pos.label"
                   :header-inset-level="1"
                 >
                   <q-table
@@ -266,15 +285,6 @@ export default {
           format: (val) => `${val}`,
           sortable: true,
         },
-        {
-          name: 'address',
-          required: true,
-          label: 'Адрес',
-          align: 'left',
-          field: (row) => 'ул. Абая, 1/б',
-          format: (val) => `${val}`,
-          sortable: true,
-        },
       ],
     };
   },
@@ -298,17 +308,17 @@ export default {
     },
   },
   methods: {
-    treeFilterMethod(node, _) {
-      // TODO: add filter by address
-      const idFilt = this.treeFilter.id.toLowerCase();
-      const addressFilt = this.treeFilter.address.toLowerCase();
-      return node.id === parseInt(idFilt);
-    },
+    // treeFilterMethod(node, _) {
+    //   // TODO: add filter by address
+    //   const idFilt = this.treeFilter.id.toLowerCase();
+    //   const addressFilt = this.treeFilter.address.toLowerCase();
+    //   return node.id === parseInt(idFilt);
+    // },
 
-    resetTreeFilter() {
-      this.treeFilter = { id: '', address: '' };
-      this.treeFilterRef.focus();
-    },
+    // resetTreeFilter() {
+    //   this.treeFilter = { id: '', address: '' };
+    //   this.treeFilterRef.focus();
+    // },
     filterPositions(positions) {
       return positions.filter(
         (pos) => pos.children.findIndex((comp) => !!comp.resource) > -1
@@ -316,6 +326,34 @@ export default {
     },
     filterComponents(components) {
       return components.filter((comp) => !!comp.resource);
+    },
+    positionTypeColor(typeId) {
+      let color;
+      switch (typeId) {
+        case 1:
+          color = 'blue';
+          break;
+        case 2:
+          color = 'Yellow';
+          break;
+        case 3:
+          color = 'Red';
+      }
+      return color;
+    },
+    positionTypeName(typeId) {
+      let name;
+      switch (typeId) {
+        case 1:
+          name = 'Установка';
+          break;
+        case 2:
+          name = 'Замена';
+          break;
+        case 3:
+          name = 'Снятие';
+      }
+      return name;
     },
     onNodeTicked(nodes) {
       this.prepareStore.selectedComponent = nodes;
@@ -357,8 +395,6 @@ export default {
   border-right: 1px solid #BCB8B8
 
   .row
-    margin: 0
-
     .col:first-child
       padding-left: 0.25em
       color: #666
@@ -367,6 +403,4 @@ export default {
       padding-right: 0.5em
       font-weight: 600
       color: #222
-.col > .col
-  display: flex
 </style>

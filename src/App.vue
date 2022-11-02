@@ -2,7 +2,7 @@
   <q-layout view="hhh lpr fff">
     <q-header elevated class="bg-primary text-white" height-hint="98">
       <q-toolbar>
-        <q-toolbar-title shrink>Design Manager</q-toolbar-title>
+        <q-btn flat to="/" label="Design Manager" />
         <q-separator dark vertical inset />
         <q-tabs>
           <q-route-tab to="/edit-item" label="Редактирование позиции" />
