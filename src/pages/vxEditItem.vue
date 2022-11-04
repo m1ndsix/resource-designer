@@ -74,7 +74,8 @@ const itemsExample = [
     externalId: '456gtr65',
     compositePhysResSpecId: 1000776,
     physicalContainerId: 354,
-    geoPlaceId: 13246,
+    geoPlaceId: 123,
+    portnumber: 8,
     transportCpeFuncSpecId: 13,
     externalProjectId: 1423375,
     externalCompositePhysResNum: 3425313,
@@ -86,6 +87,8 @@ const itemsExample = [
     updateUser: 'Japparov.S',
     createApp: 'resource-design-fe',
     updateApp: 'resource-design-fe',
+    selected: false,
+    measurementResult: 'Линия в порядке',
   },
   {
     id: 23655,
@@ -102,7 +105,8 @@ const itemsExample = [
     externalId: '456gtr6513',
     compositePhysResSpecId: 1000776,
     physicalContainerId: 355,
-    geoPlaceId: 13246435,
+    geoPlaceId: 456,
+    portnumber: 3,
     transportCpeFuncSpecId: 14,
     externalProjectId: 1423375,
     externalCompositePhysResNum: 3425313,
@@ -114,6 +118,8 @@ const itemsExample = [
     updateUser: 'Japparov.S',
     createApp: 'resource-design-fe',
     updateApp: 'resource-design-fe',
+    selected: false,
+    measurementResult: 'Линия в порядке',
   },
 ];
 

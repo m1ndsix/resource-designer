@@ -1,12 +1,19 @@
 <template>
   <q-table
     title="Редактирование позиции заказа"
-    :rows="this.currentItem"
+    :rows="this.currentItemRows"
     :columns="columns"
     row-key="name"
     selection="none"
     :hide-pagination="true"
   >
+    <template v-slot:body-cell-selection="scope">
+      <q-td>
+        <div class="q-pa-md">
+          <q-checkbox v-model="scope.row.selected" />
+        </div>
+      </q-td>
+    </template>
     <template v-slot:body-cell-actions="scope">
       <q-td>
         <div class="q-pa-md q-gutter-sm">
@@ -21,66 +28,25 @@
       </q-td>
     </template>
     <template v-slot:top>
-      <div class="text-h4">Позиция заказа по адресу {{ item.geoPlaceId }}</div>
+      <div class="text-h4">
+        Позиция заказа по адресу ул. Желтоксан {{ item.geoPlaceId }}
+      </div>
       <q-space />
       <div class="q-pa-md">
         <div class="row q-gutter-sm">
-          <q-btn-dropdown
-            split
-            class="glossy"
-            color="primary"
-            label="Обследователь"
-          >
-            <q-list>
-              <q-item clickable v-close-popup>
-                <q-item-section>
-                  <q-item-label>Есть ТВ</q-item-label>
-                  <q-item-label caption>Username</q-item-label>
-                </q-item-section>
-                <q-item-section side>
-                  <q-icon name="info" color="amber" />
-                </q-item-section>
-              </q-item>
-            </q-list>
-          </q-btn-dropdown>
+          <q-btn-group>
+            <q-btn color="primary" glossy label="Обследователь"></q-btn>
+            <q-btn color="primary" outline label="Есть ТВ" disabled></q-btn>
+          </q-btn-group>
 
-          <q-btn-dropdown
-            split
-            class="glossy"
-            color="primary"
-            label="Измеритель"
-          >
-            <q-list>
-              <q-item clickable v-close-popup>
-                <q-item-section>
-                  <q-item-label>Линия в порядке</q-item-label>
-                  <q-item-label caption>Username</q-item-label>
-                </q-item-section>
-                <q-item-section side>
-                  <q-icon name="info" color="amber" />
-                </q-item-section>
-              </q-item>
-            </q-list>
-          </q-btn-dropdown>
+          <q-btn-group>
+            <q-btn color="primary" glossy label="Измеритель"></q-btn>
+          </q-btn-group>
 
-          <q-btn-dropdown
-            split
-            class="glossy"
-            color="primary"
-            label="Проверка линии"
-          >
-            <q-list>
-              <q-item clickable v-close-popup>
-                <q-item-section>
-                  <q-item-label>Трассировка линии</q-item-label>
-                  <q-item-label caption>[{:::}]</q-item-label>
-                </q-item-section>
-                <q-item-section side>
-                  <q-icon name="info" color="amber" />
-                </q-item-section>
-              </q-item>
-            </q-list>
-          </q-btn-dropdown>
+          <q-btn-group>
+            <q-btn color="primary" glossy label="Проверка линии"></q-btn>
+            <q-btn color="primary" outline label="ЛД" disabled></q-btn>
+          </q-btn-group>
         </div>
       </div>
     </template>
@@ -90,7 +56,13 @@
 
 <script>
 const columns = [
-  { name: 'actions', label: 'Действие', field: 'action', align: 'left' },
+  {
+    name: 'selection',
+    label: 'Выбрать',
+    field: (row) => row.selected,
+    align: 'left',
+  },
+  { name: 'actions', label: 'Действие', field: 'action', align: 'center' },
   {
     name: 'spec',
     align: 'center',
@@ -133,6 +105,13 @@ const columns = [
     field: 'transportCpeFuncSpecId',
     sortable: true,
   },
+  {
+    name: 'measurement-result',
+    align: 'center',
+    label: 'Результат измерения',
+    field: 'measurementResult',
+    sortable: true,
+  },
 ];
 
 import { defineComponent } from 'vue';
@@ -145,7 +124,7 @@ export default defineComponent({
     };
   },
   computed: {
-    currentItem: function () {
+    currentItemRows: function () {
       //console.log('props comp ' + this.item);
       return [this.item];
     },
