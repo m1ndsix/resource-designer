@@ -1,3 +1,4 @@
 {
-  "/api/cpr-resource-order-be/v1.0/cpr-resource-order-manual\\?offset=:offset&limit=:limit": "/cpr-resource-order-manual?_start=:offset&_limit=:limit"
+  "/api/cpr-resource-order-be/v1.0/cpr-resource-order-manual\\?offset=:offset&limit=:limit": "/cpr-resource-order-manual?_start=:offset&_limit=:limit",
+  "/product-offer-request/:productOfferReqId/po-req-item": "/po-req-item/?productOfferReqId=:productOfferReqId"
 }
