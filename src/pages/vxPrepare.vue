@@ -48,27 +48,11 @@
         </div>
       </div>
       <div class="col info-section row flex-center">
-        <q-btn
-          dense
-          class="q-ma-sm"
-          label="Подготовить"
-          size="sm"
-          color="secondary"
-        />
-        <q-btn
-          dense
-          class="q-ma-sm"
-          label="Уточнить"
-          size="sm"
-          color="primary"
-        />
-        <q-btn
-          dense
-          class="q-ma-sm"
-          label="Отменить"
-          size="sm"
-          color="negative"
-        />
+        <div class="q-gutter-sm">
+          <q-btn dense label="Подготовить" size="sm" color="secondary" />
+          <q-btn dense label="Уточнить" size="sm" color="primary" />
+          <q-btn dense label="Отменить" size="sm" color="negative" />
+        </div>
       </div>
     </div>
 
@@ -250,20 +234,16 @@ export default {
         { name: 'action', field: 'action', align: 'left' },
         {
           name: 'id',
-          required: true,
           label: 'ID компонента',
           align: 'left',
           field: (row) => row.id,
-          format: (val) => `${val}`,
           sortable: true,
         },
         {
           name: 'spec',
-          required: true,
           label: 'Спецификация',
           align: 'left',
           field: (row) => row.resource.spec,
-          format: (val) => `${val}`,
           sortable: true,
         },
         {
@@ -272,16 +252,13 @@ export default {
           label: 'Оборудование',
           align: 'left',
           field: (row) => row.resource.equipment,
-          format: (val) => `${val}`,
           sortable: true,
         },
         {
           name: 'port',
-          required: true,
           label: 'Порт',
           align: 'left',
           field: (row) => row.resource.port,
-          format: (val) => `${val}`,
           sortable: true,
         },
       ],
@@ -360,6 +337,7 @@ export default {
       this.prepareStore.createdResources.push(resource);
     },
     onPrepareComponent(resource) {
+      console.log(resource);
       const tickedNodes = this.$refs.qtree.getTickedNodes();
       const componentsIds = tickedNodes.map((node) => node.id);
       const positionsIds = tickedNodes.map((node) => node.poReqItemId);

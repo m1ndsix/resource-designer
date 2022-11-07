@@ -1,5 +1,5 @@
 <template>
-  <q-card>
+  <q-card style="max-width: 650px">
     <q-card-section class="row">
       <div class="text-h6">Линия</div>
       <q-space />
@@ -64,17 +64,13 @@
               />
             </div>
           </div>
-          <div class="row flex-center">
-            <div class="col">
-              <q-select
-                style="width: 250px"
-                v-model="state.newResource.value.port"
-                @update:model-value="onNewResourceSelect"
-                :options="state.ports"
-                label="Выбор Порта"
-              />
-            </div>
-          </div>
+          <q-select
+            style="width: 250px"
+            v-model="state.newResource.value.port"
+            @update:model-value="onNewResourceSelect"
+            :options="state.ports"
+            label="Выбор Порта"
+          />
         </q-tab-panel>
 
         <q-tab-panel name="existing">
@@ -83,7 +79,14 @@
             v-model="state.selectedExistingResource"
             :options="props.existingResources"
             color="primary"
-          />
+          >
+            <template v-slot:label="opt">
+              <div class="column">
+                <span class="text-bold">{{ opt.label }}</span>
+                <span class="text-caption">{{ opt.value.lineData }}</span>
+              </div>
+            </template>
+          </q-option-group>
           <div v-else>Нет данных</div>
         </q-tab-panel>
 
@@ -223,7 +226,7 @@ function onPrepareComponent() {
     if (!isResourceCreated) {
       emit('onAddNewResource', { ...state.newResource });
     }
-    emit('onPrepareComponent', state.newResource);
+    emit('onPrepareComponent', newRes);
     resetNewResource();
   } else if (state.resourceTab === 'created') {
     emit('onPrepareComponent', state.selectedCreatedResource);
@@ -233,17 +236,4 @@ function onPrepareComponent() {
 }
 </script>
 
-<style lang="sass" scoped>
-.selected-resource-info
-  .row
-    .col-auto
-      margin-right: 0.5em
-      color: #666
-
-    .col
-      allign: left
-      font-weight: 600
-      color: #222
-.col > .col
-  display: flex
-</style>
+<style lang="sass" scoped></style>
