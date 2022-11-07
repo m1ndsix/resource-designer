@@ -6,7 +6,99 @@
       <q-btn icon="close" flat round dense v-close-popup />
     </q-card-section>
     <q-card-section>
-      <q-select
+      <q-tabs
+        v-model="state.resourceTab"
+        dense
+        class="text-grey"
+        active-color="primary"
+        indicator-color="primary"
+        align="justify"
+        narrow-indicator
+      >
+        <q-tab name="new" label="Создать Новый" />
+        <q-tab name="existing" label="Выбрать существующий" />
+        <q-tab name="created" label="Созданные в проекте" />
+      </q-tabs>
+      <q-separator />
+
+      <q-tab-panels v-model="state.resourceTab" animated>
+        <q-tab-panel name="new">
+          <q-select
+            style="width: 250px"
+            v-model="state.newResource.value.spec"
+            @update:model-value="onNewResourceSelect"
+            :options="state.specs"
+            label="Выбор Спецификации"
+          />
+          <div class="row">
+            <div class="col">
+              <q-select
+                style="width: 250px"
+                v-model="state.newResource.value.equipment"
+                @update:model-value="onNewResourceSelect"
+                :options="state.equipment"
+                label="Выбор ОРК"
+              />
+            </div>
+            <div class="col">
+              <q-radio
+                v-model="state.equipmentSearchExtent"
+                checked-icon="task_alt"
+                unchecked-icon="panorama_fish_eye"
+                val="building"
+                label="По всему дому (По адресу)"
+              />
+              <q-radio
+                v-model="state.equipmentSearchExtent"
+                checked-icon="task_alt"
+                unchecked-icon="panorama_fish_eye"
+                val="entrance"
+                label="по подъезду"
+              />
+              <q-radio
+                v-model="state.equipmentSearchExtent"
+                checked-icon="task_alt"
+                unchecked-icon="panorama_fish_eye"
+                val="usageLimit"
+                label="по пределу обслуживания"
+              />
+            </div>
+          </div>
+          <div class="row flex-center">
+            <div class="col">
+              <q-select
+                style="width: 250px"
+                v-model="state.newResource.value.port"
+                @update:model-value="onNewResourceSelect"
+                :options="state.ports"
+                label="Выбор Порта"
+              />
+            </div>
+          </div>
+        </q-tab-panel>
+
+        <q-tab-panel name="existing">
+          <q-option-group
+            v-if="!!props.existingResources"
+            v-model="state.selectedExistingResource"
+            :options="props.existingResources"
+            color="primary"
+          />
+          <div v-else>Нет данных</div>
+        </q-tab-panel>
+
+        <q-tab-panel name="created">
+          <q-option-group
+            v-if="!!props.createdResources"
+            v-model="state.selectedCreatedResource"
+            :options="props.createdResources"
+            color="primary"
+          />
+          <div v-else>Нет данных</div>
+        </q-tab-panel>
+      </q-tab-panels>
+
+      <!-- <q-select
         style="width: 250px"
         v-model="state.selectedAvailableResource"
         @update:model-value="resetNewResource()"
@@ -35,66 +127,7 @@
             </div>
           </div>
         </div>
-      </div>
-    </q-card-section>
-
-    <q-separator />
-
-    <q-card-section>
-      <q-expansion-item label="Новый ресурс">
-        <q-select
-          style="width: 250px"
-          v-model="state.newResource.spec"
-          @update:model-value="onNewResourceSelect"
-          :options="state.specs"
-          label="Выбор Спецификации"
-        />
-        <div class="row">
-          <div class="col">
-            <q-select
-              style="width: 250px"
-              v-model="state.newResource.equipment"
-              @update:model-value="onNewResourceSelect"
-              :options="state.equipment"
-              label="Выбор ОРК"
-            />
-          </div>
-          <div class="col">
-            <q-radio
-              v-model="state.equipmentSearchExtent"
-              checked-icon="task_alt"
-              unchecked-icon="panorama_fish_eye"
-              val="building"
-              label="По всему дому (По адресу)"
-            />
-            <q-radio
-              v-model="state.equipmentSearchExtent"
-              checked-icon="task_alt"
-              unchecked-icon="panorama_fish_eye"
-              val="entrance"
-              label="по подъезду"
-            />
-            <q-radio
-              v-model="state.equipmentSearchExtent"
-              checked-icon="task_alt"
-              unchecked-icon="panorama_fish_eye"
-              val="usageLimit"
-              label="по пределу обслуживания"
-            />
-          </div>
-        </div>
-        <div class="row flex-center">
-          <div class="col">
-            <q-select
-              style="width: 250px"
-              v-model="state.newResource.port"
-              @update:model-value="onNewResourceSelect"
-              :options="state.ports"
-              label="Выбор Порта"
-            />
-          </div>
-        </div>
-      </q-expansion-item>
+      </div> -->
     </q-card-section>
 
     <q-separator />
@@ -105,10 +138,11 @@
         type="submit"
         color="primary"
         :disable="
-          (!state.newResource.equipment ||
-            !state.newResource.port ||
-            !state.newResource.spec) &&
-          !state.selectedAvailableResource
+          (!state.newResource.value.equipment ||
+            !state.newResource.value.port ||
+            !state.newResource.value.spec) &&
+          !state.selectedExistingResource &&
+          !state.selectedCreatedResource
         "
         @click="onPrepareComponent"
       />
@@ -125,10 +159,12 @@ import { Resource } from './models';
 */
 
 interface Props {
-  availableResources: Resource[];
+  existingResources: Resource[];
+  createdResources: Resource[];
 }
 const props = withDefaults(defineProps<Props>(), {
-  availableResources: () => [],
+  existingResources: () => [],
+  createdResources: () => [],
 });
 
 /*
@@ -142,7 +178,9 @@ const emit = defineEmits(['onAddNewResource', 'onPrepareComponent']);
 */
 
 interface State {
-  selectedAvailableResource: Resource | null;
+  resourceTab: string;
+  selectedExistingResource: Resource | null;
+  selectedCreatedResource: Resource | null;
   newResource: Resource;
   specs: string[];
   equipment: string[];
@@ -150,8 +188,17 @@ interface State {
   equipmentSearchExtent: string;
 }
 const initialState: State = {
-  selectedAvailableResource: null,
-  newResource: { name: null, spec: null, equipment: null, port: null },
+  resourceTab: 'new',
+  selectedExistingResource: null,
+  selectedCreatedResource: null,
+  newResource: {
+    label: null,
+    value: {
+      spec: null,
+      equipment: null,
+      port: null,
+    },
+  },
   specs: ['Прямая линия FTTH б/логина (1000776)', 'Прямая линия ETTH(1000784)'],
   equipment: [
     'ОРК 229/06/2/1',
@@ -181,34 +228,39 @@ const state: State = reactive(initialState);
 */
 
 function resetNewResource() {
-  state.newResource = { name: null, spec: null, equipment: null, port: null };
+  state.newResource = {
+    label: null,
+    value: {
+      spec: null,
+      equipment: null,
+      port: null,
+    },
+  };
 }
 
 function onNewResourceSelect() {
-  state.selectedAvailableResource = null;
+  state.selectedExistingResource = null;
+  state.selectedCreatedResource = null;
 }
 
 function onPrepareComponent() {
-  state.newResource.name = state.newResource.equipment
-    ? `${state.newResource.equipment} | ${state.newResource.port}`
-    : null;
-
-  const isResourceAvailable =
-    props.availableResources.findIndex((r) => {
-      return r.name === state.selectedAvailableResource.name;
-    }) > -1;
-  if (isResourceAvailable) {
-    // TODO: fix later
-    console.log('Данный ресурс уже существует');
+  if (state.resourceTab === 'new') {
+    const newRes = state.newResource.value;
+    state.newResource.label = `${newRes.spec} | ${newRes.equipment} | ${newRes.port}`;
+    const isResourceCreated =
+      props.createdResources.findIndex((res) => {
+        return res.label === state.newResource.label;
+      }) > -1;
+    if (!isResourceCreated) {
+      emit('onAddNewResource', { ...state.newResource });
+    }
+    emit('onPrepareComponent', state.newResource);
+    resetNewResource();
+  } else if (state.resourceTab === 'created') {
+    emit('onPrepareComponent', state.selectedCreatedResource);
   } else {
-    emit('onAddNewResource', { ...state.newResource });
+    emit('onPrepareComponent', state.selectedExistingResource);
   }
-  const resource =
-    state.selectedAvailableResource && state.selectedAvailableResource.name
-      ? state.selectedAvailableResource
-      : state.newResource;
-  emit('onPrepareComponent', resource);
-  resetNewResource();
 }
 </script>
 

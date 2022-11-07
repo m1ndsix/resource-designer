@@ -243,7 +243,8 @@
     >
     <q-dialog v-model="openResourceForm">
       <vx-resource-form
-        :available-resources="[...prepareStore.availableResources]"
+        :created-resources="prepareStore.createdResources"
+        :existing-resources="prepareStore.existingResources"
         @on-add-new-resource="onAddNewResource"
         @on-prepare-component="onPrepareComponent"
       />
@@ -385,7 +386,7 @@ export default {
       this.openResourceForm = true;
     },
     onAddNewResource(resource) {
-      this.prepareStore.availableResources.push(resource);
+      this.prepareStore.createdResources.push(resource);
     },
     onPrepareComponent(resource) {
       const tickedNodes = this.$refs.qtree.getTickedNodes();
