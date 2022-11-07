@@ -47,6 +47,29 @@
           <div class="col">{{ prepareStore.poRequest.contactName }}</div>
         </div>
       </div>
+      <div class="col info-section row flex-center">
+        <q-btn
+          dense
+          class="q-ma-sm"
+          label="Подготовить"
+          size="sm"
+          color="secondary"
+        />
+        <q-btn
+          dense
+          class="q-ma-sm"
+          label="Уточнить"
+          size="sm"
+          color="primary"
+        />
+        <q-btn
+          dense
+          class="q-ma-sm"
+          label="Отменить"
+          size="sm"
+          color="negative"
+        />
+      </div>
     </div>
 
     <div class="row">
@@ -58,8 +81,10 @@
                 class="col"
                 ref="qtree"
                 node-key="nodeKey"
-                :nodes="prepareStore.dataTree"
                 tick-strategy="leaf"
+                :nodes="prepareStore.dataTree"
+                :filter="treeFilter"
+                :filter-method="treeFilterMethod"
                 v-model:ticked="tickedNodes"
                 @update:ticked="onNodeTicked"
               >
@@ -82,7 +107,7 @@
                           dense
                           class="q-mr-sm"
                           label="Не назначенные"
-                          v-model="showAppointed"
+                          v-model="treeFilter"
                         />
                         <q-btn
                           dense
@@ -115,7 +140,12 @@
                             ? prop.node.oldProductOfferName
                             : prop.node.oldNumber
                         }}</span>
-                        <span><q-icon name="arrow_right_alt" /></span>
+                        <span
+                          v-if="
+                            prop.node.oldProductOfferName || prop.node.oldNumber
+                          "
+                          ><q-icon name="arrow_right_alt"
+                        /></span>
                         <span class="text-positive">
                           {{
                             prop.node.newProductOfferName
@@ -127,7 +157,7 @@
                     </div>
                   </div>
                 </template>
-                <template v-slot:default-body="prop">
+                <!-- <template v-slot:default-body="prop">
                   <q-chip
                     v-if="prop.node.state"
                     dense
@@ -136,59 +166,8 @@
                   >
                     {{ prop.node.state }}
                   </q-chip>
-                </template>
+                </template> -->
               </q-tree>
-              <!-- <div class="col-auto">
-                <q-btn-group>
-                  <q-btn
-                    flat
-                    color="primary"
-                    label="Свернуть все"
-                    @click="$refs.qtree.collapseAll()"
-                  />
-
-                  <q-btn-dropdown rounded color="primary" label="Фильтр">
-                    <div>
-                      <q-input
-                        ref="treeFilterRef"
-                        filled
-                        v-model="treeFilter.id"
-                        label="ID:"
-                      >
-                        <template v-slot:append>
-                          <q-icon
-                            v-if="treeFilter.id !== ''"
-                            name="clear"
-                            class="cursor-pointer"
-                            @click="resetTreeFilter"
-                          />
-                        </template>
-                      </q-input>
-                      <q-input
-                        ref="treeFilterRef"
-                        filled
-                        v-model="treeFilter.address"
-                        label="Адрес:"
-                      >
-                        <template v-slot:append>
-                          <q-icon
-                            v-if="treeFilter.address !== ''"
-                            name="clear"
-                            class="cursor-pointer"
-                            @click="resetTreeFilter"
-                          />
-                        </template>
-                      </q-input>
-                    </div>
-                  </q-btn-dropdown>
-                  <q-btn
-                    color="secondary"
-                    label="Назначить"
-                    :disable="disableAppointBtn"
-                    @click="onAppoint()"
-                  />
-                </q-btn-group>
-              </div> -->
             </div>
           </template>
           <template v-slot:separator>
@@ -238,9 +217,6 @@
         </q-splitter>
       </div>
     </div>
-    <q-btn style="position: fixed; bottom: 10px; right: 10px" color="primary"
-      >Далее</q-btn
-    >
     <q-dialog v-model="openResourceForm">
       <vx-resource-form
         :created-resources="prepareStore.createdResources"
@@ -263,8 +239,7 @@ export default {
     const prepareStore = usePrepareStore();
     const orderStore = useOrderStore();
     return {
-      treeFilter: ref({ id: '', address: '' }),
-      treeFilterRef: ref(null),
+      treeFilter: ref(false),
       openResourceForm: ref(false),
       splitterModel: ref(70),
       showAppointed: ref(false),
@@ -332,17 +307,13 @@ export default {
     },
   },
   methods: {
-    // treeFilterMethod(node, _) {
-    //   // TODO: add filter by address
-    //   const idFilt = this.treeFilter.id.toLowerCase();
-    //   const addressFilt = this.treeFilter.address.toLowerCase();
-    //   return node.id === parseInt(idFilt);
-    // },
-
-    // resetTreeFilter() {
-    //   this.treeFilter = { id: '', address: '' };
-    //   this.treeFilterRef.focus();
-    // },
+    treeFilterMethod(node, onlyAppointed) {
+      if (onlyAppointed) {
+        return node.state === 'Новый';
+      } else {
+        return true;
+      }
+    },
     filterPositions(positions) {
       return positions.filter(
         (pos) => pos.children.findIndex((comp) => !!comp.resource) > -1
