@@ -37,5 +37,17 @@ npm run format
 quasar build
 ```
 
+### Launch json mock api server 
+First, switch mode before quasar dev:
+```
+$env:JSON_SERVER = 'true' 
+# or 
+JSON_SERVER=true
+```
+after that start the server:
+```
+json-server --watch demo/db.json --routes demo/routes.json
+```
+
 ### Customize the configuration
 See [Configuring quasar.config.js](https://v2.quasar.dev/quasar-cli-vite/quasar-config-js).
