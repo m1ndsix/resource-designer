@@ -97,37 +97,6 @@
           <div v-else>Нет данных</div>
         </q-tab-panel>
       </q-tab-panels>
-
-      <!-- <q-select
-        style="width: 250px"
-        v-model="state.selectedAvailableResource"
-        @update:model-value="resetNewResource()"
-        :options="props.availableResources"
-        option-label="name"
-        label="Доступные ресурсы"
-      />
-      <div v-if="state.selectedAvailableResource">
-        <div class="selected-resource-info">
-          <div class="row">
-            <div class="col-auto">Спецификация:</div>
-            <div class="col">
-              {{ state.selectedAvailableResource.spec }}
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-auto">ОРК:</div>
-            <div class="col">
-              {{ state.selectedAvailableResource.equipment }}
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-auto">Порт:</div>
-            <div class="col">
-              {{ state.selectedAvailableResource.port }}
-            </div>
-          </div>
-        </div>
-      </div> -->
     </q-card-section>
 
     <q-separator />
