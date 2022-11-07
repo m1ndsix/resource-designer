@@ -79,7 +79,7 @@ interface ProductOfferRequestItemComponent {
   id?: number;
   typeId: number;
   type?: IdNameRuKz;
-  poReqItemId?: string;
+  poReqItemId?: number;
   geoPlaceId?: number;
   geoPlaceName?: string;
   poComponentId: number;
@@ -184,7 +184,7 @@ export const usePrepareStore = defineStore('prepareStore', {
                     return {
                       ...comp,
                       nodeKey: `${pos.id}-${comp.id}`,
-                      label: `Компонент (ID): ${comp.id}`,
+                      label: `ID: ${comp.id}`,
                       state: 'Новый',
                     };
                   })
@@ -193,7 +193,7 @@ export const usePrepareStore = defineStore('prepareStore', {
                   ...pos,
                   nodeKey: pos.id,
                   children: components,
-                  label: `Позиция (ID): ${pos.id}`,
+                  label: `ID: ${pos.id}`,
                 };
                 delete position.itemComponents;
                 return position;

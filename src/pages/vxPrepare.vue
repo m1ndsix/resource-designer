@@ -65,14 +65,27 @@
               >
                 <template v-slot:default-header="prop">
                   <div class="row items-center">
-                    <div class="text-weight-bold text-primary col">
+                    <q-btn
+                      v-if="prop.node.poReqItemId"
+                      class="col q-mr-sm"
+                      dense
+                      size="sm"
+                      color="secondary"
+                      label="Проект"
+                    />
+                    <div class="text-weight-bold text-primary col-auto">
                       {{ prop.node.label }}
                     </div>
-                    <div class="col-auto q-ml-md">
+                    <div class="col-auto q-ml-sm">
                       <div v-if="!prop.node.typeId">
+                        <q-checkbox
+                          dense
+                          class="q-mr-sm"
+                          label="Не назначенные"
+                          v-model="showAppointed"
+                        />
                         <q-btn
                           dense
-                          rounded
                           size="sm"
                           color="secondary"
                           label="Назначить"
@@ -81,7 +94,6 @@
                         ></q-btn>
                         <q-btn
                           dense
-                          rounded
                           size="sm"
                           class="q-ml-sm"
                           color="negative"
@@ -98,9 +110,19 @@
                         >
                           {{ positionTypeName(prop.node.typeId) }}
                         </q-chip>
-                        <span class="text-negative">{{ 87074209537 }}</span>
+                        <span class="text-negative">{{
+                          prop.node.oldProductOfferName
+                            ? prop.node.oldProductOfferName
+                            : prop.node.oldNumber
+                        }}</span>
                         <span><q-icon name="arrow_right_alt" /></span>
-                        <span class="text-positive"> {{ 87473802121 }}</span>
+                        <span class="text-positive">
+                          {{
+                            prop.node.newProductOfferName
+                              ? prop.node.newProductOfferName
+                              : prop.node.newNumber
+                          }}</span
+                        >
                       </div>
                     </div>
                   </div>
@@ -243,7 +265,8 @@ export default {
       treeFilter: ref({ id: '', address: '' }),
       treeFilterRef: ref(null),
       openResourceForm: ref(false),
-      splitterModel: ref(50),
+      splitterModel: ref(70),
+      showAppointed: ref(false),
       tickedNodes: ref(null),
       prepareStore,
       orderStore,
@@ -334,10 +357,10 @@ export default {
           color = 'blue';
           break;
         case 2:
-          color = 'Yellow';
+          color = 'orange';
           break;
         case 3:
-          color = 'Red';
+          color = 'red';
       }
       return color;
     },
