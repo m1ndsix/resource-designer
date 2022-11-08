@@ -86,10 +86,12 @@
                       {{ prop.node.label }}
                     </div>
                     <div class="col-auto q-ml-sm">
-                      <div v-if="!prop.node.typeId">
+                      <div
+                        v-if="!prop.node.typeId"
+                        class="row flex-center q-gutter-sm"
+                      >
                         <q-checkbox
                           dense
-                          class="q-mr-sm"
                           label="Не назначенные"
                           v-model="treeFilter"
                         />
@@ -100,14 +102,31 @@
                           label="Назначить"
                           :disable="disableAppointBtn"
                           @click="onAppoint()"
-                        ></q-btn>
+                        />
                         <q-btn
                           dense
                           size="sm"
-                          class="q-ml-sm"
                           color="negative"
-                          label="Отмена"
-                        ></q-btn>
+                          label="Отменить"
+                        />
+                        <q-btn dense size="sm">
+                          <div class="row items-center no-wrap text-teal">
+                            <div>Обследовать</div>
+                            <q-separator vertical spaced />
+                            <div style="margin-right: 5px">3</div>
+                          </div>
+                        </q-btn>
+                        <q-btn
+                          dense
+                          no-caps
+                          size="sm"
+                          @click="() => (openResultTable = true)"
+                        >
+                          <div class="row items-center">
+                            <div class="text-center text-teal">Есть ТВ</div>
+                            <q-icon color="info" right name="info" />
+                          </div>
+                        </q-btn>
                       </div>
 
                       <div v-else class="row flex-center">
@@ -209,14 +228,23 @@
         @on-prepare-component="onPrepareComponent"
       />
     </q-dialog>
+    <q-dialog v-model="openResultTable">
+      <vx-result-table
+        :created-resources="prepareStore.createdResources"
+        :existing-resources="prepareStore.existingResources"
+        @on-add-new-resource="onAddNewResource"
+        @on-prepare-component="onPrepareComponent"
+      />
+    </q-dialog>
   </div>
 </template>
 
 <script>
 import { ref } from 'vue';
 import { usePrepareStore } from 'stores/prepare';
-import VxResourceForm from '../components/vxResourceForm.vue';
 import { useOrderStore } from 'src/stores/order';
+import vxResourceForm from '../components/vxResourceForm.vue';
+import vxResultTable from '../components/vxResultTable.vue';
 
 export default {
   setup() {
@@ -225,6 +253,7 @@ export default {
     return {
       treeFilter: ref(false),
       openResourceForm: ref(false),
+      openResultTable: ref(false),
       splitterModel: ref(70),
       showAppointed: ref(false),
       tickedNodes: ref(null),
@@ -265,7 +294,8 @@ export default {
     };
   },
   components: {
-    VxResourceForm,
+    vxResourceForm,
+    vxResultTable,
   },
   mounted() {
     this.prepareStore.fetchPORequest(
