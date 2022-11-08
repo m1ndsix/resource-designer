@@ -30,16 +30,11 @@
       </template>
       <template v-slot:top>
         <div class="text-h4">
-          Позиция заказа по адресу ул. Желтоксан {{ item.geoPlaceId }}
+          г. Алматы, ул. Абылай хана {{ pos.components[0].geoPlaceId }}
         </div>
         <q-space />
         <div class="q-pa-md">
           <div class="row q-gutter-sm">
-            <q-btn-group>
-              <q-btn color="primary" glossy label="Обследователь"></q-btn>
-              <q-btn color="primary" outline label="Есть ТВ" disabled></q-btn>
-            </q-btn-group>
-
             <q-btn-group>
               <q-btn color="primary" glossy label="Измеритель"></q-btn>
             </q-btn-group>
