@@ -2,7 +2,7 @@
   <div>
     <q-drawer show-if-above bordered>
       <q-list>
-        <q-item-label header> Время создания заказа </q-item-label>
+        <q-item-label header> Время создания поручения </q-item-label>
         <q-input
           color="grey-3"
           label-color="grey"
@@ -28,7 +28,7 @@
       </q-list>
     </q-drawer>
     <q-table
-      title="Заказы"
+      title="Поручения"
       :rows="orderStore.orders"
       :columns="columns"
       row-key="name"
@@ -107,7 +107,23 @@ const columns = reactive([
   {
     name: 'externalId',
     required: true,
-    label: 'Номер заказа',
+    label: 'Номер поручения',
+    align: 'left',
+    field: 'externalId',
+    sortable: true,
+  },
+  {
+    name: 'externalId',
+    required: true,
+    label: 'Номер запроса на ПП',
+    align: 'left',
+    field: 'externalId',
+    sortable: true,
+  },
+  {
+    name: 'externalId',
+    required: true,
+    label: 'Адрес',
     align: 'left',
     field: 'externalId',
     sortable: true,
@@ -121,13 +137,6 @@ const columns = reactive([
     sortable: true,
   },
   {
-    name: 'expectedCompletionDate',
-    label: 'Запрашиваемая дата завершения',
-    field: (row) =>
-      date.formatDate(row.expectedCompletionDate, 'YYYY-MM-DD HH:mm:ss'),
-    sortable: true,
-  },
-  {
     name: 'createDate',
     align: 'center',
     label: 'Создан',
@@ -136,7 +145,7 @@ const columns = reactive([
   },
   {
     name: 'createUser',
-    label: 'Оператор',
+    label: 'Исполнитель',
     field: 'createUser',
     sortable: true,
   },
