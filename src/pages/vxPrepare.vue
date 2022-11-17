@@ -3,41 +3,31 @@
     <div v-if="prepareStore.poRequest" class="row header">
       <div class="col info-section">
         <div class="row">
-          <div class="col">ID Коммуникации:</div>
+          <div class="col">Номер Запроса на ПП:</div>
           <div class="col">{{ prepareStore.poRequest.id }}</div>
         </div>
         <div class="row">
-          <div class="col">Статус:</div>
+          <div class="col">Состояние:</div>
           <div class="col">
-            {{ prepareStore.poRequest.poReqStatus.nameRu }}
+            {{ prepareStore.poRequest.poReqStatus.name_ru }}
           </div>
         </div>
         <div class="row">
-          <div class="col">ID Участника:</div>
+          <div class="col">Участник:</div>
           <div class="col">{{ prepareStore.poRequest.partyId }}</div>
         </div>
       </div>
       <div class="col info-section">
         <div class="row">
-          <div class="col">Адрес Коммуникации:</div>
-          <div class="col">{{ prepareStore.poRequest.commChannelId }}</div>
-        </div>
-        <div class="row">
-          <div class="col">ID Дивизиона:</div>
+          <div class="col">Дивизион:</div>
           <div class="col">{{ prepareStore.poRequest.divisionId }}</div>
         </div>
         <div class="row">
-          <div class="col">ID Отдела Продаж:</div>
+          <div class="col">Канал Продаж:</div>
           <div class="col">{{ prepareStore.poRequest.salesChannelId }}</div>
         </div>
       </div>
       <div class="col info-section">
-        <div class="row">
-          <div class="col">Идент. номер:</div>
-          <div class="col">
-            {{ prepareStore.poRequest.identificationNumber }}
-          </div>
-        </div>
         <div class="row">
           <div class="col">Конт. тел.:</div>
           <div class="col">{{ prepareStore.poRequest.contactNumber }}</div>
@@ -49,9 +39,8 @@
       </div>
       <div class="col info-section row flex-center">
         <div class="q-gutter-sm">
-          <q-btn dense label="Подготовить" size="sm" color="secondary" />
-          <q-btn dense label="Уточнить" size="sm" color="primary" />
-          <q-btn dense label="Отменить" size="sm" color="negative" />
+          <q-btn dense label="Завершить" size="sm" color="secondary" />
+          <q-btn dense label="Закрыть Окно" size="sm" color="primary" />
         </div>
       </div>
     </div>
@@ -75,7 +64,7 @@
                 <template v-slot:default-header="prop">
                   <div class="row items-center">
                     <q-btn
-                      v-if="prop.node.poReqItemId"
+                      v-if="prop.node.typeId"
                       class="col q-mr-sm"
                       dense
                       size="sm"
@@ -103,13 +92,18 @@
                           :disable="disableAppointBtn"
                           @click="onAppoint()"
                         />
+                        <q-btn dense size="sm" color="dark" label="Отказать" />
                         <q-btn
                           dense
                           size="sm"
                           color="negative"
                           label="Отменить"
                         />
-                        <q-btn dense size="sm">
+                        <q-btn
+                          dense
+                          size="sm"
+                          @click="() => (openInspectionDialog = true)"
+                        >
                           <div class="row items-center no-wrap text-teal">
                             <div>Обследовать</div>
                             <q-separator vertical spaced />
@@ -156,6 +150,14 @@
                               : prop.node.newNumber
                           }}</span
                         >
+                        <q-btn
+                          v-if="prop.node.poReqItemId"
+                          icon="close"
+                          flat
+                          round
+                          dense
+                          color="negative"
+                        />
                       </div>
                     </div>
                   </div>
@@ -229,12 +231,10 @@
       />
     </q-dialog>
     <q-dialog v-model="openResultTable">
-      <vx-result-table
-        :created-resources="prepareStore.createdResources"
-        :existing-resources="prepareStore.existingResources"
-        @on-add-new-resource="onAddNewResource"
-        @on-prepare-component="onPrepareComponent"
-      />
+      <vx-result-table />
+    </q-dialog>
+    <q-dialog v-model="openInspectionDialog">
+      <vx-inspection-dialog />
     </q-dialog>
   </div>
 </template>
@@ -245,6 +245,7 @@ import { usePrepareStore } from 'stores/prepare';
 import { useOrderStore } from 'src/stores/order';
 import vxResourceForm from '../components/vxResourceForm.vue';
 import vxResultTable from '../components/vxResultTable.vue';
+import vxInspectionDialog from '../components/vxInspectionDialog.vue';
 
 export default {
   setup() {
@@ -254,6 +255,7 @@ export default {
       treeFilter: ref(false),
       openResourceForm: ref(false),
       openResultTable: ref(false),
+      openInspectionDialog: ref(false),
       splitterModel: ref(70),
       showAppointed: ref(false),
       tickedNodes: ref(null),
@@ -296,6 +298,7 @@ export default {
   components: {
     vxResourceForm,
     vxResultTable,
+    vxInspectionDialog,
   },
   mounted() {
     this.prepareStore.fetchPORequest(
