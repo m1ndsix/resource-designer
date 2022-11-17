@@ -35,6 +35,12 @@ interface State {
 }
 const initialState: State = {
   columns: [
+    {
+      name: 'order',
+      label: 'Номер поручения',
+      field: (row) => row.order,
+      align: 'left',
+    },
     { name: 'date', label: 'Дата', field: (row) => row.date, align: 'left' },
     {
       name: 'user',
@@ -70,6 +76,7 @@ const initialState: State = {
   rows: [
     {
       rowId: 1,
+      order: '123456',
       date: '20.01.2022',
       user: 'Иванов А.Б',
       extraWork: 'Да',
@@ -79,6 +86,7 @@ const initialState: State = {
     },
     {
       rowId: 2,
+      order: '234567',
       date: '21.01.2022',
       user: 'Иванов А.Б',
       extraWork: 'Да',
@@ -88,6 +96,7 @@ const initialState: State = {
     },
     {
       rowId: 3,
+      order: '345678',
       date: '22.01.2022',
       user: 'Иванов А.Б',
       extraWork: 'Да',
