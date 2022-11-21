@@ -76,7 +76,11 @@
                     </div>
                     <div class="col-auto q-ml-sm">
                       <div
-                        v-if="!prop.node.typeId"
+                        v-if="
+                          !prop.node.typeId &&
+                          prop.node.label !== 'Общий' &&
+                          prop.node.label !== 'P2P'
+                        "
                         class="row flex-center q-gutter-sm"
                       >
                         <q-checkbox
@@ -325,12 +329,14 @@ export default {
       }
     },
     filterPositions(positions) {
-      return positions.filter(
-        (pos) => pos.children.findIndex((comp) => !!comp.resource) > -1
-      );
+      return positions;
+      // return positions.filter(
+      //   (pos) => pos.children.findIndex((comp) => !!comp.resource) > -1
+      // );
     },
     filterComponents(components) {
-      return components.filter((comp) => !!comp.resource);
+      // return components.filter((comp) => !!comp.resource);
+      return components;
     },
     positionTypeColor(typeId) {
       let color;

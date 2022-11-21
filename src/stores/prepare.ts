@@ -4,7 +4,7 @@ import _ from 'lodash';
 
 interface State {
   poRequest: ProductOfferRequest | null;
-  dataTree: DataTree[];
+  dataTree: any[];
   positions: ProductOfferRequestItem[];
   selectedComponent: ProductOfferRequestItemComponent | null;
   components: ProductOfferRequestItemComponent[];
@@ -120,27 +120,45 @@ interface IdNameRuKz {
 }
 
 const fakeAddress = [
-  'Инженерная ул., 499 кв. 714',
-  'набережная Окружная, 153 кв. 121',
-  'Сенная площадь, 208 кв. 721',
-  'ал. Загородная, 415 кв. 950',
-  'наб. Таежная, 329 кв. 538',
-  'набережная Дорожная, 556 кв. 980',
-  'Привольная ал., 993 кв. 690',
-  'наб. Центральная, 492 кв. 422',
-  'наб. Вольная, 005 кв. 500',
-  'Железнодорожная улица, 239 кв. 964',
-  'пл. Поселковая, 869 кв. 329',
-  'ул. Красная, 071 кв. 289',
-  'улица Покровская, 382 кв. 298',
-  'Воронежская пл., 970 кв. 956',
-  'Отрадная ул., 940 кв. 259',
-  'Безымянная аллея, 456 кв. 020',
-  'Молодежная набережная, 051 кв. 382',
-  'набережная Локомотивная, 241 кв. 786',
-  'Ореховая ул., 359 кв. 952',
-  'Сахалинская площадь, 852 кв. 470',
+  'г.Алматы, мкр.Самал-2, 64, 1',
+  'г.Астана, мкр.Коктем-2, 6А, 403 - г.Алматы, мкр.Самал-2, 64, 1',
 ];
+
+function makeTreeOfAddressType(data) {
+  return _(data)
+    .map((address) => {
+      const positions = _(address.productOfferReqItems)
+        .map((pos) => {
+          const components = _(pos.itemComponents)
+            .map((comp) => {
+              return {
+                ...comp,
+                nodeKey: `${pos.id}-${comp.id}`,
+                label: `ID: ${comp.id}`,
+                state: 'Новый',
+              };
+            })
+            .value();
+          const position = {
+            ...pos,
+            nodeKey: pos.id,
+            children: components,
+            label: `ID: ${pos.id}`,
+          };
+          delete position.itemComponents;
+          return position;
+        })
+        .value();
+      delete address.productOfferReqItems;
+      return {
+        ...address,
+        label: address.nameRu,
+        nodeKey: address.id,
+        children: positions,
+      };
+    })
+    .value();
+}
 
 export const usePrepareStore = defineStore('prepareStore', {
   state: (): State => {
@@ -178,23 +196,6 @@ export const usePrepareStore = defineStore('prepareStore', {
       preparedComponents: [],
     };
   },
-  getters: {
-    resourcesTree: (state) => {
-      return state.positions.map((p) => {
-        const comps = state.components.map((c) => {
-          return {
-            ...c,
-            address: 'ул. Абая, 1',
-            resource: c.resource,
-          };
-        });
-        return {
-          posId: p.id,
-          components: comps,
-        };
-      });
-    },
-  },
   actions: {
     fetchPORequest(poRequestId: number) {
       poApi.get(`/product-offer-request/${poRequestId}`).then(({ data }) => {
@@ -205,41 +206,23 @@ export const usePrepareStore = defineStore('prepareStore', {
       poApi
         .get(`/product-offer-request/${poRequestId}/po-req-item`)
         .then(({ data }) => {
-          if (!!data.length) {
-            this.dataTree = _(data)
-              .map((pos) => {
-                const components = _(pos.itemComponents)
-                  .map((comp) => {
-                    return {
-                      ...comp,
-                      nodeKey: `${pos.id}-${comp.id}`,
-                      label: `ID: ${comp.id}`,
-                      state: 'Новый',
-                    };
-                  })
-                  .value();
-                const position = {
-                  ...pos,
-                  nodeKey: pos.id,
-                  children: components,
-                  label: `ID: ${pos.id}`,
-                };
-                delete position.itemComponents;
-                return position;
-              })
-              .groupBy('geoPlaceId')
-              .map((pos, geoPlaceId) => {
-                const label =
-                  pos[0].geoPlaceName ||
-                  fakeAddress[Math.floor(Math.random() * fakeAddress.length)];
-                return {
-                  label,
-                  geoPlaceId,
-                  children: pos,
-                  nodeKey: geoPlaceId,
-                };
-              })
-              .value();
+          if (data) {
+            this.dataTree = [
+              {
+                label: 'Общий',
+                nodeKey: 'productOfferWithGeneralGeoPlace',
+                children: makeTreeOfAddressType(
+                  data.productOfferWithGeneralGeoPlace
+                ),
+              },
+              {
+                label: 'P2P',
+                nodeKey: 'productOfferWithP2PGeoPlace',
+                children: makeTreeOfAddressType(
+                  data.productOfferWithP2PGeoPlace
+                ),
+              },
+            ];
             this.positions = data;
           }
         });
