@@ -3,7 +3,10 @@ import { faker } from '@faker-js/faker/locale/ru';
 let data = {
   'cpr-resource-order-manual': [],
   'product-offer-request': null,
-  'po-req-item': [],
+  'po-req-item': {
+    productOfferWithGeneralGeoPlace: [],
+    productOfferWithP2PGeoPlace: [],
+  },
 };
 // Create 20 orders
 for (let i = 0; i < 20; i++) {
@@ -81,9 +84,11 @@ for (let i = 0; i < 20; i++) {
   for (let j = 1; j < 6; j++) {
     let geoPlaceIdOne = faker.random.numeric(6);
     let geoPlaceIdTwo = faker.random.numeric(6);
+    let geoPlaceIdThree = faker.random.numeric(6);
+    let geoPlaceIdFour = faker.random.numeric(6);
     let geoPlaceNameOne = faker.address.streetAddress(true);
     let geoPlaceNameTwo = faker.address.streetAddress(true);
-    let components = [
+    let componentsOne = [
       {
         id: 70000 + j,
         typeId: j >= 1 && j <= 3 ? j : 3,
@@ -115,7 +120,69 @@ for (let i = 0; i < 20; i++) {
         updateApp: randomDate,
       },
       {
-        id: 70000 + j,
+        id: 70001 + j,
+        typeId: j >= 1 && j <= 3 ? j : 3,
+        type: {
+          id: j >= 1 && j <= 3 ? j : 3,
+          nameRu: j === 1 ? 'Установка' : j === 2 ? 'Замена' : 'Снятие',
+          nameKz: j === 1 ? 'Установка' : j === 2 ? 'Замена' : 'Снятие',
+        },
+        poReqItemId: 60000 + j,
+        geoPlaceId: j % 2 === 0 ? geoPlaceIdOne : geoPlaceIdTwo,
+        geoPlaceName: j % 2 === 0 ? geoPlaceNameOne : geoPlaceNameTwo,
+        poComponentId: 1234,
+        poComponentName: 'iD TV с Элитным пакетом каналов дополнительный',
+        oldPoStructId: 1234,
+        oldPoStructName: 'test',
+        newPoStructId: 4321,
+        newPoStructName: 'test',
+        resourceOrderItemId: 1234,
+        oldNumber: '870762239094',
+        newNumber: '877713535433',
+        oldCount: 1234,
+        newCount: 1234,
+        elements: 1234,
+        createDate: randomDate,
+        updateDate: randomDate,
+        createUser: randomDate,
+        updateUser: randomDate,
+        createApp: randomDate,
+        updateApp: randomDate,
+      },
+    ];
+    let componentsTwo = [
+      {
+        id: 80000 + j,
+        typeId: j >= 1 && j <= 3 ? j : 3,
+        type: {
+          id: j >= 1 && j <= 3 ? j : 3,
+          nameRu: j === 1 ? 'Установка' : j === 2 ? 'Замена' : 'Снятие',
+          nameKz: j === 1 ? 'Установка' : j === 2 ? 'Замена' : 'Снятие',
+        },
+        poReqItemId: 60000 + j,
+        geoPlaceId: j % 2 === 0 ? geoPlaceIdOne : geoPlaceIdTwo,
+        geoPlaceName: j % 2 === 0 ? geoPlaceNameOne : geoPlaceNameTwo,
+        poComponentId: 1234,
+        poComponentName: 'iD TV с Элитным пакетом каналов дополнительный',
+        oldPoStructId: 1234,
+        oldPoStructName: 'test',
+        newPoStructId: 4321,
+        newPoStructName: 'test',
+        resourceOrderItemId: 1234,
+        oldNumber: '870762239094',
+        newNumber: '877713535433',
+        oldCount: 1234,
+        newCount: 1234,
+        elements: 1234,
+        createDate: randomDate,
+        updateDate: randomDate,
+        createUser: randomDate,
+        updateUser: randomDate,
+        createApp: randomDate,
+        updateApp: randomDate,
+      },
+      {
+        id: 70001 + j,
         typeId: j >= 1 && j <= 3 ? j : 3,
         type: {
           id: j >= 1 && j <= 3 ? j : 3,
@@ -146,8 +213,34 @@ for (let i = 0; i < 20; i++) {
       },
     ];
 
-    data['po-req-item'].push({
+    data['po-req-item']['productOfferWithGeneralGeoPlace'].push({
       id: 60000 + j,
+      typeId: j >= 1 && j <= 3 ? j : 3,
+      type: {
+        id: j >= 1 && j <= 3 ? j : 3,
+        nameRu: j === 1 ? 'Установка' : j === 2 ? 'Замена' : 'Снятие',
+        nameKz: j === 1 ? 'Установка' : j === 2 ? 'Замена' : 'Снятие',
+      },
+      productOfferReqId: 50000 + i,
+      geoPlaceId: j % 2 === 0 ? geoPlaceIdThree : geoPlaceIdFour,
+      geoPlaceName: j % 2 === 0 ? geoPlaceNameThree : geoPlaceNameFour,
+      oldProductOfferId: 1234,
+      oldProductOfferName: j % 2 === 0 ? 'Silver LTE Prome Kcell(1 год)' : null,
+      newProductOfferId: 4321,
+      newProductOfferName: 'Light LTE Prome Kcell(1 год)',
+      caSubscriptionId: 123,
+      agreementId: 123,
+      billingAccountId: 123,
+      createDate: randomDate,
+      updateDate: randomDate,
+      createUser: randomDate,
+      updateUser: randomDate,
+      createApp: randomDate,
+      updateApp: randomDate,
+      itemComponents: componentsOne,
+    });
+    data['po-req-item']['productOfferWithP2PGeoPlace'].push({
+      id: 80000 + j,
       typeId: j >= 1 && j <= 3 ? j : 3,
       type: {
         id: j >= 1 && j <= 3 ? j : 3,
@@ -170,7 +263,7 @@ for (let i = 0; i < 20; i++) {
       updateUser: randomDate,
       createApp: randomDate,
       updateApp: randomDate,
-      itemComponents: components,
+      itemComponents: componentsTwo,
     });
   }
 }
