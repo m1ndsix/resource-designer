@@ -131,7 +131,7 @@ const columns = reactive([
   {
     name: 'stateData',
     required: true,
-    label: 'Статус',
+    label: 'Состояние',
     align: 'left',
     field: (row) => row.stateData.name,
     sortable: true,
@@ -147,12 +147,6 @@ const columns = reactive([
     name: 'createUser',
     label: 'Исполнитель',
     field: 'createUser',
-    sortable: true,
-  },
-  {
-    name: 'createApp',
-    label: 'Система',
-    field: 'createApp',
     sortable: true,
   },
 ]);
