@@ -23,7 +23,7 @@
               color="primary"
               label="Редактировать"
             />
-            <q-btn color="secondary" label="Сохранить" />
+            
             <q-btn color="red" label="Отменить" />
           </div>
         </q-td>
