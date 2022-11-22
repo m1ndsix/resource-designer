@@ -190,35 +190,42 @@
           <template v-slot:after>
             <q-list separator>
               <q-expansion-item
-                v-for="address in prepareStore.dataTree"
-                :key="address.nodeKey"
-                :label="address.label"
+                v-for="poType in prepareStore.dataTree"
+                :key="poType.nodeKey"
+                :label="poType.label"
               >
                 <q-expansion-item
-                  v-for="pos in filterPositions(address.children)"
-                  :key="pos.nodeKey"
-                  :label="pos.label"
+                  v-for="address in poType.children"
+                  :key="address.nodeKey"
+                  :label="address.label"
                   :header-inset-level="1"
                 >
-                  <q-table
-                    hide-bottom
-                    :rows="filterComponents(pos.children)"
-                    :columns="voixPositionsCols"
-                    row-key="id"
+                  <q-expansion-item
+                    v-for="pos in filterPositions(address.children)"
+                    :key="pos.nodeKey"
+                    :label="pos.label"
+                    :header-inset-level="2"
                   >
-                    <template v-slot:body-cell-action="scope">
-                      <q-td>
-                        <q-btn
-                          icon="close"
-                          flat
-                          round
-                          dense
-                          v-model="scope.selected"
-                          color="negative"
-                        />
-                      </q-td>
-                    </template>
-                  </q-table>
+                    <q-table
+                      hide-bottom
+                      :rows="filterComponents(pos.children)"
+                      :columns="voixPositionsCols"
+                      row-key="id"
+                    >
+                      <template v-slot:body-cell-action="scope">
+                        <q-td>
+                          <q-btn
+                            icon="close"
+                            flat
+                            round
+                            dense
+                            v-model="scope.selected"
+                            color="negative"
+                          />
+                        </q-td>
+                      </template>
+                    </q-table>
+                  </q-expansion-item>
                 </q-expansion-item>
               </q-expansion-item>
             </q-list>
@@ -329,14 +336,12 @@ export default {
       }
     },
     filterPositions(positions) {
-      return positions;
-      // return positions.filter(
-      //   (pos) => pos.children.findIndex((comp) => !!comp.resource) > -1
-      // );
+      return positions.filter(
+        (pos) => pos.children.findIndex((comp) => !!comp.resource) > -1
+      );
     },
     filterComponents(components) {
-      // return components.filter((comp) => !!comp.resource);
-      return components;
+      return components.filter((comp) => !!comp.resource);
     },
     positionTypeColor(typeId) {
       let color;
@@ -376,23 +381,25 @@ export default {
       this.prepareStore.createdResources.push(resource);
     },
     onPrepareComponent(resource) {
-      console.log(resource);
       const tickedNodes = this.$refs.qtree.getTickedNodes();
       const componentsIds = tickedNodes.map((node) => node.id);
       const positionsIds = tickedNodes.map((node) => node.poReqItemId);
 
-      this.prepareStore.dataTree.forEach((address) => {
-        address.children.forEach((pos) => {
-          if (positionsIds.includes(pos.id)) {
-            pos.children.forEach((comp) => {
-              if (componentsIds.includes(comp.id)) {
-                comp.state = 'Подготовлен';
-                comp.resource = resource;
-              }
-            });
-          }
+      this.prepareStore.dataTree.forEach((poType) => {
+        poType.children.forEach((address) => {
+          address.children.forEach((pos) => {
+            if (positionsIds.includes(pos.id)) {
+              pos.children.forEach((comp) => {
+                if (componentsIds.includes(comp.id)) {
+                  comp.state = 'Подготовлен';
+                  comp.resource = resource;
+                }
+              });
+            }
+          });
         });
       });
+
       this.openResourceForm = false;
     },
   },
