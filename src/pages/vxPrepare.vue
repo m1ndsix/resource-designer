@@ -211,20 +211,7 @@
                       :rows="filterComponents(pos.children)"
                       :columns="voixPositionsCols"
                       row-key="id"
-                    >
-                      <template v-slot:body-cell-action="scope">
-                        <q-td>
-                          <q-btn
-                            icon="close"
-                            flat
-                            round
-                            dense
-                            v-model="scope.selected"
-                            color="negative"
-                          />
-                        </q-td>
-                      </template>
-                    </q-table>
+                    />
                   </q-expansion-item>
                 </q-expansion-item>
               </q-expansion-item>
@@ -273,7 +260,6 @@ export default {
       prepareStore,
       orderStore,
       voixPositionsCols: [
-        { name: 'action', field: 'action', align: 'left' },
         {
           name: 'id',
           label: 'ID компонента',
