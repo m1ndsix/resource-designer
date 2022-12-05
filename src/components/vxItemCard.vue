@@ -23,7 +23,7 @@
               color="primary"
               label="Редактировать"
             />
-            
+
             <q-btn color="red" label="Отменить" />
           </div>
         </q-td>
@@ -36,7 +36,12 @@
         <div class="q-pa-md">
           <div class="row q-gutter-sm">
             <q-btn-group>
-              <q-btn color="primary" glossy label="Измеритель"></q-btn>
+              <q-btn
+                color="primary"
+                glossy
+                label="Измеритель"
+                @click="() => (openMeasurementDialog = true)"
+              ></q-btn>
             </q-btn-group>
 
             <q-btn-group>
@@ -56,6 +61,9 @@
     </q-table>
   </div>
   <br />
+  <q-dialog v-model="openMeasurementDialog">
+    <vx-measurement />
+  </q-dialog>
 </template>
 
 <script>
@@ -118,13 +126,16 @@ const columns = [
   },
 ];
 
-import { defineComponent } from 'vue';
+import { defineComponent, ref } from 'vue';
+import vxMeasurement from '../components/vxMeasurement.vue';
 export default defineComponent({
+  components: { vxMeasurement },
   props: ['item'],
   setup(props) {
     //console.log('PROPS = ' + props);
     return {
       columns,
+      openMeasurementDialog: ref(false),
     };
   },
   computed: {
