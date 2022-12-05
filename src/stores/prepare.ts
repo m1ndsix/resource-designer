@@ -11,6 +11,7 @@ interface State {
   createdResources: Resource[];
   existingResources: Resource[];
   preparedComponents: PreparedComponents[];
+  geoPlaces: any[];
 }
 
 interface DataTree {
@@ -119,52 +120,57 @@ interface IdNameRuKz {
   nameKz: string;
 }
 
-const fakeAddress = [
-  'г.Алматы, мкр.Самал-2, 64, 1',
-  'г.Астана, мкр.Коктем-2, 6А, 403 - г.Алматы, мкр.Самал-2, 64, 1',
-];
-
-function makeTreeOfAddressType(data) {
-  return _(data)
-    .map((address) => {
-      const positions = _(address.productOfferReqItems)
-        .map((pos) => {
-          const components = _(pos.itemComponents)
-            .map((comp) => {
-              return {
-                ...comp,
-                nodeKey: `${pos.id}-${comp.id}`,
-                label: `ID: ${comp.id}`,
-                state: 'Новый',
-              };
-            })
-            .value();
-          const position = {
-            ...pos,
-            nodeKey: pos.id,
-            children: components,
-            label: `ID: ${pos.id}`,
-          };
-          delete position.itemComponents;
-          return position;
-        })
-        .value();
-      delete address.productOfferReqItems;
-      return {
-        ...address,
-        label: address.nameRu,
-        nodeKey: address.id,
-        children: positions,
-      };
-    })
-    .value();
+function makeTree(data) {
+  return {
+    ...data,
+    label: data.nameRu,
+    nodeKey: data.id,
+    nodeType: 'address',
+    children: _(data.productOfferReqItems)
+      .map((pos) => {
+        const components = _(pos.itemComponents)
+          .map((comp) => {
+            return {
+              ...comp,
+              label: `ID: ${comp.id}`,
+              nodeKey: `${pos.id}-${comp.id}`,
+              nodeType: 'component',
+              state: 'Новый',
+            };
+          })
+          .value();
+        const position = {
+          ...pos,
+          label: `ID: ${pos.id}`,
+          nodeKey: pos.id,
+          nodeType: 'position',
+          children: components,
+        };
+        delete position.itemComponents;
+        return position;
+      })
+      .value(),
+  };
 }
 
 export const usePrepareStore = defineStore('prepareStore', {
   state: (): State => {
     return {
       poRequest: null,
-      dataTree: [],
+      dataTree: [
+        {
+          label: 'ПП с одним адресом',
+          nodeKey: 'productOfferWithGeneralGeoPlace',
+          noTick: true,
+          children: [],
+        },
+        {
+          label: 'ПП с несколькими адресами',
+          nodeKey: 'productOfferWithP2PGeoPlace',
+          noTick: true,
+          children: [],
+        },
+      ],
       positions: [],
       selectedComponent: null,
       components: [],
@@ -194,6 +200,7 @@ export const usePrepareStore = defineStore('prepareStore', {
         },
       ],
       preparedComponents: [],
+      geoPlaces: [],
     };
   },
   actions: {
@@ -202,35 +209,35 @@ export const usePrepareStore = defineStore('prepareStore', {
         this.poRequest = data;
       });
     },
-    fetchPositions(poRequestId: number) {
+    fetchGeoPlaces(poRequestId: number) {
+      poApi.get('/product-offer-request/21154/geo-places').then(({ data }) => {
+        if (data) {
+          this.geoPlaces = data;
+          for (let i = 0; i < data.length; i++) {
+            data[i].stateDistrict.geoPlaces.forEach((geoPlace) => {
+              if (geoPlace.id) {
+                this.fetchGeoPlaceInfo(poRequestId, geoPlace.id);
+              }
+            });
+          }
+        }
+      });
+    },
+    fetchGeoPlaceInfo(poRequestId: number, geoPlaceId: number) {
       poApi
-        .get(`/product-offer-request/${poRequestId}/po-req-item`)
+        .get(`/product-offer-request/21154/geo-place/${geoPlaceId}`)
         .then(({ data }) => {
-          if (data) {
-            this.dataTree = [
-              {
-                label: 'Общий',
-                nodeKey: 'productOfferWithGeneralGeoPlace',
-                children: makeTreeOfAddressType(
-                  data.productOfferWithGeneralGeoPlace
-                ),
-              },
-              {
-                label: 'P2P',
-                nodeKey: 'productOfferWithP2PGeoPlace',
-                children: makeTreeOfAddressType(
-                  data.productOfferWithP2PGeoPlace
-                ),
-              },
-            ];
-            this.positions = data;
+          if (data.productOfferWithGeneralGeoPlace.id) {
+            this.dataTree[0].children.push(
+              makeTree(data.productOfferWithGeneralGeoPlace)
+            );
+          }
+          if (data.productOfferWithP2PGeoPlace.id) {
+            this.dataTree[1].children.push(
+              makeTree(data.productOfferWithP2PGeoPlace)
+            );
           }
         });
-    },
-    fetchComponents(poReqItemId: number) {
-      return poApi.get(
-        `product-offer-request-be/v1.0/po-req-item/${poReqItemId}/po-req-item-component`
-      );
     },
   },
 });
