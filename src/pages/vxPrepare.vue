@@ -76,11 +76,7 @@
                     </div>
                     <div class="col-auto q-ml-sm">
                       <div
-                        v-if="
-                          !prop.node.typeId &&
-                          prop.node.label !== 'Общий' &&
-                          prop.node.label !== 'P2P'
-                        "
+                        v-if="prop.node.nodeType === 'address'"
                         class="row flex-center q-gutter-sm"
                       >
                         <q-checkbox
@@ -127,35 +123,47 @@
                         </q-btn>
                       </div>
 
-                      <div v-else class="row flex-center">
+                      <div
+                        v-if="
+                          prop.node.nodeType === 'position' ||
+                          prop.node.nodeType === 'component'
+                        "
+                        class="row flex-center"
+                      >
                         <q-chip
-                          v-if="prop.node.typeId"
+                          v-if="prop.node.nodeType === 'position'"
                           dense
                           text-color="white"
-                          :color="positionTypeColor(prop.node.typeId)"
+                          :color="
+                            positionTypeColor(
+                              prop.node.baseCfsActionSpecData.id
+                            )
+                          "
                         >
-                          {{ positionTypeName(prop.node.typeId) }}
+                          {{
+                            positionTypeName(prop.node.baseCfsActionSpecData.id)
+                          }}
                         </q-chip>
                         <span class="text-negative">{{
-                          prop.node.oldProductOfferName
-                            ? prop.node.oldProductOfferName
+                          prop.node.oldProductOfferData
+                            ? prop.node.oldProductOfferData.nameRu
                             : prop.node.oldNumber
                         }}</span>
                         <span
                           v-if="
-                            prop.node.oldProductOfferName || prop.node.oldNumber
+                            prop.node.oldProductOfferData || prop.node.oldNumber
                           "
                           ><q-icon name="arrow_right_alt"
                         /></span>
                         <span class="text-positive">
                           {{
-                            prop.node.newProductOfferName
-                              ? prop.node.newProductOfferName
+                            prop.node.newProductOfferData
+                              ? prop.node.newProductOfferData.nameRu
                               : prop.node.newNumber
                           }}</span
                         >
                         <q-btn
-                          v-if="prop.node.poReqItemId"
+                          v-if="prop.node.nodeType === 'component'"
                           icon="close"
                           flat
                           round
@@ -298,12 +306,12 @@ export default {
     vxInspectionDialog,
   },
   mounted() {
-    this.prepareStore.fetchPORequest(
-      this.orderStore.selectedOrder.productOfferRequestId
-    );
-    this.prepareStore.fetchPositions(
-      this.orderStore.selectedOrder.productOfferRequestId
-    );
+    if (!this.poRequest) {
+      this.prepareStore.fetchPORequest(
+        this.orderStore.selectedOrder.productOfferRequestId
+      );
+      this.prepareStore.fetchGeoPlaces();
+    }
   },
   computed: {
     disableAppointBtn() {
