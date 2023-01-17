@@ -2,68 +2,66 @@ import { defineStore } from 'pinia';
 import { roApi } from 'boot/api';
 
 interface State {
-  orders: CprResourceOrderManual[];
-  selectedOrder: CprResourceOrderItem | null;
+  orders: WorkOrder[];
+  selectedOrder: WorkOrder | null;
 }
 
-interface CprResourceOrderManual {
-  id?: number;
-  externalId: string;
-  productOfferRequestId: number;
-  stateId?: number;
-  stateData?: RoState;
-  expectedCompletionDate?: string;
-  completionDate?: string;
-  rejectReasonId?: number;
-  rejectReasonData?: RejectReason;
-  rejectDate?: string;
-  items?: CprResourceOrderItem[];
-  createDate?: string;
-  updateDate?: string;
-  createUser?: string;
-  updateUser?: string;
-  createApp?: string;
-  updateApp?: string;
+interface WorkOrder {
+  id: number;
+  cprResourceOrderPoReqId: number;
+  stateDistrictId: number;
+  geoPlace: GeoPlace;
+  techInspectionRequestId: number;
+  measurementRequestId: number;
+  executeEmployeeId: number;
+  executeData: string;
+  stateData: IdName;
+  cprResourceOrderPoReqItems: WorkOrderItem[];
+  createDate: string;
+  updateDate: string;
+  createUser: string;
+  updateUser: string;
+  createApp: string;
+  updateApp: string;
 }
 
-interface CprResourceOrderItem {
-  id?: number;
-  actionId: number;
-  actionData?: RoiAction;
-  stateId?: number;
-  stateData?: RoiState;
-  externalId: string;
-  compositePhysicalResourceSpecificationId: number;
-  geoPlaceId: number;
+interface GeoPlace {
+  id: number;
+  nameRu: string;
+  nameKz: string;
+  typeData: IdName;
+}
+
+interface IdName {
+  id: number;
+  nameRu: string;
+  nameKz: string;
+}
+
+interface WorkOrderItem {
+  id: number;
+  cprActionSpecId: number;
+  cprActionSpecData: IdName;
+  stateData: IdName;
+  compositePhysResSpecId: number;
+  compositePhysResSpecData: IdName;
   physicalContainerId: number;
-  externalCompositePhysicalResourceNumber?: number;
-  createDate?: string;
-  updateDate?: string;
-  createUser?: string;
-  updateUser?: string;
-  createApp?: string;
-  updateApp?: string;
-}
-
-interface RoiAction {
-  id?: number;
-  name?: string;
-}
-
-interface RoiState {
-  id?: number;
-  name?: string;
-}
-
-interface RoState {
-  id?: number;
-  name?: string;
-}
-
-interface RejectReason {
-  id?: number;
-  nameRu?: string;
-  nameKz?: string;
+  geoPlaceId: number;
+  geoPlaceData: IdName;
+  transportCpeFuncSpecId: number;
+  transportCpeFuncSpecData: IdName;
+  wiringTypeId: number;
+  wiringTypeData: IdName;
+  compositePhysResId: number;
+  compositePhysResFullNum: string;
+  externalProjectId: number;
+  externalCompositePhysResNum: number;
+  createDate: string;
+  updateDate: string;
+  createUser: string;
+  updateUser: string;
+  createApp: string;
+  updateApp: string;
 }
 
 export const useOrderStore = defineStore('orderStore', {
@@ -82,7 +80,7 @@ export const useOrderStore = defineStore('orderStore', {
     async getOrders(offset: number, limit: number) {
       try {
         await roApi
-          .get('/cpr-resource-order-manual', {
+          .get('/cpr-resource-order-po-req/work-order', {
             params: {
               offset,
               limit,

@@ -105,7 +105,7 @@ function prepareOrder(order: any) {
 const columns = reactive([
   { name: 'action', label: 'Действие', field: 'action', align: 'left' },
   {
-    name: 'externalId',
+    name: 'id',
     required: true,
     label: 'Номер поручения',
     align: 'left',
@@ -121,11 +121,11 @@ const columns = reactive([
     sortable: true,
   },
   {
-    name: 'externalId',
+    name: 'geoPlace',
     required: true,
     label: 'Адрес',
     align: 'left',
-    field: 'externalId',
+    field: (row) => row.geoPlace.nameRu,
     sortable: true,
   },
   {
@@ -133,7 +133,7 @@ const columns = reactive([
     required: true,
     label: 'Состояние',
     align: 'left',
-    field: (row) => row.stateData.name,
+    field: (row) => row.stateData.nameRu,
     sortable: true,
   },
   {
