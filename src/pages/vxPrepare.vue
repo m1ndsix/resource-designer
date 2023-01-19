@@ -8,9 +8,7 @@
         </div>
         <div class="row">
           <div class="col">Состояние:</div>
-          <div class="col">
-            {{ prepareStore.poRequest.poReqStatus.name_ru }}
-          </div>
+          <div class="col">Новый</div>
         </div>
         <div class="row">
           <div class="col">Участник:</div>
@@ -310,7 +308,9 @@ export default {
       this.prepareStore.fetchPORequest(
         this.orderStore.selectedOrder.productOfferRequestId
       );
-      this.prepareStore.fetchGeoPlaces();
+      this.prepareStore.fetchGeoPlaces(
+        this.orderStore.selectedOrder.productOfferRequestId
+      );
     }
   },
   computed: {

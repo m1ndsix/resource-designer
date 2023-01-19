@@ -109,15 +109,15 @@ const columns = reactive([
     required: true,
     label: 'Номер поручения',
     align: 'left',
-    field: 'externalId',
+    field: 'id',
     sortable: true,
   },
   {
-    name: 'externalId',
+    name: 'productOfferRequestId',
     required: true,
     label: 'Номер запроса на ПП',
     align: 'left',
-    field: 'externalId',
+    field: 'productOfferRequestId',
     sortable: true,
   },
   {

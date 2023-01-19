@@ -210,22 +210,24 @@ export const usePrepareStore = defineStore('prepareStore', {
       });
     },
     fetchGeoPlaces(poRequestId: number) {
-      poApi.get('/product-offer-request/21154/geo-places').then(({ data }) => {
-        if (data) {
-          this.geoPlaces = data;
-          for (let i = 0; i < data.length; i++) {
-            data[i].stateDistrict.geoPlaces.forEach((geoPlace) => {
-              if (geoPlace.id) {
-                this.fetchGeoPlaceInfo(poRequestId, geoPlace.id);
-              }
-            });
+      poApi
+        .get(`/product-offer-request/${poRequestId}/geo-places`)
+        .then(({ data }) => {
+          if (data) {
+            this.geoPlaces = data;
+            for (let i = 0; i < data.length; i++) {
+              data[i].stateDistrict.geoPlaces.forEach((geoPlace) => {
+                if (geoPlace.id) {
+                  this.fetchGeoPlaceInfo(poRequestId, geoPlace.id);
+                }
+              });
+            }
           }
-        }
-      });
+        });
     },
     fetchGeoPlaceInfo(poRequestId: number, geoPlaceId: number) {
       poApi
-        .get(`/product-offer-request/21154/geo-place/${geoPlaceId}`)
+        .get(`/product-offer-request/${poRequestId}/geo-place/${geoPlaceId}`)
         .then(({ data }) => {
           if (data.productOfferWithGeneralGeoPlace.id) {
             this.dataTree[0].children.push(

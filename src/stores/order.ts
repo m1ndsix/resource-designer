@@ -13,6 +13,7 @@ interface WorkOrder {
   geoPlace: GeoPlace;
   techInspectionRequestId: number;
   measurementRequestId: number;
+  productOfferRequestId: number;
   executeEmployeeId: number;
   executeData: string;
   stateData: IdName;
