@@ -137,15 +137,19 @@
                           {{ nameActionChip(prop.node) }}
                         </q-chip>
                         <!-- Name -->
-                        <span class="text-negative">{{
-                          oldName(prop.node)
-                        }}</span>
-                        <span v-if="showUpdateArrow(prop.node)"
-                          ><q-icon name="arrow_right_alt"
-                        /></span>
-                        <span class="text-positive">
-                          {{ newName(prop.node) }}</span
-                        >
+                        <div v-if="prop.node.nodeType === 'position'">
+                          <span class="text-negative">{{
+                            oldName(prop.node)
+                          }}</span>
+                          <span v-if="showUpdateArrow(prop.node)"
+                            ><q-icon name="arrow_right_alt"
+                          /></span>
+                          <span class="text-positive">
+                            {{ newName(prop.node) }}</span
+                          >
+                        </div>
+
+                        <!-- Component -->
                         <div
                           v-if="prop.node.nodeType === 'component'"
                           class="row items-center"
@@ -389,38 +393,23 @@ export default {
         : node.baseCfsActionSpecData.nameRu;
     },
     oldName(node) {
-      let name =
-        node.nodeType === 'position'
-          ? node.oldProductOfferData.nameRu
-          : node.oldNumber;
-      let action =
-        node.nodeType === 'position'
-          ? node.isPacketOffer
-            ? node.packetPoActionSpecData.id
-            : node.baseCfsActionSpecData.id
-          : node.baseCfsActionSpecData.id;
+      let name = node.oldProductOfferData.nameRu;
+      let action = node.isPacketOffer
+        ? node.packetPoActionSpecData.id
+        : node.baseCfsActionSpecData.id;
       return action !== 1 ? name : null;
     },
     showUpdateArrow(node) {
-      let action =
-        node.nodeType === 'position'
-          ? node.isPacketOffer
-            ? node.packetPoActionSpecData.id
-            : node.baseCfsActionSpecData.id
-          : node.baseCfsActionSpecData.id;
+      let action = node.isPacketOffer
+        ? node.packetPoActionSpecData.id
+        : node.baseCfsActionSpecData.id;
       return action === 2;
     },
     newName(node) {
-      let name =
-        node.nodeType === 'position'
-          ? node.newProductOfferData.nameRu
-          : node.newNumber;
-      let action =
-        node.nodeType === 'position'
-          ? node.isPacketOffer
-            ? node.packetPoActionSpecData.id
-            : node.baseCfsActionSpecData.id
-          : node.baseCfsActionSpecData.id;
+      let name = node.newProductOfferData.nameRu;
+      let action = node.isPacketOffer
+        ? node.packetPoActionSpecData.id
+        : node.baseCfsActionSpecData.id;
       return action !== 3 ? name : null;
     },
     onNodeTicked(nodes) {
