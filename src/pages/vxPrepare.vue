@@ -128,46 +128,52 @@
                         "
                         class="row flex-center"
                       >
+                        <!-- Action -->
                         <q-chip
-                          v-if="prop.node.nodeType === 'position'"
                           dense
                           text-color="white"
-                          :color="
-                            positionTypeColor(
-                              prop.node.baseCfsActionSpecData.id
-                            )
-                          "
+                          :color="colorizeActionChip(prop.node)"
                         >
-                          {{
-                            positionTypeName(prop.node.baseCfsActionSpecData.id)
-                          }}
+                          {{ nameActionChip(prop.node) }}
                         </q-chip>
+                        <!-- Name -->
                         <span class="text-negative">{{
-                          prop.node.oldProductOfferData
-                            ? prop.node.oldProductOfferData.nameRu
-                            : prop.node.oldNumber
+                          oldName(prop.node)
                         }}</span>
-                        <span
-                          v-if="
-                            prop.node.oldProductOfferData || prop.node.oldNumber
-                          "
+                        <span v-if="showUpdateArrow(prop.node)"
                           ><q-icon name="arrow_right_alt"
                         /></span>
                         <span class="text-positive">
-                          {{
-                            prop.node.newProductOfferData
-                              ? prop.node.newProductOfferData.nameRu
-                              : prop.node.newNumber
-                          }}</span
+                          {{ newName(prop.node) }}</span
                         >
-                        <q-btn
+                        <div
+                          v-if="prop.node.nodeType === 'component'"
+                          class="row items-center"
+                        >
+                          <pre>
+ | <b>Сервис:</b> Алма ТВ | <b>Продукт:</b> 500 Мбит | <b>Ресурс:</b> 77777777 </pre
+                          >
+                          <q-btn
+                            size="sm"
+                            round
+                            dense
+                            color="info"
+                            icon="info"
+                          />
+                          <!-- <span class="text-weight-bold">| Сервис: </span>
+                          <span>Алма ТВ </span>
+                          <span class="text-weight-bold">| Продукт: </span>
+                          <span>500 Мбит </span>
+                          <span class="text-weight-bold">| Ресурс: </span> -->
+                        </div>
+                        <!-- <q-btn
                           v-if="prop.node.nodeType === 'component'"
                           icon="close"
                           flat
                           round
                           dense
                           color="negative"
-                        />
+                        /> -->
                       </div>
                     </div>
                   </div>
@@ -308,9 +314,27 @@ export default {
       this.prepareStore.fetchPORequest(
         this.orderStore.selectedOrder.productOfferRequestId
       );
-      this.prepareStore.fetchGeoPlaces(
-        this.orderStore.selectedOrder.productOfferRequestId
+      this.prepareStore.fetchGeoPlaceInfo(
+        this.orderStore.selectedOrder.productOfferRequestId,
+        this.orderStore.selectedOrder.geoPlace.id
       );
+      this.prepareStore.dataTree = [
+        {
+          label: 'ПП с одним адресом',
+          nodeKey: 'productOfferWithGeneralGeoPlace',
+          noTick: true,
+          children: [],
+        },
+        {
+          label: 'ПП с несколькими адресами',
+          nodeKey: 'productOfferWithP2PGeoPlace',
+          noTick: true,
+          children: [],
+        },
+      ];
+      // this.prepareStore.fetchGeoPlaces(
+      //   this.orderStore.selectedOrder.productOfferRequestId
+      // );
     }
   },
   computed: {
@@ -337,9 +361,13 @@ export default {
     filterComponents(components) {
       return components.filter((comp) => !!comp.resource);
     },
-    positionTypeColor(typeId) {
+    colorizeActionChip(node) {
       let color;
-      switch (typeId) {
+      let action =
+        node.nodeType === 'position'
+          ? node.packetPoActionSpecData.id
+          : node.baseCfsActionSpecData.id;
+      switch (action) {
         case 1:
           color = 'blue';
           break;
@@ -351,19 +379,39 @@ export default {
       }
       return color;
     },
-    positionTypeName(typeId) {
-      let name;
-      switch (typeId) {
-        case 1:
-          name = 'Установка';
-          break;
-        case 2:
-          name = 'Замена';
-          break;
-        case 3:
-          name = 'Снятие';
-      }
-      return name;
+    nameActionChip(node) {
+      return node.nodeType === 'position'
+        ? node.packetPoActionSpecData.nameRu
+        : node.baseCfsActionSpecData.nameRu;
+    },
+    oldName(node) {
+      let name =
+        node.nodeType === 'position'
+          ? node.oldProductOfferData.nameRu
+          : node.oldNumber;
+      let action =
+        node.nodeType === 'position'
+          ? node.packetPoActionSpecData.id
+          : node.baseCfsActionSpecData.id;
+      return action !== 1 ? name : null;
+    },
+    showUpdateArrow(node) {
+      let action =
+        node.nodeType === 'position'
+          ? node.packetPoActionSpecData.id
+          : node.baseCfsActionSpecData.id;
+      return action === 2;
+    },
+    newName(node) {
+      let name =
+        node.nodeType === 'position'
+          ? node.newProductOfferData.nameRu
+          : node.newNumber;
+      let action =
+        node.nodeType === 'position'
+          ? node.packetPoActionSpecData.id
+          : node.baseCfsActionSpecData.id;
+      return action !== 3 ? name : null;
     },
     onNodeTicked(nodes) {
       this.prepareStore.selectedComponent = nodes;

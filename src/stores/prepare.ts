@@ -27,24 +27,33 @@ interface DataNode extends ProductOfferRequest {
 }
 
 interface ProductOfferRequest {
-  id?: number;
+  id: number;
   divisionId: number;
-  poReqStatusId?: number;
-  poReqStatus?: IdNameRuKz;
+  divisionName: string;
+  stateData: IdName;
+  nextActionData: IdName;
+  subStateId: IdName;
   resourceOrderId: number;
   partyId: number;
   commChannelId: number;
-  identificationNumber: string;
-  contactName: string;
-  contactNumber: number;
+  commChannelName: string;
+  commChannelTypeData: IdName;
+  commChannelAddr: string;
+  entityAuthTypeData: IdName;
   salesChannelId: number;
-  description?: string;
-  createDate?: string;
-  updateDate?: string;
-  createUser?: string;
-  updateUser?: string;
-  createApp?: string;
-  updateApp?: string;
+  salesChannelName: string;
+  identificationNumber: string;
+  mobilePhoneNumber: string;
+  contactName: string;
+  externalId: string;
+  codeVerify: string;
+  description: string;
+  createDate: string;
+  updateDate: string;
+  createUser: string;
+  updateUser: string;
+  createApp: string;
+  updateApp: string;
 }
 
 interface Resource {
@@ -61,7 +70,7 @@ interface Resource {
 interface ProductOfferRequestItem {
   id?: number;
   typeId: number;
-  type?: IdNameRuKz;
+  type?: IdName;
   productOfferReqId?: number;
   geoPlaceId: number;
   geoPlaceName?: string;
@@ -84,7 +93,7 @@ interface ProductOfferRequestItem {
 interface ProductOfferRequestItemComponent {
   id?: number;
   typeId: number;
-  type?: IdNameRuKz;
+  type?: IdName;
   poReqItemId?: number;
   geoPlaceId?: number;
   geoPlaceName?: string;
@@ -114,7 +123,7 @@ interface PreparedComponents {
   compIds: number[];
 }
 
-interface IdNameRuKz {
+interface IdName {
   id: number;
   nameRu: string;
   nameKz: string;
