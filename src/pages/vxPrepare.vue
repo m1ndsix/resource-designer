@@ -365,7 +365,9 @@ export default {
       let color;
       let action =
         node.nodeType === 'position'
-          ? node.packetPoActionSpecData.id
+          ? node.isPacketOffer
+            ? node.packetPoActionSpecData.id
+            : node.baseCfsActionSpecData.id
           : node.baseCfsActionSpecData.id;
       switch (action) {
         case 1:
@@ -381,7 +383,9 @@ export default {
     },
     nameActionChip(node) {
       return node.nodeType === 'position'
-        ? node.packetPoActionSpecData.nameRu
+        ? node.isPacketOffer
+          ? node.packetPoActionSpecData.nameRu
+          : node.baseCfsActionSpecData.nameRu
         : node.baseCfsActionSpecData.nameRu;
     },
     oldName(node) {
@@ -391,14 +395,18 @@ export default {
           : node.oldNumber;
       let action =
         node.nodeType === 'position'
-          ? node.packetPoActionSpecData.id
+          ? node.isPacketOffer
+            ? node.packetPoActionSpecData.id
+            : node.baseCfsActionSpecData.id
           : node.baseCfsActionSpecData.id;
       return action !== 1 ? name : null;
     },
     showUpdateArrow(node) {
       let action =
         node.nodeType === 'position'
-          ? node.packetPoActionSpecData.id
+          ? node.isPacketOffer
+            ? node.packetPoActionSpecData.id
+            : node.baseCfsActionSpecData.id
           : node.baseCfsActionSpecData.id;
       return action === 2;
     },
@@ -409,7 +417,9 @@ export default {
           : node.newNumber;
       let action =
         node.nodeType === 'position'
-          ? node.packetPoActionSpecData.id
+          ? node.isPacketOffer
+            ? node.packetPoActionSpecData.id
+            : node.baseCfsActionSpecData.id
           : node.baseCfsActionSpecData.id;
       return action !== 3 ? name : null;
     },
