@@ -4,6 +4,8 @@ import { roApi } from 'boot/api';
 interface State {
   orders: WorkOrder[];
   selectedOrder: WorkOrder | null;
+  baseCfsSpecs: string | null;
+  productSpecs: string | null;
 }
 
 interface WorkOrder {
@@ -70,6 +72,8 @@ export const useOrderStore = defineStore('orderStore', {
     return {
       orders: [],
       selectedOrder: null,
+      baseCfsSpecs: null,
+      productSpecs: null,
     };
   },
   getters: {
@@ -94,6 +98,24 @@ export const useOrderStore = defineStore('orderStore', {
               this.orders = [];
             }
           });
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    async getBaseCfsSpecs() {
+      try {
+        await roApi.get('/get-base-cfs-specs/').then(({ data }) => {
+          this.baseCfsSpecs = data;
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    async getProductSpecs() {
+      try {
+        await roApi.get('/get-product-specs/').then(({ data }) => {
+          this.productSpecs = data;
+        });
       } catch (error) {
         console.log(error);
       }

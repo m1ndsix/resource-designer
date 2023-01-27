@@ -141,7 +141,7 @@ function makeTree(data) {
           .map((comp) => {
             return {
               ...comp,
-              label: `ID: ${comp.id}`,
+              // label: `ID: ${comp.id}`,
               nodeKey: `${pos.id}-${comp.id}`,
               nodeType: 'component',
               state: 'Новый',
@@ -150,7 +150,7 @@ function makeTree(data) {
           .value();
         const position = {
           ...pos,
-          label: `ID: ${pos.id}`,
+          // label: `ID: ${pos.id}`,
           nodeKey: pos.id,
           nodeType: 'position',
           children: components,

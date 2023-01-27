@@ -73,6 +73,8 @@ onMounted(() => {
   orderStore.getOrders(0, 10).then(() => {
     isTableLoading.value = false;
   });
+  orderStore.getBaseCfsSpecs();
+  orderStore.getProductSpecs();
 });
 
 function onTableRequest(request) {

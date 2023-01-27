@@ -28,7 +28,7 @@
       <div class="col info-section">
         <div class="row">
           <div class="col">Конт. тел.:</div>
-          <div class="col">{{ prepareStore.poRequest.contactNumber }}</div>
+          <div class="col">{{ prepareStore.poRequest.mobilePhoneNumber }}</div>
         </div>
         <div class="row">
           <div class="col">ФИО/Наименование:</div>
@@ -155,8 +155,20 @@
                           class="row items-center"
                         >
                           <pre>
- | <b>Сервис:</b> Алма ТВ | <b>Продукт:</b> 500 Мбит | <b>Ресурс:</b> 77777777 </pre
+ <b>Сервис:</b> Antivirus по подписке | <b>Продукт:</b> </pre
                           >
+                          <q-select
+                            v-if="isProductSpecsMultiple(prop.node)"
+                            dense
+                            label="Продукт"
+                            v-model="selectedProduct"
+                            :options="prop.node.productSpecifications"
+                            option-label="nameRu"
+                          />
+                          <span v-else>{{
+                            prop.node.productSpecifications.nameRu
+                          }}</span>
+                          <pre> <b>Ресурс:</b> 77777777 </pre>
                           <q-btn
                             size="sm"
                             round
@@ -273,6 +285,7 @@ export default {
       splitterModel: ref(70),
       showAppointed: ref(false),
       tickedNodes: ref(null),
+      selectedProduct: ref(null),
       prepareStore,
       orderStore,
       voixPositionsCols: [
@@ -369,9 +382,7 @@ export default {
       let color;
       let action =
         node.nodeType === 'position'
-          ? node.isPacketOffer
-            ? node.packetPoActionSpecData.id
-            : node.baseCfsActionSpecData.id
+          ? node.productOfferActionData.id
           : node.baseCfsActionSpecData.id;
       switch (action) {
         case 1:
@@ -387,30 +398,29 @@ export default {
     },
     nameActionChip(node) {
       return node.nodeType === 'position'
-        ? node.isPacketOffer
-          ? node.packetPoActionSpecData.nameRu
-          : node.baseCfsActionSpecData.nameRu
+        ? node.productOfferActionData.nameRu
         : node.baseCfsActionSpecData.nameRu;
     },
     oldName(node) {
       let name = node.oldProductOfferData.nameRu;
-      let action = node.isPacketOffer
-        ? node.packetPoActionSpecData.id
-        : node.baseCfsActionSpecData.id;
+      let action = node.productOfferActionData.id;
       return action !== 1 ? name : null;
     },
     showUpdateArrow(node) {
-      let action = node.isPacketOffer
-        ? node.packetPoActionSpecData.id
-        : node.baseCfsActionSpecData.id;
-      return action === 2;
+      return node.productOfferActionData.id === 2;
     },
     newName(node) {
       let name = node.newProductOfferData.nameRu;
-      let action = node.isPacketOffer
-        ? node.packetPoActionSpecData.id
-        : node.baseCfsActionSpecData.id;
+      let action = node.productOfferActionData.id;
       return action !== 3 ? name : null;
+    },
+    serviceName(node) {
+      // const id = node.baseCfsSpecId;
+      // return this.orderStore.baseCfsSpecs.find((spec) => spec.id === id).nameRu;
+    },
+    isProductSpecsMultiple(node) {
+      const productSpecs = node.productSpecifications;
+      return Array.isArray(productSpecs) && !!productSpecs.length;
     },
     onNodeTicked(nodes) {
       this.prepareStore.selectedComponent = nodes;
