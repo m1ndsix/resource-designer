@@ -1,7 +1,7 @@
 <template>
   <q-card style="max-width: 650px">
     <q-card-section class="row">
-      <div class="text-h6">Линия</div>
+      <div class="text-h6">Назначение Ресурса</div>
       <q-space />
       <q-btn icon="close" flat round dense v-close-popup />
     </q-card-section>
