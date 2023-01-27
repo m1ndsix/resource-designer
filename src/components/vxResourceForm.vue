@@ -27,7 +27,9 @@
             style="width: 250px"
             v-model="state.newResource.value.spec"
             @update:model-value="onNewResourceSelect"
-            :options="state.specs"
+            :options="orderStore.cprSpecs"
+            option-label="nameRu"
+            option-value="nameRu"
             label="Выбор Спецификации"
           />
           <div class="row">
@@ -36,8 +38,15 @@
                 style="width: 250px"
                 v-model="state.newResource.value.equipment"
                 @update:model-value="onNewResourceSelect"
-                :options="state.equipment"
-                label="Выбор ОРК"
+                :options="orderStore.physicalContainers"
+                :option-label="
+                  (container) =>
+                    container.specificationData.nameRu +
+                    ' ' +
+                    container.physicalContainerNumber
+                "
+                option-value="physicalContainerNumber"
+                label="Выбор ФК"
               />
             </div>
             <div class="col">
@@ -125,6 +134,7 @@
 <script setup lang="ts">
 import { reactive } from 'vue';
 import { Resource } from './models';
+import { useOrderStore } from 'stores/order';
 
 /*
   Props
@@ -138,6 +148,11 @@ const props = withDefaults(defineProps<Props>(), {
   existingResources: () => [],
   createdResources: () => [],
 });
+
+/*
+  Store
+*/
+const orderStore = useOrderStore();
 
 /*
   Emits

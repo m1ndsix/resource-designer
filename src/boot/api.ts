@@ -12,7 +12,14 @@ function createVoixRouter(url: string, port: number) {
   });
 }
 
-const psApi = createVoixRouter(voixUrl, process.env.psPort);
+function tempRouter(url: string, port: number) {
+  return axios.create({
+    baseURL: `${url}:${port}/api/physical-container-be/v1.0`,
+    headers: { Authorization: '123qwerty' },
+  });
+}
+
+const psApi = tempRouter(voixUrl, process.env.psPort);
 const cpsApi = createVoixRouter(voixUrl, process.env.cpsPort);
 const mpApi = createVoixRouter(voixUrl, process.env.mpPort);
 const roApi = createVoixRouter(voixUrl, process.env.roPort);

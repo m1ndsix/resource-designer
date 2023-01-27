@@ -1,11 +1,14 @@
 import { defineStore } from 'pinia';
 import { roApi } from 'boot/api';
+import { psApi } from 'boot/api';
 
 interface State {
   orders: WorkOrder[];
   selectedOrder: WorkOrder | null;
-  baseCfsSpecs: string | null;
-  productSpecs: string | null;
+  baseCfsSpecs: IdName[];
+  productSpecs: IdName[];
+  cprSpecs: IdName[];
+  physicalContainers: IdName[];
 }
 
 interface WorkOrder {
@@ -72,8 +75,10 @@ export const useOrderStore = defineStore('orderStore', {
     return {
       orders: [],
       selectedOrder: null,
-      baseCfsSpecs: null,
-      productSpecs: null,
+      baseCfsSpecs: [],
+      productSpecs: [],
+      cprSpecs: [],
+      physicalContainers: [],
     };
   },
   getters: {
@@ -116,6 +121,32 @@ export const useOrderStore = defineStore('orderStore', {
         await roApi.get('/get-product-specs/').then(({ data }) => {
           this.productSpecs = data;
         });
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    async getCprSpecs() {
+      try {
+        await roApi.get('/get-cpr-specs/').then(({ data }) => {
+          this.cprSpecs = data;
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    async getPhysicalContainers(offset: number, limit: number) {
+      try {
+        await psApi
+          .get('/physical-container', {
+            params: {
+              townStateId: 2,
+              offset,
+              limit,
+            },
+          })
+          .then(({ data }) => {
+            this.physicalContainers = data;
+          });
       } catch (error) {
         console.log(error);
       }
