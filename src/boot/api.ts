@@ -40,6 +40,28 @@ export default boot(async ({ app }) => {
         return Promise.reject(error);
       }
     );
+    psApi.interceptors.request.use(
+      (config) => {
+        if (config.headers) {
+          config.headers.Authorization = `Bearer ${app.config.globalProperties.$keycloak.token}`;
+        }
+        return config;
+      },
+      (error) => {
+        return Promise.reject(error);
+      }
+    );
+    roApi.interceptors.request.use(
+      (config) => {
+        if (config.headers) {
+          config.headers.Authorization = `Bearer ${app.config.globalProperties.$keycloak.token}`;
+        }
+        return config;
+      },
+      (error) => {
+        return Promise.reject(error);
+      }
+    );
   }
   if (!process.env.isLocalDemo) {
     return new Promise((resolve) => {
