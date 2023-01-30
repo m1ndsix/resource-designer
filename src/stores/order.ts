@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { CPR_RO_API, PC_API } from 'boot/api';
+import { CPR_RO_API, PC_API, TE_API } from 'boot/api';
 
 interface State {
   orders: WorkOrder[];
@@ -145,6 +145,21 @@ export const useOrderStore = defineStore('orderStore', {
       } catch (error) {
         console.log(error);
       }
+    },
+    requestTechInspection(
+      WOID: number,
+      EmployeeID: number,
+      Description: string
+    ) {
+      TE_API.post('/tech-inspection-request', {
+        data: {
+          WOID,
+          EmployeeID,
+          Description,
+        },
+      }).then((response) => {
+        console.log(response);
+      });
     },
   },
 });

@@ -25,13 +25,20 @@
     <q-separator />
 
     <q-card-actions align="right">
-      <q-btn color="positive" label="Отправить" />
+      <q-btn
+        color="positive"
+        label="Отправить"
+        @click="requestTechInspection()"
+      />
     </q-card-actions>
   </q-card>
 </template>
 
 <script setup lang="ts">
 import { reactive } from 'vue';
+import { useOrderStore } from 'stores/order';
+
+const orderStore = useOrderStore();
 
 interface State {
   users: string[];
@@ -44,6 +51,16 @@ const initialState: State = {
   note: null,
 };
 const state: State = reactive(initialState);
+
+function requestTechInspection() {
+  if (orderStore.selectedOrder && state.note) {
+    orderStore.requestTechInspection(
+      orderStore.selectedOrder.id,
+      1,
+      state.note
+    );
+  }
+}
 </script>
 
 <style lang="sass" scoped></style>

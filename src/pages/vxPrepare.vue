@@ -338,6 +338,11 @@ export default {
         this.orderStore.selectedOrder.productOfferRequestId,
         this.orderStore.selectedOrder.geoPlace.id
       );
+      this.prepareStore.fetchCPRInfo(
+        this.orderStore.selectedOrder.geoPlace.id,
+        0,
+        10
+      );
       this.prepareStore.dataTree = [
         {
           label: 'ПП с одним адресом',

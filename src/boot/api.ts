@@ -5,16 +5,21 @@ import axios, { AxiosInstance } from 'axios';
 const PC_API_URL =
   process.env.PC_API_URL ||
   'http://10.8.26.62:1323/api/physical-container-be/v1.0'; // - URL сервиса physical-container-be
-const CPR_API_URL = process.env.CPR_API_URL || 'http://10.8.26.62:1324'; // - URL сервиса composite-physical-resource
+const CPR_API_URL =
+  process.env.CPR_API_URL ||
+  'http://10.8.26.62:1324/api/composite-physical-resource-be/v1.0'; // - URL сервиса composite-physical-resource
 const MP_API_URL = process.env.MP_API_URL || 'http://10.8.26.62:1325'; // - URL сервиса mounted-port-be
 const CPR_RO_URL =
   process.env.CPR_RO_URL ||
   'http://10.8.26.62:1326/api/cpr-resource-order-be/v1.0'; // - URL сервиса resource-order-be
 
-const LOC_API_URL = process.env.LOC_API_URL || 'http://10.6.4.118:6009/api/v1'; // - URL сервиса location
+const LOC_API_URL = process.env.LOC_API_URL || 'http://10.8.27.97:6009/api/v1'; // - URL сервиса location
 const POR_API_URL =
   process.env.POR_API_URL ||
   'http://10.6.4.118:6010/api/product-offer-request-be/v1.0'; // - URL сервиса product-offer
+const TE_URL =
+  process.env.TE_URL ||
+  'http://10.8.26.62:1326/api/tech-inspection-request-be/v1.0'; // - URL сервиса tech-inspection
 
 function createRouter(url: string) {
   return axios.create({
@@ -28,8 +33,17 @@ const MP_API = createRouter(MP_API_URL);
 const CPR_RO_API = createRouter(CPR_RO_URL);
 const LOC_API = createRouter(LOC_API_URL);
 const POR_API = createRouter(POR_API_URL);
+const TE_API = createRouter(TE_URL);
 
-const ALL_APIS = [PC_API, CPR_API, MP_API, CPR_RO_API, LOC_API, POR_API];
+const ALL_APIS = [
+  PC_API,
+  CPR_API,
+  MP_API,
+  CPR_RO_API,
+  LOC_API,
+  POR_API,
+  TE_API,
+];
 
 export default boot(async ({ app }) => {
   app.config.globalProperties.$axios = axios;
@@ -73,4 +87,4 @@ export default boot(async ({ app }) => {
   }
 });
 
-export { axios, PC_API, CPR_API, MP_API, CPR_RO_API, LOC_API, POR_API };
+export { axios, PC_API, CPR_API, MP_API, CPR_RO_API, LOC_API, POR_API, TE_API };

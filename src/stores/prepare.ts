@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { LOC_API, POR_API } from 'boot/api';
+import { CPR_API, LOC_API, POR_API } from 'boot/api';
 import _ from 'lodash';
 
 interface State {
@@ -12,7 +12,8 @@ interface State {
   existingResources: Resource[];
   preparedComponents: PreparedComponents[];
   geoPlaces: unknown[];
-  geoPlaceInfo: unknown;
+  geoPlaceInfo: GeoPlaceInfo | null;
+  cprInfo: unknown;
 }
 
 interface DataTree {
@@ -119,6 +120,35 @@ interface ProductOfferRequestItemComponent {
   resource?: Resource | null;
 }
 
+interface GeoPlaceInfo {
+  geoPlaceTypeId: number;
+  generalGeoAddress: {
+    generalGeoAddressTypeId: number;
+    generalGeoAddressNameRU: string;
+    generalGeoAddressNameKZ: string;
+    toponymId: number;
+    toponymNameRU: string;
+    toponymNameKZ: string;
+    toponymTypeId: number;
+    toponymTypeNameRU: string;
+    toponymTypeNameKZ: string;
+    townStateId: number;
+    townStateNameRU: string;
+    townStateNameKZ: string;
+    townStateTypeId: number;
+    townStateTypeNameRU: string;
+    townStateTypeNameKZ: string;
+    geoAddressFullNum: string;
+    geoAddressNum: number;
+    geoAddressSubNum: string;
+    geoSubAddressNum: string;
+    geoSubAddressSubNum: string;
+    entrance: string;
+    floor: string;
+    residentialTypeId: number;
+  };
+}
+
 interface PreparedComponents {
   posId: number;
   compIds: number[];
@@ -212,6 +242,7 @@ export const usePrepareStore = defineStore('prepareStore', {
       preparedComponents: [],
       geoPlaces: [],
       geoPlaceInfo: null,
+      cprInfo: null,
     };
   },
   actions: {
@@ -255,6 +286,17 @@ export const usePrepareStore = defineStore('prepareStore', {
             makeTree(data.productOfferWithP2PGeoPlace)
           );
         }
+      });
+    },
+    fetchCPRInfo(geoPlaceId: number, offset: number, limit: number) {
+      CPR_API.get('/composite-physical-resource', {
+        params: {
+          geoPlaceId,
+          offset,
+          limit,
+        },
+      }).then(({ data }) => {
+        this.cprInfo = data;
       });
     },
   },
