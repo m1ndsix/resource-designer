@@ -1,67 +1,52 @@
 import { boot } from 'quasar/wrappers';
 import VueKeyCloak from '@dsb-norge/vue-keycloak-js';
-import axios from 'axios';
+import axios, { AxiosInstance } from 'axios';
 
-const voixUrl = process.env.voixUrl;
-const ktUrl = process.env.ktUrl;
+const PC_API_URL =
+  process.env.PC_API_URL ||
+  'http://10.8.26.62:1323/api/physical-container-be/v1.0'; // - URL сервиса physical-container-be
+const CPR_API_URL = process.env.CPR_API_URL || 'http://10.8.26.62:1324'; // - URL сервиса composite-physical-resource
+const MP_API_URL = process.env.MP_API_URL || 'http://10.8.26.62:1325'; // - URL сервиса mounted-port-be
+const CPR_RO_URL =
+  process.env.CPR_RO_URL ||
+  'http://10.8.26.62:1326/api/cpr-resource-order-be/v1.0'; // - URL сервиса resource-order-be
 
-function createVoixRouter(url: string, port: number) {
+const LOC_API_URL = process.env.LOC_API_URL || 'http://10.6.4.118:6009/api/v1'; // - URL сервиса location
+const POR_API_URL =
+  process.env.POR_API_URL ||
+  'http://10.6.4.118:6010/api/product-offer-request-be/v1.0'; // - URL сервиса product-offer
+
+function createRouter(url: string) {
   return axios.create({
-    baseURL: `${url}:${port}/api/cpr-resource-order-be/v1.0`,
-    headers: { Authorization: '123qwerty' },
+    baseURL: url,
   });
 }
 
-function tempRouter(url: string, port: number) {
-  return axios.create({
-    baseURL: `${url}:${port}/api/physical-container-be/v1.0`,
-    headers: { Authorization: '123qwerty' },
-  });
-}
+const PC_API = createRouter(PC_API_URL);
+const CPR_API = createRouter(CPR_API_URL);
+const MP_API = createRouter(MP_API_URL);
+const CPR_RO_API = createRouter(CPR_RO_URL);
+const LOC_API = createRouter(LOC_API_URL);
+const POR_API = createRouter(POR_API_URL);
 
-const psApi = tempRouter(voixUrl, process.env.psPort);
-const cpsApi = createVoixRouter(voixUrl, process.env.cpsPort);
-const mpApi = createVoixRouter(voixUrl, process.env.mpPort);
-const roApi = createVoixRouter(voixUrl, process.env.roPort);
-
-const poApi = axios.create({ baseURL: ktUrl });
+const ALL_APIS = [PC_API, CPR_API, MP_API, CPR_RO_API, LOC_API, POR_API];
 
 export default boot(async ({ app }) => {
   app.config.globalProperties.$axios = axios;
-  function tokenInterceptor() {
-    poApi.interceptors.request.use(
-      (config) => {
-        if (config.headers) {
-          config.headers.Authorization = `Bearer ${app.config.globalProperties.$keycloak.token}`;
+  function tokenInterceptor(ALL_APIS: AxiosInstance[]) {
+    ALL_APIS.forEach((api) => {
+      api.interceptors.request.use(
+        (config) => {
+          if (config.headers) {
+            config.headers.Authorization = `Bearer ${app.config.globalProperties.$keycloak.token}`;
+          }
+          return config;
+        },
+        (error) => {
+          return Promise.reject(error);
         }
-        return config;
-      },
-      (error) => {
-        return Promise.reject(error);
-      }
-    );
-    psApi.interceptors.request.use(
-      (config) => {
-        if (config.headers) {
-          config.headers.Authorization = `Bearer ${app.config.globalProperties.$keycloak.token}`;
-        }
-        return config;
-      },
-      (error) => {
-        return Promise.reject(error);
-      }
-    );
-    roApi.interceptors.request.use(
-      (config) => {
-        if (config.headers) {
-          config.headers.Authorization = `Bearer ${app.config.globalProperties.$keycloak.token}`;
-        }
-        return config;
-      },
-      (error) => {
-        return Promise.reject(error);
-      }
-    );
+      );
+    });
   }
   if (!process.env.isLocalDemo) {
     return new Promise((resolve) => {
@@ -80,7 +65,7 @@ export default boot(async ({ app }) => {
           clientId: 'vue-front',
         },
         onReady: () => {
-          tokenInterceptor();
+          tokenInterceptor(ALL_APIS);
           resolve();
         },
       });
@@ -88,4 +73,4 @@ export default boot(async ({ app }) => {
   }
 });
 
-export { axios, psApi, cpsApi, mpApi, roApi, poApi };
+export { axios, PC_API, CPR_API, MP_API, CPR_RO_API, LOC_API, POR_API };

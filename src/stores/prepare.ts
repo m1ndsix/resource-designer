@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { poApi } from 'boot/api';
+import { LOC_API, POR_API } from 'boot/api';
 import _ from 'lodash';
 
 interface State {
@@ -11,7 +11,8 @@ interface State {
   createdResources: Resource[];
   existingResources: Resource[];
   preparedComponents: PreparedComponents[];
-  geoPlaces: any[];
+  geoPlaces: unknown[];
+  geoPlaceInfo: unknown;
 }
 
 interface DataTree {
@@ -210,45 +211,51 @@ export const usePrepareStore = defineStore('prepareStore', {
       ],
       preparedComponents: [],
       geoPlaces: [],
+      geoPlaceInfo: null,
     };
   },
   actions: {
     fetchPORequest(poRequestId: number) {
-      poApi.get(`/product-offer-request/${poRequestId}`).then(({ data }) => {
+      POR_API.get(`/product-offer-request/${poRequestId}`).then(({ data }) => {
         this.poRequest = data;
       });
     },
-    fetchGeoPlaces(poRequestId: number) {
-      poApi
-        .get(`/product-offer-request/${poRequestId}/geo-places`)
-        .then(({ data }) => {
-          if (data) {
-            this.geoPlaces = data;
-            for (let i = 0; i < data.length; i++) {
-              data[i].stateDistrict.geoPlaces.forEach((geoPlace) => {
-                if (geoPlace.id) {
-                  this.fetchGeoPlaceInfo(poRequestId, geoPlace.id);
-                }
-              });
-            }
-          }
-        });
+    // fetchGeoPlaces(poRequestId: number) {
+    //   POR_API.get(`/product-offer-request/${poRequestId}/geo-places`).then(
+    //     ({ data }) => {
+    //       if (data) {
+    //         this.geoPlaces = data;
+    //         for (let i = 0; i < data.length; i++) {
+    //           data[i].stateDistrict.geoPlaces.forEach((geoPlace) => {
+    //             if (geoPlace.id) {
+    //               this.fetchGeoPlaceInfo(poRequestId, geoPlace.id);
+    //             }
+    //           });
+    //         }
+    //       }
+    //     }
+    //   );
+    // },
+    fetchGeoPlaceInfo(geoPlaceId: number) {
+      LOC_API.get(`/geo-place/${geoPlaceId}`).then(({ data }) => {
+        this.geoPlaceInfo = data;
+      });
     },
-    fetchGeoPlaceInfo(poRequestId: number, geoPlaceId: number) {
-      poApi
-        .get(`/product-offer-request/${poRequestId}/geo-place/${geoPlaceId}`)
-        .then(({ data }) => {
-          if (data.productOfferWithGeneralGeoPlace.id) {
-            this.dataTree[0].children.push(
-              makeTree(data.productOfferWithGeneralGeoPlace)
-            );
-          }
-          if (data.productOfferWithP2PGeoPlace.id) {
-            this.dataTree[1].children.push(
-              makeTree(data.productOfferWithP2PGeoPlace)
-            );
-          }
-        });
+    fetchProductInfo(poRequestId: number, geoPlaceId: number) {
+      POR_API.get(
+        `/product-offer-request/${poRequestId}/geo-place/${geoPlaceId}`
+      ).then(({ data }) => {
+        if (data.productOfferWithGeneralGeoPlace.id) {
+          this.dataTree[0].children.push(
+            makeTree(data.productOfferWithGeneralGeoPlace)
+          );
+        }
+        if (data.productOfferWithP2PGeoPlace.id) {
+          this.dataTree[1].children.push(
+            makeTree(data.productOfferWithP2PGeoPlace)
+          );
+        }
+      });
     },
   },
 });

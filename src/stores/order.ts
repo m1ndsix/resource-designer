@@ -1,6 +1,5 @@
 import { defineStore } from 'pinia';
-import { roApi } from 'boot/api';
-import { psApi } from 'boot/api';
+import { CPR_RO_API, PC_API } from 'boot/api';
 
 interface State {
   orders: WorkOrder[];
@@ -89,27 +88,25 @@ export const useOrderStore = defineStore('orderStore', {
   actions: {
     async getOrders(offset: number, limit: number) {
       try {
-        await roApi
-          .get('/cpr-resource-order-po-req/work-order', {
-            params: {
-              offset,
-              limit,
-            },
-          })
-          .then(({ data }) => {
-            if (data && data.length > 0) {
-              this.orders = data;
-            } else {
-              this.orders = [];
-            }
-          });
+        await CPR_RO_API.get('/cpr-resource-order-po-req/work-order', {
+          params: {
+            offset,
+            limit,
+          },
+        }).then(({ data }) => {
+          if (data && data.length > 0) {
+            this.orders = data;
+          } else {
+            this.orders = [];
+          }
+        });
       } catch (error) {
         console.log(error);
       }
     },
     async getBaseCfsSpecs() {
       try {
-        await roApi.get('/get-base-cfs-specs/').then(({ data }) => {
+        await CPR_RO_API.get('/get-base-cfs-specs/').then(({ data }) => {
           this.baseCfsSpecs = data;
         });
       } catch (error) {
@@ -118,7 +115,7 @@ export const useOrderStore = defineStore('orderStore', {
     },
     async getProductSpecs() {
       try {
-        await roApi.get('/get-product-specs/').then(({ data }) => {
+        await CPR_RO_API.get('/get-product-specs/').then(({ data }) => {
           this.productSpecs = data;
         });
       } catch (error) {
@@ -127,7 +124,7 @@ export const useOrderStore = defineStore('orderStore', {
     },
     async getCprSpecs() {
       try {
-        await roApi.get('/get-cpr-specs/').then(({ data }) => {
+        await CPR_RO_API.get('/get-cpr-specs/').then(({ data }) => {
           this.cprSpecs = data;
         });
       } catch (error) {
@@ -136,17 +133,15 @@ export const useOrderStore = defineStore('orderStore', {
     },
     async getPhysicalContainers(offset: number, limit: number) {
       try {
-        await psApi
-          .get('/physical-container', {
-            params: {
-              townStateId: 2,
-              offset,
-              limit,
-            },
-          })
-          .then(({ data }) => {
-            this.physicalContainers = data;
-          });
+        await PC_API.get('/physical-container', {
+          params: {
+            townStateId: 2,
+            offset,
+            limit,
+          },
+        }).then(({ data }) => {
+          this.physicalContainers = data;
+        });
       } catch (error) {
         console.log(error);
       }

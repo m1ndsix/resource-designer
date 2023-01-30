@@ -332,6 +332,9 @@ export default {
         this.orderStore.selectedOrder.productOfferRequestId
       );
       this.prepareStore.fetchGeoPlaceInfo(
+        this.orderStore.selectedOrder.geoPlace.id
+      );
+      this.prepareStore.fetchProductInfo(
         this.orderStore.selectedOrder.productOfferRequestId,
         this.orderStore.selectedOrder.geoPlace.id
       );

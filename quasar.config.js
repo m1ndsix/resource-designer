@@ -66,23 +66,6 @@ module.exports = configure(function (ctx) {
       // analyze: true,
       env: {
         isLocalDemo: process.env.JSON_SERVER,
-        voixUrl: process.env.JSON_SERVER
-          ? 'http://localhost'
-          : 'http://10.8.26.62',
-        // TODO: Fix later
-        PC_API_URL: null, // - URL сервиса physical-container-be
-        MP_API_URL: null, // - URL сервиса mounted-port-be
-        CPR_API_URL: null, // - URL сервиса composite-physical-resource
-        CPR_RO_URL: null, // - URL сервиса resource-order-be
-        POR_API_URL: null, // - URL сервиса product-offer
-
-        psPort: process.env.JSON_SERVER ? localDemoPort : 1323,
-        cpsPort: process.env.JSON_SERVER ? localDemoPort : 1324,
-        mpPort: process.env.JSON_SERVER ? localDemoPort : 1325,
-        roPort: process.env.JSON_SERVER ? localDemoPort : 1326,
-        ktUrl: process.env.JSON_SERVER
-          ? 'http://localhost:3000'
-          : 'http://10.6.4.118:6010/api/product-offer-request-be/v1.0',
       },
       // rawDefine: {}
       // ignorePublicFolder: true,
