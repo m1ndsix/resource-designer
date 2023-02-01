@@ -84,7 +84,7 @@
                     size="sm"
                     color="secondary"
                     label="Назначить"
-                    :disable="disableAppointBtn"
+                    :disable="disableAppointBtn()"
                     @click="onAppoint()"
                   />
                   <q-btn dense size="sm" color="dark" label="Отказать" />
@@ -142,9 +142,7 @@
                     v-if="prop.node.nodeType === 'component'"
                     class="row items-center"
                   >
-                    <pre>
- <b>Сервис:</b> Antivirus по подписке | <b>Продукт:</b> </pre
-                    >
+                    <pre><b>Сервис:</b> <span>{{ serviceName(prop.node) + ' | ' }}</span><b>Продукт:</b> </pre>
                     <q-select
                       v-if="isProductSpecsMultiple(prop.node)"
                       dense
@@ -156,8 +154,17 @@
                     <span v-else>{{
                       prop.node.productSpecifications.nameRu
                     }}</span>
-                    <pre> <b>Ресурс:</b> 77777777 </pre>
-                    <q-btn size="sm" round dense color="info" icon="info" />
+                    <pre v-if="prop.node.state === 'Подготовлен'">
+ <b>Ресурс:</b> {{ resourceName(prop.node) }} </pre
+                    >
+                    <q-btn
+                      style="margin-left: 5px"
+                      size="sm"
+                      round
+                      dense
+                      color="info"
+                      icon="info"
+                    />
                   </div>
                 </div>
               </div>
@@ -280,14 +287,6 @@ export default {
       // );
     }
   },
-  computed: {
-    disableAppointBtn() {
-      if (this.$refs.qtree) {
-        return !this.$refs.qtree.getTickedNodes().length;
-      }
-      return false;
-    },
-  },
   methods: {
     treeFilterMethod(node, onlyAppointed) {
       if (onlyAppointed) {
@@ -303,6 +302,17 @@ export default {
     },
     filterComponents(components) {
       return components.filter((comp) => !!comp.resource);
+    },
+    disableAppointBtn() {
+      console.log(this.$refs.qtree);
+      if (this.$refs.qtree) {
+        const tickedNodes = this.$refs.qtree.getTickedNodes();
+        const hasAppointed = tickedNodes.some(
+          (node) => node.state === 'Подготовлен'
+        );
+        return !tickedNodes.length || hasAppointed;
+      }
+      return true;
     },
     colorizeActionChip(node) {
       let color;
@@ -341,8 +351,14 @@ export default {
       return action !== 3 ? name : null;
     },
     serviceName(node) {
-      // const id = node.baseCfsSpecId;
-      // return this.orderStore.baseCfsSpecs.find((spec) => spec.id === id).nameRu;
+      const id = node.baseCfsSpecId;
+      const spec = id
+        ? this.orderStore.baseCfsSpecs.find((spec) => spec.id === id)
+        : { nameRu: 'Антивирус по подписке' };
+      return spec.nameRu;
+    },
+    resourceName(node) {
+      return node.state === 'Подготовлен' ? '77777777' : null;
     },
     isProductSpecsMultiple(node) {
       const productSpecs = node.productSpecifications;
@@ -359,20 +375,18 @@ export default {
     },
     onPrepareComponent(resource) {
       const tickedNodes = this.$refs.qtree.getTickedNodes();
+      console.log(tickedNodes);
       const componentsIds = tickedNodes.map((node) => node.id);
-      const positionsIds = tickedNodes.map((node) => node.poReqItemId);
 
       this.prepareStore.dataTree.forEach((poType) => {
         poType.children.forEach((address) => {
           address.children.forEach((pos) => {
-            if (positionsIds.includes(pos.id)) {
-              pos.children.forEach((comp) => {
-                if (componentsIds.includes(comp.id)) {
-                  comp.state = 'Подготовлен';
-                  comp.resource = resource;
-                }
-              });
-            }
+            pos.children.forEach((comp) => {
+              if (componentsIds.includes(comp.id)) {
+                comp.state = 'Подготовлен';
+                comp.resource = resource;
+              }
+            });
           });
         });
       });

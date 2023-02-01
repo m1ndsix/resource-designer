@@ -106,7 +106,7 @@ export const useOrderStore = defineStore('orderStore', {
     },
     async getBaseCfsSpecs() {
       try {
-        await CPR_RO_API.get('/get-base-cfs-specs/').then(({ data }) => {
+        await CPR_RO_API.get('/get-base-cfs-specs').then(({ data }) => {
           this.baseCfsSpecs = data;
         });
       } catch (error) {
@@ -115,7 +115,7 @@ export const useOrderStore = defineStore('orderStore', {
     },
     async getProductSpecs() {
       try {
-        await CPR_RO_API.get('/get-product-specs/').then(({ data }) => {
+        await CPR_RO_API.get('/get-product-specs').then(({ data }) => {
           this.productSpecs = data;
         });
       } catch (error) {
@@ -124,22 +124,29 @@ export const useOrderStore = defineStore('orderStore', {
     },
     async getCprSpecs() {
       try {
-        await CPR_RO_API.get('/get-cpr-specs/').then(({ data }) => {
+        await CPR_RO_API.get('/get-cpr-specs').then(({ data }) => {
           this.cprSpecs = data;
         });
       } catch (error) {
         console.log(error);
       }
     },
-    async getPhysicalContainers(offset: number, limit: number) {
+    async getPhysicalContainers(
+      streetId: number,
+      houseNum: number,
+      subHouse: string
+    ) {
       try {
-        await PC_API.get('/physical-container', {
-          params: {
-            townStateId: 2,
-            offset,
-            limit,
-          },
-        }).then(({ data }) => {
+        await PC_API.get(
+          '/physical-container/physical-container-with-service-limit',
+          {
+            params: {
+              streetId: 1426,
+              houseNum: '162',
+              subHouse: 'Г',
+            },
+          }
+        ).then(({ data }) => {
           this.physicalContainers = data;
         });
       } catch (error) {
@@ -147,16 +154,14 @@ export const useOrderStore = defineStore('orderStore', {
       }
     },
     requestTechInspection(
-      WOID: number,
-      EmployeeID: number,
-      Description: string
+      workOrderId: number,
+      employeeId: number,
+      description: string
     ) {
       TE_API.post('/tech-inspection-request', {
-        data: {
-          WOID,
-          EmployeeID,
-          Description,
-        },
+        workOrderId,
+        employeeId,
+        description,
       }).then((response) => {
         console.log(response);
       });
