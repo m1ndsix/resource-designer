@@ -44,145 +44,127 @@
     </div>
 
     <div class="row">
-      <div class="col">
-        <q-splitter v-model="splitterModel" style="height: 100vh">
-          <template v-slot:before>
-            <div class="row">
-              <q-tree
-                class="col"
-                ref="qtree"
-                node-key="nodeKey"
-                tick-strategy="leaf"
-                :nodes="prepareStore.dataTree"
-                :filter="treeFilter"
-                :filter-method="treeFilterMethod"
-                v-model:ticked="tickedNodes"
-                @update:ticked="onNodeTicked"
-              >
-                <template v-slot:default-header="prop">
-                  <div class="row items-center">
-                    <q-btn
-                      v-if="prop.node.typeId"
-                      class="col q-mr-sm"
-                      dense
-                      size="sm"
-                      color="secondary"
-                      label="Проект"
-                    />
-                    <div class="text-weight-bold text-primary col-auto">
-                      {{ prop.node.label }}
+      <div class="row">
+        <q-tree
+          class="col"
+          ref="qtree"
+          node-key="nodeKey"
+          tick-strategy="leaf"
+          :nodes="prepareStore.dataTree"
+          :filter="treeFilter"
+          :filter-method="treeFilterMethod"
+          v-model:ticked="tickedNodes"
+          @update:ticked="onNodeTicked"
+        >
+          <template v-slot:default-header="prop">
+            <div class="row items-center">
+              <q-btn
+                v-if="prop.node.typeId"
+                class="col q-mr-sm"
+                dense
+                size="sm"
+                color="secondary"
+                label="Проект"
+              />
+              <div class="text-weight-bold text-primary col-auto">
+                {{ prop.node.label }}
+              </div>
+              <div class="col-auto q-ml-sm">
+                <div
+                  v-if="prop.node.nodeType === 'address'"
+                  class="row flex-center q-gutter-sm"
+                >
+                  <q-checkbox
+                    dense
+                    label="Не назначенные"
+                    v-model="treeFilter"
+                  />
+                  <q-btn
+                    dense
+                    size="sm"
+                    color="secondary"
+                    label="Назначить"
+                    :disable="disableAppointBtn"
+                    @click="onAppoint()"
+                  />
+                  <q-btn dense size="sm" color="dark" label="Отказать" />
+                  <q-btn dense size="sm" color="negative" label="Отменить" />
+                  <q-btn
+                    dense
+                    size="sm"
+                    @click="() => (openInspectionDialog = true)"
+                  >
+                    <div class="row items-center no-wrap text-teal">
+                      <div>Обследовать</div>
+                      <q-separator vertical spaced />
+                      <div style="margin-right: 5px">3</div>
                     </div>
-                    <div class="col-auto q-ml-sm">
-                      <div
-                        v-if="prop.node.nodeType === 'address'"
-                        class="row flex-center q-gutter-sm"
-                      >
-                        <q-checkbox
-                          dense
-                          label="Не назначенные"
-                          v-model="treeFilter"
-                        />
-                        <q-btn
-                          dense
-                          size="sm"
-                          color="secondary"
-                          label="Назначить"
-                          :disable="disableAppointBtn"
-                          @click="onAppoint()"
-                        />
-                        <q-btn dense size="sm" color="dark" label="Отказать" />
-                        <q-btn
-                          dense
-                          size="sm"
-                          color="negative"
-                          label="Отменить"
-                        />
-                        <q-btn
-                          dense
-                          size="sm"
-                          @click="() => (openInspectionDialog = true)"
-                        >
-                          <div class="row items-center no-wrap text-teal">
-                            <div>Обследовать</div>
-                            <q-separator vertical spaced />
-                            <div style="margin-right: 5px">3</div>
-                          </div>
-                        </q-btn>
-                        <q-btn
-                          dense
-                          no-caps
-                          size="sm"
-                          @click="() => (openResultTable = true)"
-                        >
-                          <div class="row items-center">
-                            <div class="text-center text-teal">Есть ТВ</div>
-                            <q-icon color="info" right name="info" />
-                          </div>
-                        </q-btn>
-                      </div>
+                  </q-btn>
+                  <q-btn
+                    dense
+                    no-caps
+                    size="sm"
+                    @click="() => (openResultTable = true)"
+                  >
+                    <div class="row items-center">
+                      <div class="text-center text-teal">Есть ТВ</div>
+                      <q-icon color="info" right name="info" />
+                    </div>
+                  </q-btn>
+                </div>
 
-                      <div
-                        v-if="
-                          prop.node.nodeType === 'position' ||
-                          prop.node.nodeType === 'component'
-                        "
-                        class="row flex-center"
-                      >
-                        <!-- Action -->
-                        <q-chip
-                          dense
-                          text-color="white"
-                          :color="colorizeActionChip(prop.node)"
-                        >
-                          {{ nameActionChip(prop.node) }}
-                        </q-chip>
-                        <!-- Name -->
-                        <div v-if="prop.node.nodeType === 'position'">
-                          <span class="text-negative">{{
-                            oldName(prop.node)
-                          }}</span>
-                          <span v-if="showUpdateArrow(prop.node)"
-                            ><q-icon name="arrow_right_alt"
-                          /></span>
-                          <span class="text-positive">
-                            {{ newName(prop.node) }}</span
-                          >
-                        </div>
+                <div
+                  v-if="
+                    prop.node.nodeType === 'position' ||
+                    prop.node.nodeType === 'component'
+                  "
+                  class="row flex-center"
+                >
+                  <!-- Action -->
+                  <q-chip
+                    dense
+                    text-color="white"
+                    :color="colorizeActionChip(prop.node)"
+                  >
+                    {{ nameActionChip(prop.node) }}
+                  </q-chip>
+                  <!-- Name -->
+                  <div v-if="prop.node.nodeType === 'position'">
+                    <span class="text-negative">{{ oldName(prop.node) }}</span>
+                    <span v-if="showUpdateArrow(prop.node)"
+                      ><q-icon name="arrow_right_alt"
+                    /></span>
+                    <span class="text-positive"> {{ newName(prop.node) }}</span>
+                  </div>
 
-                        <!-- Component -->
-                        <div
-                          v-if="prop.node.nodeType === 'component'"
-                          class="row items-center"
-                        >
-                          <pre>
+                  <!-- Component -->
+                  <div
+                    v-if="prop.node.nodeType === 'component'"
+                    class="row items-center"
+                  >
+                    <pre>
  <b>Сервис:</b> Antivirus по подписке | <b>Продукт:</b> </pre
-                          >
-                          <q-select
-                            v-if="isProductSpecsMultiple(prop.node)"
-                            dense
-                            label="Продукт"
-                            v-model="selectedProduct"
-                            :options="prop.node.productSpecifications"
-                            option-label="nameRu"
-                          />
-                          <span v-else>{{
-                            prop.node.productSpecifications.nameRu
-                          }}</span>
-                          <pre> <b>Ресурс:</b> 77777777 </pre>
-                          <q-btn
-                            size="sm"
-                            round
-                            dense
-                            color="info"
-                            icon="info"
-                          />
-                          <!-- <span class="text-weight-bold">| Сервис: </span>
+                    >
+                    <q-select
+                      v-if="isProductSpecsMultiple(prop.node)"
+                      dense
+                      label="Продукт"
+                      v-model="selectedProduct"
+                      :options="prop.node.productSpecifications"
+                      option-label="nameRu"
+                    />
+                    <span v-else>{{
+                      prop.node.productSpecifications.nameRu
+                    }}</span>
+                    <pre> <b>Ресурс:</b> 77777777 </pre>
+                    <q-btn size="sm" round dense color="info" icon="info" />
+                    <!-- <span class="text-weight-bold">| Сервис: </span>
                           <span>Алма ТВ </span>
                           <span class="text-weight-bold">| Продукт: </span>
                           <span>500 Мбит </span>
                           <span class="text-weight-bold">| Ресурс: </span> -->
-                        </div>
-                        <!-- <q-btn
+                  </div>
+                  <!-- <q-btn
                           v-if="prop.node.nodeType === 'component'"
                           icon="close"
                           flat
@@ -190,11 +172,11 @@
                           dense
                           color="negative"
                         /> -->
-                      </div>
-                    </div>
-                  </div>
-                </template>
-                <!-- <template v-slot:default-body="prop">
+                </div>
+              </div>
+            </div>
+          </template>
+          <!-- <template v-slot:default-body="prop">
                   <q-chip
                     v-if="prop.node.state"
                     dense
@@ -204,65 +186,24 @@
                     {{ prop.node.state }}
                   </q-chip>
                 </template> -->
-              </q-tree>
-            </div>
-          </template>
-          <template v-slot:separator>
-            <q-avatar
-              color="primary"
-              text-color="white"
-              size="40px"
-              icon="drag_indicator"
-            />
-          </template>
-          <template v-slot:after>
-            <q-list separator>
-              <q-expansion-item
-                v-for="poType in prepareStore.dataTree"
-                :key="poType.nodeKey"
-                :label="poType.label"
-              >
-                <q-expansion-item
-                  v-for="address in poType.children"
-                  :key="address.nodeKey"
-                  :label="address.label"
-                  :header-inset-level="1"
-                >
-                  <q-expansion-item
-                    v-for="pos in filterPositions(address.children)"
-                    :key="pos.nodeKey"
-                    :label="pos.label"
-                    :header-inset-level="2"
-                  >
-                    <q-table
-                      hide-bottom
-                      :rows="filterComponents(pos.children)"
-                      :columns="voixPositionsCols"
-                      row-key="id"
-                    />
-                  </q-expansion-item>
-                </q-expansion-item>
-              </q-expansion-item>
-            </q-list>
-          </template>
-        </q-splitter>
+        </q-tree>
       </div>
     </div>
-    <q-dialog v-model="openResourceForm">
-      <vx-resource-form
-        :created-resources="prepareStore.createdResources"
-        :existing-resources="prepareStore.existingResources"
-        @on-add-new-resource="onAddNewResource"
-        @on-prepare-component="onPrepareComponent"
-      />
-    </q-dialog>
-    <q-dialog v-model="openResultTable">
-      <vx-result-table />
-    </q-dialog>
-    <q-dialog v-model="openInspectionDialog">
-      <vx-inspection-dialog />
-    </q-dialog>
   </div>
+  <q-dialog v-model="openResourceForm">
+    <vx-resource-form
+      :created-resources="prepareStore.createdResources"
+      :existing-resources="prepareStore.existingResources"
+      @on-add-new-resource="onAddNewResource"
+      @on-prepare-component="onPrepareComponent"
+    />
+  </q-dialog>
+  <q-dialog v-model="openResultTable">
+    <vx-result-table />
+  </q-dialog>
+  <q-dialog v-model="openInspectionDialog">
+    <vx-inspection-dialog />
+  </q-dialog>
 </template>
 
 <script>
