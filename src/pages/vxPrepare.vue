@@ -158,34 +158,11 @@
                     }}</span>
                     <pre> <b>Ресурс:</b> 77777777 </pre>
                     <q-btn size="sm" round dense color="info" icon="info" />
-                    <!-- <span class="text-weight-bold">| Сервис: </span>
-                          <span>Алма ТВ </span>
-                          <span class="text-weight-bold">| Продукт: </span>
-                          <span>500 Мбит </span>
-                          <span class="text-weight-bold">| Ресурс: </span> -->
                   </div>
-                  <!-- <q-btn
-                          v-if="prop.node.nodeType === 'component'"
-                          icon="close"
-                          flat
-                          round
-                          dense
-                          color="negative"
-                        /> -->
                 </div>
               </div>
             </div>
           </template>
-          <!-- <template v-slot:default-body="prop">
-                  <q-chip
-                    v-if="prop.node.state"
-                    dense
-                    :color="prop.node.state === 'Новый' ? 'orange' : 'green'"
-                    text-color="white"
-                  >
-                    {{ prop.node.state }}
-                  </q-chip>
-                </template> -->
         </q-tree>
       </div>
     </div>
