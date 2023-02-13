@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { CPR_API, LOC_API, POR_API } from 'boot/api';
+import { CPR_API, LOC_API, POR_API, PC_API } from 'boot/api';
 import _ from 'lodash';
 
 interface State {
@@ -14,6 +14,7 @@ interface State {
   geoPlaces: unknown[];
   geoPlaceInfo: GeoPlaceInfo | null;
   cprInfo: unknown;
+  physicalContainers: IdName[];
 }
 
 interface DataTree {
@@ -243,6 +244,7 @@ export const usePrepareStore = defineStore('prepareStore', {
       geoPlaces: [],
       geoPlaceInfo: null,
       cprInfo: null,
+      physicalContainers: [],
     };
   },
   actions: {
@@ -251,22 +253,6 @@ export const usePrepareStore = defineStore('prepareStore', {
         this.poRequest = data;
       });
     },
-    // fetchGeoPlaces(poRequestId: number) {
-    //   POR_API.get(`/product-offer-request/${poRequestId}/geo-places`).then(
-    //     ({ data }) => {
-    //       if (data) {
-    //         this.geoPlaces = data;
-    //         for (let i = 0; i < data.length; i++) {
-    //           data[i].stateDistrict.geoPlaces.forEach((geoPlace) => {
-    //             if (geoPlace.id) {
-    //               this.fetchGeoPlaceInfo(poRequestId, geoPlace.id);
-    //             }
-    //           });
-    //         }
-    //       }
-    //     }
-    //   );
-    // },
     fetchGeoPlaceInfo(geoPlaceId: number) {
       LOC_API.get(`/geo-place/${geoPlaceId}`).then(({ data }) => {
         this.geoPlaceInfo = data;
@@ -297,6 +283,21 @@ export const usePrepareStore = defineStore('prepareStore', {
         },
       }).then(({ data }) => {
         this.cprInfo = data;
+      });
+    },
+    fetchPhysicalContainers(
+      streetId: number,
+      houseNum: number,
+      subHouse: string
+    ) {
+      PC_API.get('/physical-container-by-address', {
+        params: {
+          streetId: 1426,
+          houseNum: '162',
+          subHouse: 'Г',
+        },
+      }).then(({ data }) => {
+        this.physicalContainers = data;
       });
     },
   },

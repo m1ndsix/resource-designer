@@ -7,7 +7,7 @@ interface State {
   baseCfsSpecs: IdName[];
   productSpecs: IdName[];
   cprSpecs: IdName[];
-  physicalContainers: IdName[];
+  physicalContainers: PhysicalContainer[];
 }
 
 interface WorkOrder {
@@ -67,6 +67,20 @@ interface WorkOrderItem {
   updateUser: string;
   createApp: string;
   updateApp: string;
+}
+
+interface PhysicalContainer {
+  id: number;
+  physicalContainerNumber: string;
+  specificationData: {
+    id: number;
+    nameRu: string;
+    nameKz: string;
+    functionID: 4;
+  };
+  is_outer: boolean;
+  inventorySystemData: IdName;
+  externalId: number;
 }
 
 export const useOrderStore = defineStore('orderStore', {
@@ -137,16 +151,16 @@ export const useOrderStore = defineStore('orderStore', {
       subHouse: string
     ) {
       try {
-        await PC_API.get(
-          '/physical-container/physical-container-with-service-limit',
-          {
-            params: {
-              streetId: 1426,
-              houseNum: '162',
-              subHouse: 'Г',
-            },
-          }
-        ).then(({ data }) => {
+        await PC_API.get('/physical-container/physical-container-by-address', {
+          params: {
+            streetId: 1426,
+            houseNum: 162,
+            // subHouse: 'Г',
+            // entrance: '',
+            // flatNumber: '',
+            // geoSubAddressId: null,
+          },
+        }).then(({ data }) => {
           this.physicalContainers = data;
         });
       } catch (error) {

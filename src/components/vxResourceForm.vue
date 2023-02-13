@@ -50,26 +50,13 @@
               />
             </div>
             <div class="col">
-              <q-radio
-                v-model="state.equipmentSearchExtent"
-                checked-icon="task_alt"
-                unchecked-icon="panorama_fish_eye"
-                val="building"
-                label="По всему дому (По адресу)"
-              />
-              <q-radio
-                v-model="state.equipmentSearchExtent"
-                checked-icon="task_alt"
-                unchecked-icon="panorama_fish_eye"
-                val="entrance"
-                label="по подъезду"
-              />
-              <q-radio
-                v-model="state.equipmentSearchExtent"
-                checked-icon="task_alt"
-                unchecked-icon="panorama_fish_eye"
-                val="usageLimit"
-                label="по пределу обслуживания"
+              <q-select
+                style="width: 250px"
+                dense
+                v-model="state.equipmentFilter"
+                @update:model-value="onNewResourceSelect"
+                :options="state.equipmentFilterOptions"
+                label="Зона поиска"
               />
             </div>
           </div>
@@ -172,7 +159,12 @@ interface State {
   specs: string[];
   equipment: string[];
   ports: string[];
-  equipmentSearchExtent: string;
+  equipmentFilter: EquipmentFilter | null;
+  equipmentFilterOptions: EquipmentFilter[];
+}
+interface EquipmentFilter {
+  label: string;
+  value: string;
 }
 const initialState: State = {
   resourceTab: 'new',
@@ -196,19 +188,16 @@ const initialState: State = {
     'ОРК 229/06/2/6',
   ],
   ports: ['Порт: 1', 'Порт: 2', 'Порт: 3', 'Порт: 4', 'Порт: 5'],
-  equipmentSearchExtent: 'usageLimit',
+  equipmentFilter: null,
+  equipmentFilterOptions: [
+    { label: 'По всему дому', value: 'house' },
+    { label: 'По подъезду', value: 'entrance' },
+    { label: 'По пределу обслуживания', value: 'service' },
+    { label: 'По адресу', value: 'address' },
+    { label: 'По офисным пределам', value: 'office' },
+  ],
 };
 const state: State = reactive(initialState);
-
-/*
-  Computed
-*/
-
-// const disableToolTip = computed(() => {
-//   return state.selectedAvailableResource
-//     ? 'Подготовить'
-//     : 'Выберите доступный ресурс';
-// });
 
 /*
   Methods
