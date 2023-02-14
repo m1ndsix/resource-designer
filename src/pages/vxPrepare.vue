@@ -148,11 +148,11 @@
                       dense
                       label="Продукт"
                       v-model="selectedProduct"
-                      :options="prop.node.productSpecifications"
+                      :options="prop.node.productSpecificationData"
                       option-label="nameRu"
                     />
                     <span v-else>{{
-                      prop.node.productSpecifications.nameRu
+                      prop.node.productSpecificationData.id
                     }}</span>
                     <pre v-if="prop.node.state === 'Подготовлен'">
  <b>Ресурс:</b> {{ resourceName(prop.node) }} </pre
@@ -361,7 +361,7 @@ export default {
       return node.state === 'Подготовлен' ? '77777777' : null;
     },
     isProductSpecsMultiple(node) {
-      const productSpecs = node.productSpecifications;
+      const productSpecs = node.productSpecificationData;
       return Array.isArray(productSpecs) && !!productSpecs.length;
     },
     onNodeTicked(nodes) {
