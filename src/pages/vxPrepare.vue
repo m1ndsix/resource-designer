@@ -304,7 +304,6 @@ export default {
       return components.filter((comp) => !!comp.resource);
     },
     disableAppointBtn() {
-      console.log(this.$refs.qtree);
       if (this.$refs.qtree) {
         const tickedNodes = this.$refs.qtree.getTickedNodes();
         const hasAppointed = tickedNodes.some(
@@ -375,7 +374,6 @@ export default {
     },
     onPrepareComponent(resource) {
       const tickedNodes = this.$refs.qtree.getTickedNodes();
-      console.log(tickedNodes);
       const componentsIds = tickedNodes.map((node) => node.id);
 
       this.prepareStore.dataTree.forEach((poType) => {
