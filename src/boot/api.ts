@@ -13,7 +13,7 @@ const CPR_RO_URL =
   process.env.CPR_RO_URL ||
   'http://10.8.26.62:1326/api/cpr-resource-order-be/v1.0'; // - URL сервиса resource-order-be
 
-const LOC_API_URL = process.env.LOC_API_URL || 'http://10.8.27.97:6009/api/v1'; // - URL сервиса location
+const LOC_API_URL = process.env.LOC_API_URL || 'http://10.6.4.118:6009/api/v1'; // - URL сервиса location
 const POR_API_URL =
   process.env.POR_API_URL ||
   'http://10.6.4.118:6010/api/product-offer-request-be/v1.0'; // - URL сервиса product-offer
