@@ -151,9 +151,7 @@
                       :options="prop.node.productSpecificationData"
                       option-label="nameRu"
                     />
-                    <span v-else>{{
-                      prop.node.productSpecificationData.id
-                    }}</span>
+                    <span v-else>{{ productName(prop.node) }}</span>
                     <pre v-if="prop.node.state === 'Подготовлен'">
  <b>Ресурс:</b> {{ resourceName(prop.node) }} </pre
                     >
@@ -350,11 +348,24 @@ export default {
       return action !== 3 ? name : null;
     },
     serviceName(node) {
-      const id = node.baseCfsSpecId;
-      const spec = id
-        ? this.orderStore.baseCfsSpecs.find((spec) => spec.id === id)
-        : { nameRu: 'Антивирус по подписке' };
-      return spec.nameRu;
+      const id = node.baseCfsSpecData.id;
+      if (id) {
+        const spec = this.orderStore.baseCfsSpecs.find(
+          (spec) => spec.id === id
+        );
+        return spec ? spec.nameRu : 'Не определено';
+      }
+      return 'Не определено';
+    },
+    productName(node) {
+      const id = node.productSpecificationData.id;
+      if (id) {
+        const spec = this.orderStore.productSpecs.find(
+          (spec) => spec.id === id
+        );
+        return spec ? spec.nameRu : 'Не определено';
+      }
+      return 'Не определено';
     },
     resourceName(node) {
       return node.state === 'Подготовлен' ? '77777777' : null;
