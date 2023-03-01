@@ -8,7 +8,8 @@ const PC_API_URL =
 const CPR_API_URL =
   process.env.CPR_API_URL ||
   'http://10.8.26.62:1324/api/composite-physical-resource-be/v1.0'; // - URL сервиса composite-physical-resource
-const MP_API_URL = process.env.MP_API_URL || 'http://10.8.26.62:1325'; // - URL сервиса mounted-port-be
+const MP_API_URL =
+  process.env.MP_API_URL || 'http://10.8.26.62:1325/api/mounted-port-be/v1.0'; // - URL сервиса mounted-port-be
 const CPR_RO_URL =
   process.env.CPR_RO_URL ||
   'http://10.8.26.62:1326/api/cpr-resource-order-be/v1.0'; // - URL сервиса resource-order-be

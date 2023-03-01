@@ -122,6 +122,7 @@
 import { reactive } from 'vue';
 import { Resource } from './models';
 import { useOrderStore } from 'stores/order';
+import { usePrepareStore } from 'stores/prepare';
 
 /*
   Props
@@ -140,6 +141,7 @@ const props = withDefaults(defineProps<Props>(), {
   Store
 */
 const orderStore = useOrderStore();
+const prepareStore = usePrepareStore();
 
 /*
   Emits
@@ -214,9 +216,13 @@ function resetNewResource() {
   };
 }
 
-function onNewResourceSelect() {
+function onNewResourceSelect(data) {
+  console.log(data);
   state.selectedExistingResource = null;
   state.selectedCreatedResource = null;
+  if (data.physicalContainerNumber) {
+    prepareStore.fetchMountedPorts(data.id, 1, 10, 0);
+  }
 }
 
 function onPrepareComponent() {

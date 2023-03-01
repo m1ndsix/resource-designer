@@ -1,5 +1,12 @@
 import { defineStore } from 'pinia';
-import { CPR_API, LOC_API, POR_API, PC_API } from 'boot/api';
+import {
+  CPR_API,
+  LOC_API,
+  POR_API,
+  PC_API,
+  CPR_RO_API,
+  MP_API,
+} from 'boot/api';
 import _ from 'lodash';
 
 interface State {
@@ -300,5 +307,46 @@ export const usePrepareStore = defineStore('prepareStore', {
         this.physicalContainers = data;
       });
     },
+    createPosition(
+      cprRoPoReqId: number,
+      cprRoPoReqWoId: number,
+      cprActionSpecId: number,
+      compositePhysResSpecId: number,
+      physicalContainerId: number,
+      geoPlaceId: number,
+      transportCpeFuncSpecId: number,
+      wiringTypeId: number
+    ) {
+      CPR_RO_API.post(
+        `/cpr-resource-order-po-req/${cprRoPoReqId}/work-order/${cprRoPoReqWoId}/item`,
+        {
+          cprActionSpecId,
+          compositePhysResSpecId,
+          physicalContainerId,
+          geoPlaceId,
+          transportCpeFuncSpecId,
+          wiringTypeId,
+        }
+      ).then(({ data }) => {
+        this.cprInfo = data;
+      });
+    },
+    fetchMountedPorts(
+      physicalContainerId: number,
+      usageStateId: number,
+      limit: number,
+      offset: number
+    ) {
+      MP_API.get('/mounted-port', {
+        params: {
+          physicalContainerId,
+          usageStateId: usageStateId,
+          limit,
+          offset,
+        },
+      });
+    },
   },
 });
+
+//http://10.8.26.62:1325/api/mounted-port-be/v1.0/mounted-port?limit=10&offset=0&physicalContainerId=3287228&usageStateId=1

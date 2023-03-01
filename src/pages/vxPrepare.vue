@@ -399,6 +399,18 @@ export default {
           });
         });
       });
+      let { cprResourceOrderPoReqId, id, geoPlace } =
+        this.orderStore.selectedOrder;
+      this.prepareStore.createPosition(
+        cprResourceOrderPoReqId,
+        id,
+        1,
+        resource.spec.id,
+        resource.equipment.id,
+        geoPlace.id,
+        -1,
+        resource.equipment.wiringTypeId
+      );
 
       this.openResourceForm = false;
     },
