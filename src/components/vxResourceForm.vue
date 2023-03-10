@@ -234,16 +234,6 @@ const initialState: State = {
       port: null,
     },
   },
-  specs: ['Прямая линия FTTH б/логина (1000776)', 'Прямая линия ETTH(1000784)'],
-  equipment: [
-    'ОРК 229/06/2/1',
-    'ОРК 229/06/2/2',
-    'ОРК 229/06/2/3',
-    'ОРК 229/06/2/4',
-    'ОРК 229/06/2/5',
-    'ОРК 229/06/2/6',
-  ],
-  ports: ['Порт: 1', 'Порт: 2', 'Порт: 3', 'Порт: 4', 'Порт: 5'],
   equipmentFilter: null,
   equipmentFilterOptions: [
     { label: 'По всему дому', value: 'house' },
@@ -281,19 +271,24 @@ function makeAddressLabel({ house, subHouse }) {
 }
 
 function onServiceAreaSelected({ value }) {
+  state.newResource.value.equipment = null;
+  state.selectedStreet = null;
+  state.selectedAddress = null;
   emit('onServiceAreaSelected', value);
 }
 
 function onStreetSelected({ id }) {
+  state.newResource.value.equipment = null;
+  state.selectedAddress = null;
   emit('onStreetSelected', id);
 }
 
 function onAddressSelected(address) {
+  state.newResource.value.equipment = null;
   emit('onAddressSelected', address);
 }
 
 function streetOptionsFilter(val, update) {
-  console.log(val);
   if (val === '') {
     update(() => {
       state.filteredStreets = props.streets;
