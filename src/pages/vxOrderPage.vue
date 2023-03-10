@@ -76,8 +76,6 @@ onMounted(() => {
   orderStore.getBaseCfsSpecs();
   orderStore.getProductSpecs();
   orderStore.getCprSpecs();
-  // TODO: Fix later
-  orderStore.getPhysicalContainers(0, 0, '');
 });
 
 function onTableRequest(request) {

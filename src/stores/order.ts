@@ -151,7 +151,7 @@ export const useOrderStore = defineStore('orderStore', {
       subHouse: string
     ) {
       try {
-        await PC_API.get('/physical-container/physical-container-by-address', {
+        await PC_API.get('/physical-container-by-address', {
           params: {
             streetId: 1426,
             houseNum: 162,

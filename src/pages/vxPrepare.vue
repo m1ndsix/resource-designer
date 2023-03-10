@@ -176,6 +176,11 @@
     <vx-resource-form
       :created-resources="prepareStore.createdResources"
       :existing-resources="prepareStore.existingResources"
+      :streets="prepareStore.streets"
+      :addresses="prepareStore.addresses"
+      @on-service-area-selected="onServiceAreaSelected"
+      @on-street-selected="onStreetSelected"
+      @on-address-selected="onAddressSelected"
       @on-add-new-resource="onAddNewResource"
       @on-prepare-component="onPrepareComponent"
     />
@@ -280,9 +285,6 @@ export default {
           children: [],
         },
       ];
-      // this.prepareStore.fetchGeoPlaces(
-      //   this.orderStore.selectedOrder.productOfferRequestId
-      // );
     }
   },
   methods: {
@@ -379,6 +381,48 @@ export default {
     },
     onAppoint() {
       this.openResourceForm = true;
+    },
+    onStreetSelected(id) {
+      this.prepareStore.fetchAddresses(id);
+    },
+    onAddressSelected(address) {
+      this.prepareStore.fetchPhysicalContainers(
+        this.prepareStore.geoPlaceInfo.generalGeoAddress.toponymId,
+        address.house,
+        address.subHouse,
+        null,
+        null
+      );
+    },
+    onServiceAreaSelected(area) {
+      /*
+        Улица - toponymId
+        Дом - geoAddressNum
+        Подъезд - entrance
+        Квартира -geoSubAddressNum
+      */
+      let { entrance, geoAddressNum, geoSubAddressNum, toponymId } =
+        this.prepareStore.geoPlaceInfo.generalGeoAddress;
+      if (area === 'service') {
+        this.prepareStore.fetchPhysicalContainers(
+          toponymId,
+          geoAddressNum,
+          null,
+          entrance,
+          geoSubAddressNum
+        );
+      } else if (area === 'entrance') {
+        this.prepareStore.fetchPhysicalContainers(
+          toponymId,
+          geoAddressNum,
+          null,
+          entrance
+        );
+      } else if (area === 'house') {
+        this.prepareStore.fetchPhysicalContainers(toponymId, geoAddressNum);
+      } else if (area === 'address') {
+        // TODO: fix later, for now do nothing;
+      }
     },
     onAddNewResource(resource) {
       this.prepareStore.createdResources.push(resource);

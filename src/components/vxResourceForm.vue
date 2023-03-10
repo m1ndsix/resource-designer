@@ -38,7 +38,7 @@
                 style="width: 250px"
                 v-model="state.newResource.value.equipment"
                 @update:model-value="onNewResourceSelect"
-                :options="orderStore.physicalContainers"
+                :options="prepareStore.physicalContainers"
                 :option-label="
                   (container) =>
                     container.specificationData.nameRu +
@@ -54,10 +54,41 @@
                 style="width: 250px"
                 dense
                 v-model="state.equipmentFilter"
-                @update:model-value="onNewResourceSelect"
+                @update:model-value="onServiceAreaSelected"
                 :options="state.equipmentFilterOptions"
                 label="Зона поиска"
               />
+              <div
+                v-if="
+                  state.equipmentFilter &&
+                  state.equipmentFilter.value === 'address'
+                "
+              >
+                <q-select
+                  style="width: 250px"
+                  use-input
+                  input-debounce="0"
+                  v-model="state.selectedStreet"
+                  @update:model-value="onStreetSelected"
+                  @filter="streetOptionsFilter"
+                  :options="state.filteredStreets"
+                  option-value="id"
+                  option-label="nameRu"
+                  dense
+                  label="Улица"
+                />
+                <q-select
+                  v-if="state.selectedStreet"
+                  style="width: 250px"
+                  v-model="state.selectedAddress"
+                  @update:model-value="onAddressSelected"
+                  :options="props.addresses"
+                  option-value="id"
+                  :option-label="makeAddressLabel"
+                  dense
+                  label="Адрес"
+                />
+              </div>
             </div>
           </div>
           <q-select
@@ -131,10 +162,14 @@ import { usePrepareStore } from 'stores/prepare';
 interface Props {
   existingResources: Resource[];
   createdResources: Resource[];
+  streets: IdName[];
+  addresses: Address[];
 }
 const props = withDefaults(defineProps<Props>(), {
   existingResources: () => [],
   createdResources: () => [],
+  streets: () => [],
+  addresses: () => [],
 });
 
 /*
@@ -147,7 +182,13 @@ const prepareStore = usePrepareStore();
   Emits
 */
 
-const emit = defineEmits(['onAddNewResource', 'onPrepareComponent']);
+const emit = defineEmits([
+  'onServiceAreaSelected',
+  'onAddNewResource',
+  'onPrepareComponent',
+  'onStreetSelected',
+  'onAddressSelected',
+]);
 
 /*
   State
@@ -163,10 +204,23 @@ interface State {
   ports: string[];
   equipmentFilter: EquipmentFilter | null;
   equipmentFilterOptions: EquipmentFilter[];
+  selectedStreet: IdName | null;
+  filteredStreets: IdName[];
+  selectedAddress: Address | null;
 }
 interface EquipmentFilter {
   label: string;
   value: string;
+}
+interface IdName {
+  id: number;
+  nameKz: string;
+  nameRu: string;
+}
+interface Address {
+  id: number;
+  house: number;
+  subHouse: string | null;
 }
 const initialState: State = {
   resourceTab: 'new',
@@ -198,6 +252,8 @@ const initialState: State = {
     { label: 'По адресу', value: 'address' },
     { label: 'По офисным пределам', value: 'office' },
   ],
+  selectedStreet: null,
+  filteredStreets: [],
 };
 const state: State = reactive(initialState);
 
@@ -216,8 +272,44 @@ function resetNewResource() {
   };
 }
 
+function makeAddressLabel({ house, subHouse }) {
+  if (subHouse) {
+    return house + '/' + subHouse;
+  } else {
+    return house;
+  }
+}
+
+function onServiceAreaSelected({ value }) {
+  emit('onServiceAreaSelected', value);
+}
+
+function onStreetSelected({ id }) {
+  emit('onStreetSelected', id);
+}
+
+function onAddressSelected(address) {
+  emit('onAddressSelected', address);
+}
+
+function streetOptionsFilter(val, update) {
+  console.log(val);
+  if (val === '') {
+    update(() => {
+      state.filteredStreets = props.streets;
+    });
+    return;
+  }
+
+  update(() => {
+    const needle = val.toLowerCase();
+    state.filteredStreets = props.streets.filter(
+      (v) => v.nameRu.toLowerCase().indexOf(needle) > -1
+    );
+  });
+}
+
 function onNewResourceSelect(data) {
-  console.log(data);
   state.selectedExistingResource = null;
   state.selectedCreatedResource = null;
   if (data.physicalContainerNumber) {

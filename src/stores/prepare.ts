@@ -22,6 +22,8 @@ interface State {
   geoPlaceInfo: GeoPlaceInfo | null;
   cprInfo: unknown;
   physicalContainers: IdName[];
+  streets: IdName[];
+  addresses: Address[];
 }
 
 interface DataTree {
@@ -168,6 +170,12 @@ interface IdName {
   nameKz: string;
 }
 
+interface Address {
+  id: number;
+  house: number;
+  subHouse: string | null;
+}
+
 function makeTree(data) {
   return {
     ...data,
@@ -252,6 +260,8 @@ export const usePrepareStore = defineStore('prepareStore', {
       geoPlaceInfo: null,
       cprInfo: null,
       physicalContainers: [],
+      streets: [],
+      addresses: [],
     };
   },
   actions: {
@@ -263,6 +273,7 @@ export const usePrepareStore = defineStore('prepareStore', {
     fetchGeoPlaceInfo(geoPlaceId: number) {
       LOC_API.get(`/geo-place/${geoPlaceId}`).then(({ data }) => {
         this.geoPlaceInfo = data;
+        this.fetchStreets(data.generalGeoAddress.townStateId);
       });
     },
     fetchProductInfo(poRequestId: number, geoPlaceId: number) {
@@ -294,18 +305,27 @@ export const usePrepareStore = defineStore('prepareStore', {
     },
     fetchPhysicalContainers(
       streetId: number,
-      houseNum: number,
-      subHouse: string
+      house: number,
+      subHouse: string,
+      entrance: number,
+      flatNumber: string
     ) {
       PC_API.get('/physical-container-by-address', {
         params: {
-          streetId: 1426,
-          houseNum: '162',
-          subHouse: 'Г',
+          streetId,
+          house,
+          subHouse,
+          entrance,
+          flatNumber,
         },
-      }).then(({ data }) => {
-        this.physicalContainers = data;
-      });
+      })
+        .then(({ data }) => {
+          this.physicalContainers = data;
+        })
+        .catch((error) => {
+          console.log(error);
+          this.physicalContainers = [];
+        });
     },
     createPosition(
       cprRoPoReqId: number,
@@ -346,7 +366,24 @@ export const usePrepareStore = defineStore('prepareStore', {
         },
       });
     },
+    fetchStreets(id: number) {
+      PC_API.get('/streets', {
+        params: {
+          id,
+        },
+      }).then(({ data }) => {
+        this.streets = data;
+      });
+    },
+    fetchAddresses(id: number) {
+      PC_API.get('/addresses', {
+        params: {
+          id,
+        },
+      }).then(({ data }) => {
+        this.addresses = data;
+      });
+    },
   },
 });
-
 //http://10.8.26.62:1325/api/mounted-port-be/v1.0/mounted-port?limit=10&offset=0&physicalContainerId=3287228&usageStateId=1
