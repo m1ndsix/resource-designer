@@ -94,7 +94,7 @@
           <q-select
             style="width: 250px"
             v-model="state.newResource.value.port"
-            @update:model-value="onNewResourceSelect"
+            @update:model-value="onNewPortSelect"
             :options="prepareStore.mountedPorts"
             :option-label="(container) => 'Порт ' + container.portNumber"
             label="Выбор Порта"
@@ -237,9 +237,9 @@ const initialState: State = {
   },
   equipmentFilter: null,
   equipmentFilterOptions: [
-    { label: 'По всему дому', value: 'house' },
-    { label: 'По подъезду', value: 'entrance' },
     { label: 'По пределу обслуживания', value: 'service' },
+    { label: 'По подъезду', value: 'entrance' },
+    { label: 'По всему дому', value: 'house' },
     { label: 'По адресу', value: 'address' },
     { label: 'По офисным пределам', value: 'office' },
   ],
@@ -273,6 +273,7 @@ function makeAddressLabel({ house, subHouse }) {
 
 function onServiceAreaSelected({ value }) {
   state.newResource.value.equipment = null;
+  state.newResource.value.port = null;
   state.selectedStreet = null;
   state.selectedAddress = null;
   emit('onServiceAreaSelected', value);
@@ -308,9 +309,15 @@ function streetOptionsFilter(val, update) {
 function onNewResourceSelect(data) {
   state.selectedExistingResource = null;
   state.selectedCreatedResource = null;
+  state.newResource.value.port = null;
   if (data.physicalContainerNumber) {
     //prepareStore.fetchMountedPorts(data.id, 1, 10, 0);
     prepareStore.fetchMountedPortsByParentPc(data.id);
+  }
+}
+
+function onNewPortSelect(data) {
+  if (data) {
   }
 }
 
