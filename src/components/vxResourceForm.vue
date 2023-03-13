@@ -95,7 +95,8 @@
             style="width: 250px"
             v-model="state.newResource.value.port"
             @update:model-value="onNewResourceSelect"
-            :options="state.ports"
+            :options="prepareStore.mountedPorts"
+            :option-label="(container) => 'Порт ' + container.portNumber"
             label="Выбор Порта"
           />
         </q-tab-panel>
@@ -308,7 +309,8 @@ function onNewResourceSelect(data) {
   state.selectedExistingResource = null;
   state.selectedCreatedResource = null;
   if (data.physicalContainerNumber) {
-    prepareStore.fetchMountedPorts(data.id, 1, 10, 0);
+    //prepareStore.fetchMountedPorts(data.id, 1, 10, 0);
+    prepareStore.fetchMountedPortsByParentPc(data.id);
   }
 }
 

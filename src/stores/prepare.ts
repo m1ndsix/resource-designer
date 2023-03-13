@@ -24,6 +24,7 @@ interface State {
   physicalContainers: IdName[];
   streets: IdName[];
   addresses: Address[];
+  mountedPorts: PortData[];
 }
 
 interface DataTree {
@@ -170,6 +171,10 @@ interface IdName {
   nameKz: string;
 }
 
+interface PortData {
+  id: number;
+  portNumber: string;
+}
 interface Address {
   id: number;
   house: number;
@@ -260,6 +265,7 @@ export const usePrepareStore = defineStore('prepareStore', {
       geoPlaceInfo: null,
       cprInfo: null,
       physicalContainers: [],
+      mountedPorts: [],
       streets: [],
       addresses: [],
     };
@@ -365,6 +371,16 @@ export const usePrepareStore = defineStore('prepareStore', {
           offset,
         },
       });
+    },
+    fetchMountedPortsByParentPc(physicalContainerId: number) {
+      MP_API.get(`/mounted-port-by-parent-pc/${physicalContainerId}`, {})
+        .then(({ data }) => {
+          this.mountedPorts = data;
+        })
+        .catch((error) => {
+          console.log(error);
+          this.mountedPorts = [];
+        });
     },
     fetchStreets(id: number) {
       PC_API.get('/streets', {
