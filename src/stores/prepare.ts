@@ -333,16 +333,19 @@ export const usePrepareStore = defineStore('prepareStore', {
           this.physicalContainers = [];
         });
     },
-    createPosition(
-      cprRoPoReqId: number,
-      cprRoPoReqWoId: number,
-      cprActionSpecId: number,
-      compositePhysResSpecId: number,
-      physicalContainerId: number,
-      geoPlaceId: number,
-      transportCpeFuncSpecId: number,
-      wiringTypeId: number
-    ) {
+    createPosition({
+      cprRoPoReqId,
+      cprRoPoReqWoId,
+      cprActionSpecId,
+      compositePhysResSpecId,
+      physicalContainerId,
+      geoPlaceId,
+      transportCpeFuncSpecId,
+      wiringTypeId,
+      compositePhysResId,
+      compositePhysResNum,
+      compositePhysResFullNum,
+    }) {
       CPR_RO_API.post(
         `/cpr-resource-order-po-req/${cprRoPoReqId}/work-order/${cprRoPoReqWoId}/item`,
         {
@@ -352,6 +355,9 @@ export const usePrepareStore = defineStore('prepareStore', {
           geoPlaceId,
           transportCpeFuncSpecId,
           wiringTypeId,
+          compositePhysResId,
+          compositePhysResNum,
+          compositePhysResFullNum,
         }
       ).then(({ data }) => {
         this.cprInfo = data;
