@@ -324,7 +324,7 @@ function onNewPortSelect(data) {
 function onPrepareComponent() {
   if (state.resourceTab === 'new') {
     const newRes = state.newResource.value;
-    state.newResource.label = `${newRes.spec.nameRu} | ${newRes.equipment.physicalContainerNumber} | ${newRes.port}`;
+    state.newResource.label = `${newRes.spec.nameRu} | ${newRes.equipment.physicalContainerNumber} | ${newRes.port.portNumber}`;
     const isResourceCreated =
       props.createdResources.findIndex((res) => {
         return res.label === state.newResource.label;
