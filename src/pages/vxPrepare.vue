@@ -445,16 +445,19 @@ export default {
       });
       let { cprResourceOrderPoReqId, id, geoPlace } =
         this.orderStore.selectedOrder;
-      this.prepareStore.createPosition(
-        cprResourceOrderPoReqId,
-        id,
-        1,
-        resource.spec.id,
-        resource.equipment.id,
-        geoPlace.id,
-        -1,
-        resource.equipment.wiringTypeId
-      );
+      this.prepareStore.createPosition({
+        cprRoPoReqId: cprResourceOrderPoReqId,
+        cprRoPoReqWoId: id,
+        cprActionSpecId: 1,
+        compositePhysResSpecId: resource.spec.id,
+        physicalContainerId: resource.equipment.id,
+        geoPlaceId: geoPlace.id,
+        transportCpeFuncSpecId: -1,
+        wiringTypeId: resource.equipment.wiringTypeId,
+        compositePhysResId: -1,
+        compositePhysResNum: '7777777',
+        compositePhysResFullNum: '7777777',
+      });
 
       this.openResourceForm = false;
     },
