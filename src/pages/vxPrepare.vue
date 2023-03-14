@@ -85,7 +85,7 @@
                     color="secondary"
                     label="Назначить"
                     :disable="disableAppointBtn()"
-                    @click="onAppoint()"
+                    @click="onAppoint"
                   />
                   <q-btn dense size="sm" color="dark" label="Отказать" />
                   <q-btn dense size="sm" color="negative" label="Отменить" />
@@ -379,7 +379,8 @@ export default {
     onNodeTicked(nodes) {
       this.prepareStore.selectedComponent = nodes;
     },
-    onAppoint() {
+    onAppoint(event) {
+      event.stopPropagation();
       this.openResourceForm = true;
     },
     onStreetSelected(id) {
