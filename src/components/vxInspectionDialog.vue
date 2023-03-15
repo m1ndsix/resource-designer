@@ -10,6 +10,8 @@
         style="width: 250px"
         v-model="state.selectedUser"
         :options="state.users"
+        option-label="name"
+        option-value="employeeId"
         label="Сотрудник"
       >
       </q-select>
@@ -35,28 +37,39 @@
 </template>
 
 <script setup lang="ts">
-import { reactive } from 'vue';
+import { reactive, onMounted } from 'vue';
 import { useOrderStore } from 'stores/order';
 
 const orderStore = useOrderStore();
 
 interface State {
-  users: string[];
-  selectedUser: string | null;
+  users: Employee[];
+  selectedUser: Employee | null;
   note: string | null;
 }
+interface Employee {
+  name: string;
+  employeeId: number;
+}
 const initialState: State = {
-  users: ['Иванов', 'Александров', 'Николаев'],
+  users: [],
   selectedUser: null,
   note: null,
 };
 const state: State = reactive(initialState);
 
+onMounted(() => {
+  orderStore.fetchInspectors('japparov.s@telecom.kz').then(({ data }) => {
+    console.log(data);
+    state.users = data;
+  });
+});
+
 function requestTechInspection() {
-  if (orderStore.selectedOrder && state.note) {
+  if (orderStore.selectedOrder && state.note && state.selectedUser) {
     orderStore.requestTechInspection(
       orderStore.selectedOrder.id,
-      1,
+      state.selectedUser.employeeId,
       state.note
     );
   }

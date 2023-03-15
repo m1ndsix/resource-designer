@@ -169,15 +169,21 @@ export const useOrderStore = defineStore('orderStore', {
     },
     requestTechInspection(
       workOrderId: number,
-      employeeId: number,
+      createEmployeeId: number,
       description: string
     ) {
       TE_API.post('/tech-inspection-request', {
         workOrderId,
-        employeeId,
+        createEmployeeId,
+        executeEmployeeId: createEmployeeId,
         description,
       }).then((response) => {
         console.log(response);
+      });
+    },
+    fetchInspectors(login: string) {
+      return TE_API.get('tech-inspection-request/inspectors', {
+        params: { login },
       });
     },
   },
