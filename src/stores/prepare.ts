@@ -333,6 +333,10 @@ export const usePrepareStore = defineStore('prepareStore', {
           this.physicalContainers = [];
         });
     },
+    /*
+      TODO: This crap is prone to unexpected behaviour. For example,
+            what will happen if last query returned error
+    */
     createPosition({
       cprRoPoReqId,
       cprRoPoReqWoId,
@@ -345,6 +349,9 @@ export const usePrepareStore = defineStore('prepareStore', {
       compositePhysResId,
       compositePhysResNum,
       compositePhysResFullNum,
+      mountedPortId,
+      poRequestItemId,
+      poReqItemCompId,
     }) {
       CPR_RO_API.post(
         `/cpr-resource-order-po-req/${cprRoPoReqId}/work-order/${cprRoPoReqWoId}/item`,
@@ -359,8 +366,21 @@ export const usePrepareStore = defineStore('prepareStore', {
           compositePhysResNum,
           compositePhysResFullNum,
         }
-      ).then(({ data }) => {
-        this.cprInfo = data;
+      ).then((creationResult) => {
+        console.log(creationResult);
+        MP_API.patch(`/mount/mounted-port/${mountedPortId}`, {
+          usageStateId: 2,
+        }).then((mountResult) => {
+          console.log(mountResult);
+          POR_API.patch(
+            `/po-req-item/${poRequestItemId}/po-req-item-component/${poReqItemCompId}`,
+            {
+              poReqItemCompId: 1,
+            }
+          ).then((itemResult) => {
+            console.log(itemResult);
+          });
+        });
       });
     },
     fetchMountedPorts(
@@ -408,4 +428,3 @@ export const usePrepareStore = defineStore('prepareStore', {
     },
   },
 });
-//http://10.8.26.62:1325/api/mounted-port-be/v1.0/mounted-port?limit=10&offset=0&physicalContainerId=3287228&usageStateId=1

@@ -458,6 +458,7 @@ export default {
         compositePhysResId: -1,
         compositePhysResNum: '7777777',
         compositePhysResFullNum: '7777777',
+        mountedPortId: resource.port.id,
       });
 
       this.openResourceForm = false;
