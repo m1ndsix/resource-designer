@@ -77,7 +77,7 @@ export default boot(async ({ app }) => {
         config: {
           url: 'http://10.8.93.133:8081',
           realm: 'Test',
-          clientId: 'vue-front',
+          clientId: 'cpr-resource-order-design-fe',
         },
         onReady: () => {
           tokenInterceptor(ALL_APIS);
