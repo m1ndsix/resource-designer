@@ -1,7 +1,11 @@
 <template>
-  <div class="q-pa-sm">
+  <q-card style="max-width: 1000px">
+    <q-card-section class="row">
+      <div class="text-h6">Редактирование позиции заказа</div>
+      <q-space />
+      <q-btn icon="close" flat round dense v-close-popup />
+    </q-card-section>
     <q-table
-      title="Редактирование позиции заказа"
       :rows="components"
       :columns="columns"
       row-key="name"
@@ -60,11 +64,10 @@
         </div>
       </template>
     </q-table>
-  </div>
-  <br />
-  <q-dialog v-model="openMeasurementDialog">
-    <vx-measurement />
-  </q-dialog>
+    <q-dialog v-model="openMeasurementDialog">
+      <vx-measurement />
+    </q-dialog>
+  </q-card>
 </template>
 
 <script>

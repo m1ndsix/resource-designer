@@ -4,9 +4,6 @@
       <q-toolbar>
         <q-btn flat to="/" label="Design Manager" />
         <q-separator dark vertical inset />
-        <q-tabs>
-          <q-route-tab to="/edit-item" label="Редактирование позиции" />
-        </q-tabs>
       </q-toolbar>
     </q-header>
 

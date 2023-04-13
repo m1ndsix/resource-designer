@@ -28,6 +28,7 @@
       </q-list>
     </q-drawer>
     <q-table
+      dense
       title="Поручения"
       :rows="orderStore.orders"
       :columns="columns"

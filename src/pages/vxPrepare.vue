@@ -37,8 +37,13 @@
       </div>
       <div class="col info-section row flex-center">
         <div class="q-gutter-sm">
-          <q-btn dense label="Завершить" size="sm" color="secondary" />
-          <q-btn dense label="Закрыть Окно" size="sm" color="primary" />
+          <q-btn
+            dense
+            label="Завершить Поручение"
+            size="sm"
+            color="secondary"
+          />
+          <q-btn dense label="Вернуться к Списку" size="sm" color="primary" />
         </div>
       </div>
     </div>
@@ -156,12 +161,14 @@
  <b>Ресурс:</b> {{ resourceName(prop.node) }} </pre
                     >
                     <q-btn
+                      v-if="prop.node.state === 'Подготовлен'"
                       style="margin-left: 5px"
                       size="sm"
                       round
                       dense
                       color="info"
                       icon="info"
+                      @click="() => (openEditItemDialog = true)"
                     />
                   </div>
                 </div>
@@ -191,6 +198,9 @@
   <q-dialog v-model="openInspectionDialog">
     <vx-inspection-dialog />
   </q-dialog>
+  <q-dialog v-model="openEditItemDialog">
+    <vx-edit-item />
+  </q-dialog>
 </template>
 
 <script>
@@ -200,6 +210,7 @@ import { useOrderStore } from 'src/stores/order';
 import vxResourceForm from '../components/vxResourceForm.vue';
 import vxResultTable from '../components/vxResultTable.vue';
 import vxInspectionDialog from '../components/vxInspectionDialog.vue';
+import vxEditItem from '../components/vxEditItem.vue';
 
 export default {
   setup() {
@@ -210,6 +221,7 @@ export default {
       openResourceForm: ref(false),
       openResultTable: ref(false),
       openInspectionDialog: ref(false),
+      openEditItemDialog: ref(false),
       splitterModel: ref(70),
       showAppointed: ref(false),
       tickedNodes: ref(null),
@@ -253,6 +265,7 @@ export default {
     vxResourceForm,
     vxResultTable,
     vxInspectionDialog,
+    vxEditItem,
   },
   mounted() {
     if (!this.poRequest) {
