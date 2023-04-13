@@ -66,6 +66,13 @@ module.exports = configure(function (ctx) {
       // analyze: true,
       env: {
         isLocalDemo: process.env.JSON_SERVER,
+        PC_API_URL: process.env.PC_API_URL,
+        CPR_API_URL: process.env.CPR_API_URL,
+        MP_API_URL: process.env.MP_API_URL,
+        CPR_RO_URL: process.env.CPR_RO_URL,
+        LOC_API_URL: process.env.LOC_API_URL,
+        POR_API_URL: process.env.POR_API_URL,
+        TE_URL: process.env.TE_URL,
       },
       // rawDefine: {}
       // ignorePublicFolder: true,
