@@ -22,7 +22,7 @@ const TE_URL =
   process.env.TE_URL ||
   'http://10.8.26.62:1326/api/tech-inspection-request-be/v1.0'; // - URL сервиса tech-inspection
 const ME_URL =
-  process.env.ME_URL || 'http://localhost:3000/api/measurement-request-be/v1.0';
+  process.env.ME_URL || 'http://localhost:1328/api/measurement-request-be/v1.0';
 
 function createRouter(url: string) {
   return axios.create({
