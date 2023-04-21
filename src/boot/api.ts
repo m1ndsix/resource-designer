@@ -21,6 +21,8 @@ const POR_API_URL =
 const TE_URL =
   process.env.TE_URL ||
   'http://10.8.26.62:1326/api/tech-inspection-request-be/v1.0'; // - URL сервиса tech-inspection
+const ME_URL =
+  process.env.ME_URL || 'http://localhost:3000/api/measurement-request-be/v1.0';
 
 function createRouter(url: string) {
   return axios.create({
@@ -35,6 +37,7 @@ const CPR_RO_API = createRouter(CPR_RO_URL);
 const LOC_API = createRouter(LOC_API_URL);
 const POR_API = createRouter(POR_API_URL);
 const TE_API = createRouter(TE_URL);
+const ME_API = createRouter(ME_URL);
 
 const ALL_APIS = [
   PC_API,
@@ -44,6 +47,7 @@ const ALL_APIS = [
   LOC_API,
   POR_API,
   TE_API,
+  ME_API,
 ];
 
 export default boot(async ({ app }) => {
@@ -88,4 +92,14 @@ export default boot(async ({ app }) => {
   }
 });
 
-export { axios, PC_API, CPR_API, MP_API, CPR_RO_API, LOC_API, POR_API, TE_API };
+export {
+  axios,
+  PC_API,
+  CPR_API,
+  MP_API,
+  CPR_RO_API,
+  LOC_API,
+  POR_API,
+  TE_API,
+  ME_API,
+};

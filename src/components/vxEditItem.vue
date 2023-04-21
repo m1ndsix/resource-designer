@@ -6,7 +6,7 @@
       <q-btn icon="close" flat round dense v-close-popup />
     </q-card-section>
     <q-table
-      :rows="components"
+      :rows="this.tickedComponents"
       :columns="columns"
       row-key="name"
       selection="none"
@@ -33,9 +33,10 @@
         </q-td>
       </template>
       <template v-slot:top>
-        <div class="text-h4">
-          г. Алматы, ул. Абылай хана
-          {{ geoPlaceName() }}
+        <div class="text-h6">
+          {{
+            prepareStore.geoPlaceInfo.generalGeoAddress.generalGeoAddressNameRU
+          }}
         </div>
         <q-space />
         <div class="q-pa-md">
@@ -65,7 +66,7 @@
       </template>
     </q-table>
     <q-dialog v-model="openMeasurementDialog">
-      <vx-measurement />
+      <vx-measurement :cprResourceOrderItemIds="cprResourceOrderItemIds" />
     </q-dialog>
   </q-card>
 </template>
@@ -83,35 +84,35 @@ const columns = [
     name: 'spec',
     align: 'center',
     label: 'Спецификация',
-    field: 'compositePhysResSpecId',
+    field: (row) => row.poComponentData.nameRu,
     sortable: true,
   },
   {
     name: 'action',
     align: 'center',
     label: 'Действие',
-    field: (row) => row.actionData.name,
+    field: (row) => row.baseCfsActionSpecData.nameRu,
     sortable: true,
   },
   {
     name: 'state',
     align: 'center',
     label: 'Состояние',
-    field: (row) => row.stateData.name,
+    field: 'state',
     sortable: true,
   },
   {
     name: 'pc',
     align: 'center',
     label: 'Физический контейнер',
-    field: 'physicalContainerId',
+    field: (row) => row.resource.equipment.physicalContainerNumber,
     sortable: true,
   },
   {
     name: 'port',
     align: 'center',
     label: 'Порт',
-    field: 'portnumber', //calculated
+    field: (row) => row.resource.port.portNumber,
     sortable: true,
   },
   {
@@ -129,84 +130,29 @@ const columns = [
     sortable: true,
   },
 ];
-const components = [
-  {
-    id: 23654,
-    actionId: 1,
-    actionData: {
-      id: 1,
-      name: 'Установка',
-    },
-    stateId: 2,
-    stateData: {
-      id: 2,
-      name: 'В работе',
-    },
-    externalId: '456gtr65',
-    compositePhysResSpecId: 1000776,
-    physicalContainerId: 354,
-    geoPlaceId: 123,
-    portnumber: 8,
-    transportCpeFuncSpecId: 13,
-    externalProjectId: 1423375,
-    externalCompositePhysResNum: 3425313,
-    processUserId: 543,
-    processDate: '2022-08-24T14:15:22Z',
-    createDate: '2022-06-28T14:15:22Z',
-    updateDate: '2022-06-28T14:15:22Z',
-    createUser: 'Japparov.S',
-    updateUser: 'Japparov.S',
-    createApp: 'resource-design-fe',
-    updateApp: 'resource-design-fe',
-    selected: false,
-    measurementResult: 'Линия в порядке',
-  },
-  {
-    id: 23655,
-    actionId: 1,
-    actionData: {
-      id: 1,
-      name: 'Установка',
-    },
-    stateId: 2,
-    stateData: {
-      id: 2,
-      name: 'В работе',
-    },
-    externalId: '456gtr6513',
-    compositePhysResSpecId: 1000776,
-    physicalContainerId: 355,
-    geoPlaceId: 456,
-    portnumber: 3,
-    transportCpeFuncSpecId: 14,
-    externalProjectId: 1423375,
-    externalCompositePhysResNum: 3425313,
-    processUserId: 543,
-    processDate: '2022-08-24T14:15:22Z',
-    createDate: '2022-06-28T14:15:22Z',
-    updateDate: '2022-06-28T14:15:22Z',
-    createUser: 'Japparov.S',
-    updateUser: 'Japparov.S',
-    createApp: 'resource-design-fe',
-    updateApp: 'resource-design-fe',
-    selected: false,
-    measurementResult: 'Линия в порядке',
-  },
-];
 
 import { ref } from 'vue';
 import { usePrepareStore } from 'stores/prepare';
-//import { useOrderStore } from 'src/stores/order';
+import vxMeasurement from './vxMeasurement.vue';
 
 export default {
   setup() {
     const prepareStore = usePrepareStore();
-    //const orderStore = useOrderStore();
     return {
+      openMeasurementDialog: ref(false),
       columns,
-      components,
       prepareStore,
     };
+  },
+  props: {
+    tickedComponents: Object,
+  },
+  components: { vxMeasurement },
+
+  computed: {
+    cprResourceOrderItemIds: function () {
+      return this.tickedComponents.map((c) => c.id);
+    },
   },
   methods: {
     geoPlaceName() {

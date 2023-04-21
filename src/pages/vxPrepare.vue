@@ -199,7 +199,7 @@
     <vx-inspection-dialog />
   </q-dialog>
   <q-dialog v-model="openEditItemDialog">
-    <vx-edit-item />
+    <vx-edit-item :ticked-components="$refs.qtree.getTickedNodes()" />
   </q-dialog>
 </template>
 

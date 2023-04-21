@@ -18,13 +18,16 @@
     <q-separator />
 
     <q-card-actions align="right">
-      <q-btn color="positive" label="Отправить" />
+      <q-btn color="positive" label="Отправить" @click="sendMeasurement" />
     </q-card-actions>
   </q-card>
 </template>
 
 <script setup lang="ts">
 import { reactive } from 'vue';
+import { usePrepareStore } from '../stores/prepare';
+
+const prepareStore = usePrepareStore();
 
 interface State {
   note: string | null;
@@ -33,6 +36,25 @@ const initialState: State = {
   note: null,
 };
 const state: State = reactive(initialState);
+
+interface Props {
+  cprResourceOrderItemIds: number[];
+}
+const props = withDefaults(defineProps<Props>(), {
+  cprResourceOrderItemIds: () => [],
+});
+
+function sendMeasurement() {
+  if (state.note && prepareStore.poRequest?.id) {
+    prepareStore.sendMeasurement(
+      prepareStore.poRequest.id,
+      128,
+      'EMPLOYEE_MEASURER',
+      state.note,
+      props.cprResourceOrderItemIds
+    );
+  }
+}
 </script>
 
 <style lang="sass" scoped></style>

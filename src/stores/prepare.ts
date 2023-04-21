@@ -6,6 +6,7 @@ import {
   PC_API,
   CPR_RO_API,
   MP_API,
+  ME_API,
 } from 'boot/api';
 import _ from 'lodash';
 
@@ -270,6 +271,13 @@ export const usePrepareStore = defineStore('prepareStore', {
       addresses: [],
     };
   },
+  getters: {
+    itemComponents(state) {
+      return state.dataTree.children.children.children.filter(
+        (i) => i.state === 'Подготовлен'
+      );
+    },
+  },
   actions: {
     fetchPORequest(poRequestId: number) {
       POR_API.get(`/product-offer-request/${poRequestId}`).then(({ data }) => {
@@ -424,6 +432,21 @@ export const usePrepareStore = defineStore('prepareStore', {
         },
       }).then(({ data }) => {
         this.addresses = data;
+      });
+    },
+    sendMeasurement(
+      workOrderId: number,
+      createEmployeeId: number,
+      employeeFuncRoleSpecCode: string,
+      description: string,
+      items: number[]
+    ) {
+      ME_API.post('/measurement-request', {
+        workOrderId,
+        createEmployeeId,
+        employeeFuncRoleSpecCode,
+        description,
+        items,
       });
     },
   },
