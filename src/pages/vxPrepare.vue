@@ -120,6 +120,14 @@
                       </div>
                     </div>
                   </q-btn>
+                  <q-btn
+                    style="margin-left: 5px"
+                    size="sm"
+                    round
+                    dense
+                    color="info"
+                    icon="info"
+                  />
                 </div>
 
                 <div
