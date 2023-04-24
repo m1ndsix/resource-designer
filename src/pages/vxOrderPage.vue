@@ -26,6 +26,42 @@
               <q-icon name="event" color="green" />
             </template>
           </q-input>
+          <q-item-label header> По ФИО контакта </q-item-label>
+          <q-input
+            color="grey-3"
+            label-color="grey"
+            outlined
+            v-model="text"
+            label="ФИО"
+          >
+            <template v-slot:append>
+              <q-icon name="account_circle" color="green" />
+            </template>
+          </q-input>
+          <q-item-label header> По адресу </q-item-label>
+          <q-input
+            color="grey-3"
+            label-color="grey"
+            outlined
+            v-model="text"
+            label="Адрес"
+          >
+            <template v-slot:append>
+              <q-icon name="home" color="green" />
+            </template>
+          </q-input>
+          <q-item-label header> По состоянию </q-item-label>
+          <q-input
+            color="grey-3"
+            label-color="grey"
+            outlined
+            v-model="text"
+            label="Состояние"
+          >
+            <template v-slot:append>
+              <q-icon name="list_alt" color="green" />
+            </template>
+          </q-input>
         </q-list>
       </div>
     </q-drawer>
@@ -113,7 +149,7 @@ const columns = reactive([
   {
     name: 'id',
     required: true,
-    label: 'Номер поручения',
+    label: '№ поручения',
     align: 'left',
     field: 'id',
     sortable: true,
@@ -121,9 +157,25 @@ const columns = reactive([
   {
     name: 'productOfferRequestId',
     required: true,
-    label: 'Номер запроса на ПП',
+    label: '№ запроса на ПП',
     align: 'left',
     field: 'productOfferRequestId',
+    sortable: true,
+  },
+  {
+    name: 'contactName',
+    required: true,
+    label: 'ФИО контакта',
+    align: 'left',
+    field: 'contactName',
+    sortable: true,
+  },
+  {
+    name: 'contactNumber',
+    required: true,
+    label: 'Номер контакта',
+    align: 'left',
+    field: 'contactNumber',
     sortable: true,
   },
   {

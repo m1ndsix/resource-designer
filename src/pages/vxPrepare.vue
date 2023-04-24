@@ -101,8 +101,6 @@
                   >
                     <div class="row items-center no-wrap text-teal">
                       <div>Обследовать</div>
-                      <q-separator vertical spaced />
-                      <div style="margin-right: 5px">3</div>
                     </div>
                   </q-btn>
                   <q-btn
@@ -113,7 +111,13 @@
                   >
                     <div class="row items-center">
                       <div class="text-center text-teal">Есть ТВ</div>
-                      <q-icon color="info" right name="info" />
+                      <q-separator vertical spaced />
+                      <div
+                        style="margin-right: 5px"
+                        title="Количество обследований"
+                      >
+                        3
+                      </div>
                     </div>
                   </q-btn>
                 </div>

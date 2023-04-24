@@ -43,18 +43,6 @@
                 @click="() => (openMeasurementDialog = true)"
               ></q-btn>
             </q-btn-group>
-
-            <q-btn-group>
-              <q-btn color="primary" glossy label="Проверка линии"></q-btn>
-              <q-btn color="primary" outline label="ЛД" disabled>
-                <q-tooltip>
-                  {TOWN:727;STATION:272; MAN:ECI; OLT:4/00/08/01;ODF:2/03/08/13;
-                  LD:ОРШ 272/07: 00/ODF-1/00/29, 00/ODF-5/00/118,
-                  00/ODF-5/00/121, 00/ODF-1/00/138; ОРКсп 272/07/29/3:
-                  00/00/1х8/7; OU:0;ONUPORTNUM:0; (DSL,IPTV,FXS); 6.518 км}
-                </q-tooltip>
-              </q-btn>
-            </q-btn-group>
           </div>
         </div>
       </template>

@@ -1,11 +1,12 @@
 <template>
-  <q-card style="max-width: 1000px">
+  <q-card style="max-width: 1200px">
     <q-card-section class="row">
       <div class="text-h6">Редактирование позиции заказа</div>
       <q-space />
       <q-btn icon="close" flat round dense v-close-popup />
     </q-card-section>
     <q-table
+      dense
       :rows="this.tickedComponents"
       :columns="columns"
       row-key="name"
@@ -14,21 +15,22 @@
     >
       <template v-slot:body-cell-selection="scope">
         <q-td>
-          <div class="q-pa-md">
-            <q-checkbox v-model="scope.row.selected" />
+          <div class="q-pa-sm">
+            <q-checkbox size="sm" v-model="scope.row.selected" />
           </div>
         </q-td>
       </template>
       <template v-slot:body-cell-actions="scope">
         <q-td>
-          <div class="q-pa-md q-gutter-sm">
+          <div class="q-pa-sm q-gutter-sm">
             <q-btn
               v-model="scope.selected"
               color="primary"
-              label="Редактировать"
+              size="sm"
+              label="Редакт."
             />
 
-            <q-btn color="red" label="Отменить" />
+            <q-btn color="red" size="sm" label="Отменить" />
           </div>
         </q-td>
       </template>
@@ -39,27 +41,16 @@
           }}
         </div>
         <q-space />
-        <div class="q-pa-md">
+        <div class="q-pa-sm">
           <div class="row q-gutter-sm">
             <q-btn-group>
               <q-btn
                 color="primary"
                 glossy
+                size="sm"
                 label="Измеритель"
                 @click="() => (openMeasurementDialog = true)"
               ></q-btn>
-            </q-btn-group>
-
-            <q-btn-group>
-              <q-btn color="primary" glossy label="Проверка линии"></q-btn>
-              <q-btn color="primary" outline label="ЛД" disabled>
-                <q-tooltip>
-                  {TOWN:727;STATION:272; MAN:ECI; OLT:4/00/08/01;ODF:2/03/08/13;
-                  LD:ОРШ 272/07: 00/ODF-1/00/29, 00/ODF-5/00/118,
-                  00/ODF-5/00/121, 00/ODF-1/00/138; ОРКсп 272/07/29/3:
-                  00/00/1х8/7; OU:0;ONUPORTNUM:0; (DSL,IPTV,FXS); 6.518 км}
-                </q-tooltip>
-              </q-btn>
             </q-btn-group>
           </div>
         </div>
@@ -75,11 +66,16 @@
 const columns = [
   {
     name: 'selection',
-    label: 'Выбрать',
+    label: 'Выбор',
     field: (row) => row.selected,
-    align: 'left',
+    align: 'center',
   },
-  { name: 'actions', label: 'Действие', field: 'action', align: 'center' },
+  {
+    name: 'actions',
+    label: 'Действие над ресурсом',
+    field: 'action',
+    align: 'center',
+  },
   {
     name: 'spec',
     align: 'center',
@@ -104,7 +100,7 @@ const columns = [
   {
     name: 'pc',
     align: 'center',
-    label: 'Физический контейнер',
+    label: 'Физ. контейнер',
     field: (row) => row.resource.equipment.physicalContainerNumber,
     sortable: true,
   },
@@ -118,7 +114,7 @@ const columns = [
   {
     name: 'tts',
     align: 'center',
-    label: 'Транспортная спецификация',
+    label: 'Функц. спец. терм. оборудования',
     field: 'transportCpeFuncSpecId',
     sortable: true,
   },
