@@ -8,6 +8,7 @@ interface State {
   productSpecs: IdName[];
   cprSpecs: IdName[];
   physicalContainers: PhysicalContainer[];
+  techInspections: TechInspection[];
 }
 
 interface WorkOrder {
@@ -83,6 +84,27 @@ interface PhysicalContainer {
   externalId: number;
 }
 
+interface TechInspection {
+  id: number;
+  employeeInteractionId: number;
+  workOrderId: number;
+  geoPlaceData: IdName;
+  createEmployeeId: number;
+  executeEmployeeId: number;
+  description: string;
+  isOverbudget: boolean;
+  resultTypeData: IdName;
+  wiringTypeData: IdName;
+  result: string;
+  executeDate: string;
+  createDate: string;
+  updateDate: string;
+  createUser: string;
+  updateUser: string;
+  createApp: string;
+  updateApp: string;
+}
+
 export const useOrderStore = defineStore('orderStore', {
   state: (): State => {
     return {
@@ -92,6 +114,7 @@ export const useOrderStore = defineStore('orderStore', {
       productSpecs: [],
       cprSpecs: [],
       physicalContainers: [],
+      techInspections: [],
     };
   },
   getters: {
@@ -145,28 +168,6 @@ export const useOrderStore = defineStore('orderStore', {
         console.log(error);
       }
     },
-    async getPhysicalContainers(
-      streetId: number,
-      houseNum: number,
-      subHouse: string
-    ) {
-      try {
-        await PC_API.get('/physical-container-by-address', {
-          params: {
-            streetId: 1426,
-            houseNum: 162,
-            // subHouse: 'Г',
-            // entrance: '',
-            // flatNumber: '',
-            // geoSubAddressId: null,
-          },
-        }).then(({ data }) => {
-          this.physicalContainers = data;
-        });
-      } catch (error) {
-        console.log(error);
-      }
-    },
     requestTechInspection(
       workOrderId: number,
       createEmployeeId: number,
@@ -179,11 +180,31 @@ export const useOrderStore = defineStore('orderStore', {
         description,
       }).then((response) => {
         console.log(response);
+        this.fetchTechInspections(workOrderId);
       });
     },
     fetchInspectors(login: string) {
       return TE_API.get('tech-inspection-request/inspectors', {
         params: { login },
+      });
+    },
+    fetchTechInspections(workOrderId: number) {
+      TE_API.get('/tech-inspection-request', {
+        params: { workOrderId },
+      }).then(({ data }) => {
+        this.techInspections = data;
+      });
+    },
+    patchWorkOrder(
+      cprRoPoReqId: number,
+      cprRoPoReqWoId: number,
+      state: number
+    ) {
+      CPR_RO_API.patch(
+        `/cpr-resource-order-po-req/${cprRoPoReqId}/work-order/${cprRoPoReqWoId}`,
+        { state }
+      ).then((response) => {
+        console.log(response);
       });
     },
   },

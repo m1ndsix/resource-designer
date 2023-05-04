@@ -30,6 +30,7 @@
       <q-btn
         color="positive"
         label="Отправить"
+        v-close-popup
         @click="requestTechInspection()"
       />
     </q-card-actions>
@@ -60,7 +61,6 @@ const state: State = reactive(initialState);
 
 onMounted(() => {
   orderStore.fetchInspectors('japparov.s@telecom.kz').then(({ data }) => {
-    console.log(data);
     state.users = data;
   });
 });

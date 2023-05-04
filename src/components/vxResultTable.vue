@@ -8,7 +8,7 @@
     <q-table
       class="q-ma-sm"
       hide-bottom
-      :rows="state.rows"
+      :rows="orderStore.techInspections"
       :columns="state.columns"
       row-key="id"
     >
@@ -17,7 +17,10 @@
 </template>
 
 <script setup lang="ts">
-import { reactive } from 'vue';
+import { reactive, onMounted } from 'vue';
+import { useOrderStore } from 'stores/order';
+
+const orderStore = useOrderStore();
 
 interface Rows {
   rowId: number;
@@ -31,39 +34,43 @@ interface Rows {
 
 interface State {
   columns: any[];
-  rows: Rows[];
 }
 const initialState: State = {
   columns: [
     {
-      name: 'order',
+      name: 'workOrderId',
       label: 'Номер поручения',
-      field: (row) => row.order,
+      field: (row) => row.workOrderId,
       align: 'left',
     },
-    { name: 'date', label: 'Дата', field: (row) => row.date, align: 'left' },
     {
-      name: 'user',
+      name: 'createDate',
+      label: 'Дата',
+      field: (row) => row.createDate,
+      align: 'left',
+    },
+    {
+      name: 'createEmployeeId',
       label: 'Исполнитель',
-      field: (row) => row.user,
+      field: (row) => row.createEmployeeId,
       align: 'left',
     },
     {
-      name: 'extraWork',
+      name: 'isOverbudget',
       label: 'Требуются сверхпостроечные работы',
-      field: (row) => row.extraWork,
+      field: (row) => (row.isOverbudget ? 'Да' : 'Нет'),
       align: 'left',
     },
     {
-      name: 'cabelType',
+      name: 'wiringTypeData',
       label: 'Тип проводки',
-      field: (row) => row.cabelType,
+      field: (row) => row.wiringTypeData.nameRu,
       align: 'left',
     },
     {
-      name: 'resultType',
+      name: 'resultTypeData',
       label: 'Тип результата',
-      field: (row) => row.resultType,
+      field: (row) => row.resultTypeData.nameRu,
       align: 'left',
     },
     {
@@ -73,40 +80,13 @@ const initialState: State = {
       align: 'left',
     },
   ],
-  rows: [
-    {
-      rowId: 1,
-      order: '123456',
-      date: '20.01.2022',
-      user: 'Иванов А.Б',
-      extraWork: 'Да',
-      cabelType: 'КЛС',
-      resultType: 'Есть ТВ',
-      result: 'Текстовое примечание',
-    },
-    {
-      rowId: 2,
-      order: '234567',
-      date: '21.01.2022',
-      user: 'Иванов А.Б',
-      extraWork: 'Да',
-      cabelType: 'КЛС',
-      resultType: 'Есть ТВ',
-      result: 'Текстовое примечание',
-    },
-    {
-      rowId: 3,
-      order: '345678',
-      date: '22.01.2022',
-      user: 'Иванов А.Б',
-      extraWork: 'Да',
-      cabelType: 'ПЛС',
-      resultType: 'Есть ТВ',
-      result: 'Текстовое примечание',
-    },
-  ],
 };
 const state: State = reactive(initialState);
+onMounted(() => {
+  if (orderStore.selectedOrder?.id) {
+    orderStore.fetchTechInspections(orderStore.selectedOrder.id);
+  }
+});
 </script>
 
 <style lang="sass" scoped></style>

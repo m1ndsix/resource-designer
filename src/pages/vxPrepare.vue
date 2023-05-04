@@ -110,13 +110,15 @@
                     @click="() => (openResultTable = true)"
                   >
                     <div class="row items-center">
-                      <div class="text-center text-teal">Есть ТВ</div>
+                      <div class="text-center text-teal">
+                        {{ lastTechInspectionResultType }}
+                      </div>
                       <q-separator vertical spaced />
                       <div
                         style="margin-right: 5px"
                         title="Количество обследований"
                       >
-                        3
+                        {{ techInspectionsCount }}
                       </div>
                     </div>
                   </q-btn>
@@ -127,6 +129,7 @@
                     dense
                     color="info"
                     icon="info"
+                    @click="(event) => onOpenEditItemDialog(event, prop.node)"
                   />
                 </div>
 
@@ -180,7 +183,7 @@
                       dense
                       color="info"
                       icon="info"
-                      @click="() => (openEditItemDialog = true)"
+                      @click="(event) => onOpenEditItemDialog(event, prop.node)"
                     />
                   </div>
                 </div>
@@ -211,7 +214,7 @@
     <vx-inspection-dialog />
   </q-dialog>
   <q-dialog v-model="openEditItemDialog">
-    <vx-edit-item :ticked-components="$refs.qtree.getTickedNodes()" />
+    <vx-edit-item :edit-components="editComponents" />
   </q-dialog>
 </template>
 
@@ -234,6 +237,7 @@ export default {
       openResultTable: ref(false),
       openInspectionDialog: ref(false),
       openEditItemDialog: ref(false),
+      editComponents: ref([]),
       splitterModel: ref(70),
       showAppointed: ref(false),
       tickedNodes: ref(null),
@@ -311,6 +315,17 @@ export default {
         },
       ];
     }
+  },
+  computed: {
+    lastTechInspectionResultType() {
+      const inspections = this.orderStore.techInspections;
+      return !!inspections.length
+        ? inspections[inspections.length - 1].resultTypeData.nameRu
+        : 'Не определено';
+    },
+    techInspectionsCount() {
+      return this.orderStore.techInspections.length;
+    },
   },
   methods: {
     treeFilterMethod(node, onlyAppointed) {
@@ -403,6 +418,16 @@ export default {
     },
     onNodeTicked(nodes) {
       this.prepareStore.selectedComponent = nodes;
+    },
+    onOpenEditItemDialog(event, node) {
+      // TODO: fix: multiple nodes are not working
+      event.stopPropagation();
+
+      // this.editComponents = node?.children
+      //   ?.map((pos) => pos.children)
+      //   .flat() || [node];
+      this.editComponents = [node];
+      this.openEditItemDialog = true;
     },
     onAppoint(event) {
       event.stopPropagation();

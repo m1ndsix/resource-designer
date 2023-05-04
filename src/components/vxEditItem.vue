@@ -7,7 +7,7 @@
     </q-card-section>
     <q-table
       dense
-      :rows="this.tickedComponents"
+      :rows="this.editComponents"
       :columns="columns"
       row-key="name"
       selection="none"
@@ -101,14 +101,14 @@ const columns = [
     name: 'pc',
     align: 'center',
     label: 'Физ. контейнер',
-    field: (row) => row.resource.equipment.physicalContainerNumber,
+    field: (row) => row.resource?.equipment.physicalContainerNumber,
     sortable: true,
   },
   {
     name: 'port',
     align: 'center',
     label: 'Порт',
-    field: (row) => row.resource.port.portNumber,
+    field: (row) => row.resource?.port.portNumber,
     sortable: true,
   },
   {
@@ -141,13 +141,13 @@ export default {
     };
   },
   props: {
-    tickedComponents: Object,
+    editComponents: Array,
   },
   components: { vxMeasurement },
 
   computed: {
     cprResourceOrderItemIds: function () {
-      return this.tickedComponents.map((c) => c.id);
+      return this.editComponents.map((c) => c.id);
     },
   },
   methods: {

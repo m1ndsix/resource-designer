@@ -25,6 +25,13 @@
         <q-tab-panel name="new">
           <q-select
             style="width: 250px"
+            v-model="state.equipmentFilter"
+            @update:model-value="onServiceAreaSelected"
+            :options="state.equipmentFilterOptions"
+            label="Зона поиска"
+          />
+          <q-select
+            style="width: 250px"
             v-model="state.newResource.value.spec"
             @update:model-value="onNewResourceSelect"
             :options="orderStore.cprSpecs"
@@ -50,14 +57,6 @@
               />
             </div>
             <div class="col">
-              <q-select
-                style="width: 250px"
-                dense
-                v-model="state.equipmentFilter"
-                @update:model-value="onServiceAreaSelected"
-                :options="state.equipmentFilterOptions"
-                label="Зона поиска"
-              />
               <div
                 v-if="
                   state.equipmentFilter &&
@@ -203,7 +202,7 @@ interface State {
   specs: string[];
   equipment: string[];
   ports: string[];
-  equipmentFilter: EquipmentFilter | null;
+  equipmentFilter: EquipmentFilter;
   equipmentFilterOptions: EquipmentFilter[];
   selectedStreet: IdName | null;
   filteredStreets: IdName[];
@@ -235,7 +234,7 @@ const initialState: State = {
       port: null,
     },
   },
-  equipmentFilter: null,
+  equipmentFilter: { label: 'По пределу обслуживания', value: 'service' },
   equipmentFilterOptions: [
     { label: 'По пределу обслуживания', value: 'service' },
     { label: 'По подъезду', value: 'entrance' },
@@ -272,8 +271,7 @@ function makeAddressLabel({ house, subHouse }) {
 }
 
 function onServiceAreaSelected({ value }) {
-  state.newResource.value.equipment = null;
-  state.newResource.value.port = null;
+  resetNewResource();
   state.selectedStreet = null;
   state.selectedAddress = null;
   emit('onServiceAreaSelected', value);

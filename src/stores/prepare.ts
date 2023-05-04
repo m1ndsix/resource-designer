@@ -21,7 +21,6 @@ interface State {
   preparedComponents: PreparedComponents[];
   geoPlaces: unknown[];
   geoPlaceInfo: GeoPlaceInfo | null;
-  cprInfo: unknown;
   physicalContainers: IdName[];
   streets: IdName[];
   addresses: Address[];
@@ -237,34 +236,10 @@ export const usePrepareStore = defineStore('prepareStore', {
       selectedComponent: null,
       components: [],
       createdResources: [],
-      existingResources: [
-        {
-          label: 'Прямая линия FTTH б/логина (1000776), 7222-4207188',
-          value: {
-            length: '928.9 м',
-            lineData:
-              'TOWN:727;STATION:42/01; MAN:ECI; OLT:2/00/03/07;ODF:3/08/06/01; LD:Ст. 42/01: ODF 3/8/06/4, ODF 3/4/06/1; ОРКсп 240/0/142/03: 00/00/спл.1х16/10 (Этаж 3); OU:0;ONUPORTNUM:0; 928.9 м',
-            spec: 'Прямая линия FTTH б/логина (1000776)',
-            equipment: 'ОРК 229/06/2/1',
-            port: 'Порт: 1',
-          },
-        },
-        {
-          label: 'Прямая линия ETTH(1000784), 7222-5498221',
-          value: {
-            length: '928.9 м',
-            lineData:
-              'TOWN:727;STATION:42/01; MAN:ECI; OLT:2/00/03/07;ODF:3/08/06/01; LD:Ст. 42/01: ODF 3/8/06/4, ODF 3/4/06/1; ОРКсп 240/0/142/03: 00/00/спл.1х16/10 (Этаж 3); OU:0;ONUPORTNUM:0; 928.9 м',
-            spec: 'Прямая линия ETTH(1000784)',
-            equipment: 'ОРК 229/06/2/2',
-            port: 'Порт: 2',
-          },
-        },
-      ],
+      existingResources: [],
       preparedComponents: [],
       geoPlaces: [],
       geoPlaceInfo: null,
-      cprInfo: null,
       physicalContainers: [],
       mountedPorts: [],
       streets: [],
@@ -306,6 +281,7 @@ export const usePrepareStore = defineStore('prepareStore', {
         }
       });
     },
+    // TODO: apply better naming and fix typing
     fetchCPRInfo(geoPlaceId: number, offset: number, limit: number) {
       CPR_API.get('/composite-physical-resource', {
         params: {
@@ -314,7 +290,16 @@ export const usePrepareStore = defineStore('prepareStore', {
           limit,
         },
       }).then(({ data }) => {
-        this.cprInfo = data;
+        // TODO: no data spec
+        this.existingResources = data.map((cpr) => {
+          return {
+            label: `${cpr.compositePhysResSpecData.nameRu} (${cpr.compositePhysResSpecData.id}), ${cpr.resourceFullNumber}`,
+            value: {
+              lineData: cpr.lineData,
+              spec: cpr.compositePhysResSpecData,
+            },
+          };
+        });
       });
     },
     fetchPhysicalContainers(
