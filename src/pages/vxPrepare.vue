@@ -481,6 +481,7 @@ export default {
     onPrepareComponent(resource) {
       const tickedNodes = this.$refs.qtree.getTickedNodes();
       const componentsIds = tickedNodes.map((node) => node.id);
+      const positionIds = tickedNodes.map((node) => node.poReqItemId);
 
       this.prepareStore.dataTree.forEach((poType) => {
         poType.children.forEach((address) => {
@@ -509,6 +510,8 @@ export default {
         compositePhysResNum: '7777777',
         compositePhysResFullNum: '7777777',
         mountedPortId: resource.port.id,
+        poRequestItemId: positionIds[0], // TODO: need to work with multiple positions,
+        poReqItemCompIds: componentsIds,
       });
 
       this.openResourceForm = false;

@@ -327,8 +327,9 @@ export const usePrepareStore = defineStore('prepareStore', {
         });
     },
     /*
-      TODO: This crap is prone to unexpected behaviour. For example,
-            what will happen if last query returned error
+      TODO: Should handle cases when multiple components in multiple positions are being prepared.
+      Currently, using promiseAll for each selected component (in single position only). Probably,
+      should pass a map with signature: {positionId: [componentIds...]}
     */
     createPosition({
       cprRoPoReqId,
@@ -344,7 +345,7 @@ export const usePrepareStore = defineStore('prepareStore', {
       compositePhysResFullNum,
       mountedPortId,
       poRequestItemId,
-      poReqItemCompId,
+      poReqItemCompIds,
     }) {
       CPR_RO_API.post(
         `/cpr-resource-order-po-req/${cprRoPoReqId}/work-order/${cprRoPoReqWoId}/item`,
@@ -360,20 +361,32 @@ export const usePrepareStore = defineStore('prepareStore', {
           compositePhysResFullNum,
         }
       ).then((creationResult) => {
-        console.log(creationResult);
         MP_API.patch(`/mount/mounted-port/${mountedPortId}`, {
           usageStateId: 2,
         }).then((mountResult) => {
+          // TODO: handle success/error
           console.log(mountResult);
-          POR_API.patch(
-            `/po-req-item/${poRequestItemId}/po-req-item-component/${poReqItemCompId}`,
-            {
-              poReqItemCompId: 1,
-            }
-          ).then((itemResult) => {
-            console.log(itemResult);
-          });
         });
+
+        const patchPositionRequests = poReqItemCompIds.map((componentId) => {
+          POR_API.patch(
+            `/po-req-item/${poRequestItemId}/po-req-item-component/${componentId}`,
+            {
+              resourceOrderItemId: creationResult.data.data.id,
+            }
+          );
+        });
+
+        Promise.all(patchPositionRequests)
+          .then((responses) => {
+            // Process individual responses here
+            responses.forEach((response) => {
+              console.log(response.data);
+            });
+          })
+          .catch((error) => {
+            console.error('Error:', error);
+          });
       });
     },
     fetchMountedPorts(
