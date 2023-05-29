@@ -160,12 +160,14 @@ import { usePrepareStore } from 'stores/prepare';
 */
 
 interface Props {
+  currentItem: unknown;
   existingResources: Resource[];
   createdResources: Resource[];
   streets: IdName[];
   addresses: Address[];
 }
 const props = withDefaults(defineProps<Props>(), {
+  currentItem: () => null,
   existingResources: () => [],
   createdResources: () => [],
   streets: () => [],

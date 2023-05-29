@@ -10,24 +10,21 @@
       :rows="this.editComponents"
       :columns="columns"
       row-key="name"
-      selection="none"
+      selection="multiple"
+      :selected-rows-label="selectedRowsLabel"
       :hide-pagination="true"
+      :visible-columns="visibleColumns"
+      v-model:selected="selectedRows"
+      style="margin: 10px"
     >
-      <template v-slot:body-cell-selection="scope">
-        <q-td>
-          <div class="q-pa-sm">
-            <q-checkbox size="sm" v-model="scope.row.selected" />
-          </div>
-        </q-td>
-      </template>
       <template v-slot:body-cell-actions="scope">
         <q-td>
           <div class="q-pa-sm q-gutter-sm">
             <q-btn
-              v-model="scope.selected"
               color="primary"
               size="sm"
               label="Редакт."
+              @click="editPosition(scope.row)"
             />
 
             <q-btn color="red" size="sm" label="Отменить" />
@@ -41,7 +38,7 @@
           }}
         </div>
         <q-space />
-        <div class="q-pa-sm">
+        <div class="q-pa-sm" v-if="isBulkComponentEdit">
           <div class="row q-gutter-sm">
             <q-btn-group>
               <q-btn
@@ -49,6 +46,7 @@
                 glossy
                 size="sm"
                 label="Измеритель"
+                :disable="disableMeasurement"
                 @click="() => (openMeasurementDialog = true)"
               ></q-btn>
             </q-btn-group>
@@ -64,12 +62,6 @@
 
 <script>
 const columns = [
-  {
-    name: 'selection',
-    label: 'Выбор',
-    field: (row) => row.selected,
-    align: 'center',
-  },
   {
     name: 'actions',
     label: 'Действие над ресурсом',
@@ -135,24 +127,51 @@ export default {
   setup() {
     const prepareStore = usePrepareStore();
     return {
-      openMeasurementDialog: ref(false),
       columns,
+      openMeasurementDialog: ref(false),
+      openResourceForm: ref(false),
       prepareStore,
+      selectedRows: ref([]),
     };
   },
   props: {
     editComponents: Array,
+    isBulkComponentEdit: Boolean,
   },
   components: { vxMeasurement },
 
   computed: {
-    cprResourceOrderItemIds: function () {
-      return this.editComponents.map((c) => c.id);
+    disableMeasurement() {
+      return !this.selectedRows.length;
+    },
+    visibleColumns() {
+      return this.isBulkComponentEdit
+        ? [
+            'actions',
+            'spec',
+            'action',
+            'pc',
+            'port',
+            'tts',
+            'measurement-result',
+          ]
+        : ['spec', 'action', 'pc', 'port', 'tts', 'measurement-result'];
+    },
+    cprResourceOrderItemIds() {
+      return this.selectedRows.map((c) => c.id);
     },
   },
   methods: {
+    editPosition(row) {
+      this.$emit('onEditItem', row);
+    },
     geoPlaceName() {
       return this.prepareStore.geoPlace;
+    },
+    selectedRowsLabel(rowsNumber) {
+      return rowsNumber === 1
+        ? '1 Позиция выбрана'
+        : `${rowsNumber} Позиций выбрано`;
     },
   },
 };

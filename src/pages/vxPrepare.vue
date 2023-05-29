@@ -42,6 +42,7 @@
             label="Завершить Поручение"
             size="sm"
             color="secondary"
+            @click="onCompleteWorkOrder"
           />
           <q-btn dense label="Вернуться к Списку" size="sm" color="primary" />
         </div>
@@ -92,7 +93,13 @@
                     :disable="disableAppointBtn()"
                     @click="onAppoint"
                   />
-                  <q-btn dense size="sm" color="dark" label="Отказать" />
+                  <q-btn
+                    dense
+                    size="sm"
+                    color="dark"
+                    label="Отказать"
+                    @click="rejectProductOfferRequestItem(prop.node)"
+                  />
                   <q-btn dense size="sm" color="negative" label="Отменить" />
                   <q-btn
                     dense
@@ -197,6 +204,7 @@
   <q-dialog v-model="openResourceForm">
     <vx-resource-form
       :created-resources="prepareStore.createdResources"
+      :current-item="currentItem"
       :existing-resources="prepareStore.existingResources"
       :streets="prepareStore.streets"
       :addresses="prepareStore.addresses"
@@ -214,7 +222,11 @@
     <vx-inspection-dialog />
   </q-dialog>
   <q-dialog v-model="openEditItemDialog">
-    <vx-edit-item :edit-components="editComponents" />
+    <vx-edit-item
+      :edit-components="editComponents"
+      :is-bulk-component-edit="isBulkComponentEdit"
+      @on-edit-item="onEditItem"
+    />
   </q-dialog>
 </template>
 
@@ -232,12 +244,14 @@ export default {
     const prepareStore = usePrepareStore();
     const orderStore = useOrderStore();
     return {
+      currentItem: ref(null),
       treeFilter: ref(false),
       openResourceForm: ref(false),
       openResultTable: ref(false),
       openInspectionDialog: ref(false),
       openEditItemDialog: ref(false),
       editComponents: ref([]),
+      isBulkComponentEdit: ref(false),
       splitterModel: ref(70),
       showAppointed: ref(false),
       tickedNodes: ref(null),
@@ -419,14 +433,30 @@ export default {
     onNodeTicked(nodes) {
       this.prepareStore.selectedComponent = nodes;
     },
+    onCompleteWorkOrder() {
+      // TODO: better naming
+      this.orderStore.validateWorkOrder(
+        this.orderStore.selectedOrder.cprResourceOrderPoReqId,
+        this.orderStore.selectedOrder.id
+      );
+    },
+    onEditItem(item) {
+      this.currentItem = item;
+      this.openResourceForm = true;
+    },
     onOpenEditItemDialog(event, node) {
-      // TODO: fix: multiple nodes are not working
       event.stopPropagation();
 
-      // this.editComponents = node?.children
-      //   ?.map((pos) => pos.children)
-      //   .flat() || [node];
-      this.editComponents = [node];
+      if (node.nodeType === 'address') {
+        this.editComponents = node.children
+          .flatMap((position) => position.children)
+          .filter((component) => component.state === 'Подготовлен');
+        this.isBulkComponentEdit = true;
+      } else {
+        this.editComponents = [node];
+        this.isBulkComponentEdit = false;
+      }
+
       this.openEditItemDialog = true;
     },
     onAppoint(event) {
@@ -515,6 +545,19 @@ export default {
       });
 
       this.openResourceForm = false;
+    },
+    rejectProductOfferRequestItem(item) {
+      this.prepareStore.patchPORequest(
+        this.orderStore.selectedOrder.productOfferRequestId,
+        16 // TODO: what should be here?
+      );
+    },
+    cancelProductOfferRequestItem() {
+      this.orderStore.patchWorkOrder(
+        this.orderStore.cprResourceOrderPoReqId,
+        this.orderStore.selectedOrder.id,
+        2
+      );
     },
   },
 };

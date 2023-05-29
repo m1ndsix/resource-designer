@@ -198,14 +198,23 @@ export const useOrderStore = defineStore('orderStore', {
     patchWorkOrder(
       cprRoPoReqId: number,
       cprRoPoReqWoId: number,
-      state: number
+      stateId: number
     ) {
       CPR_RO_API.patch(
         `/cpr-resource-order-po-req/${cprRoPoReqId}/work-order/${cprRoPoReqWoId}`,
-        { state }
+        { stateId }
       ).then((response) => {
+        // TODO: meaningful handler
         console.log(response);
       });
+    },
+    validateWorkOrder(cprRoPoReqId: number, cprRoPoReqWoId: number) {
+      CPR_RO_API.get('/validate', { cprRoPoReqId, cprRoPoReqWoId }).then(
+        (response) => {
+          // TODO: meaningful handler
+          console.log(response);
+        }
+      );
     },
   },
 });

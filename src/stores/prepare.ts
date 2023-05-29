@@ -246,17 +246,21 @@ export const usePrepareStore = defineStore('prepareStore', {
       addresses: [],
     };
   },
-  getters: {
-    itemComponents(state) {
-      return state.dataTree.children.children.children.filter(
-        (i) => i.state === 'Подготовлен'
-      );
-    },
-  },
   actions: {
     fetchPORequest(poRequestId: number) {
       POR_API.get(`/product-offer-request/${poRequestId}`).then(({ data }) => {
         this.poRequest = data;
+      });
+    },
+    patchPORequest(poRequestId: number, poRequestItemId: number) {
+      POR_API.patch(
+        `/product-offer-request/${poRequestId}/po-req-item/${poRequestItemId}`,
+        {
+          cprRoRejectReasonId: 1, // Нет ТВ
+        }
+      ).then(({ data }) => {
+        // TODO: meaningul handler
+        console.log(data);
       });
     },
     fetchGeoPlaceInfo(geoPlaceId: number) {
@@ -291,15 +295,17 @@ export const usePrepareStore = defineStore('prepareStore', {
         },
       }).then(({ data }) => {
         // TODO: no data spec
-        this.existingResources = data.map((cpr) => {
-          return {
-            label: `${cpr.compositePhysResSpecData.nameRu} (${cpr.compositePhysResSpecData.id}), ${cpr.resourceFullNumber}`,
-            value: {
-              lineData: cpr.lineData,
-              spec: cpr.compositePhysResSpecData,
-            },
-          };
-        });
+        if (data) {
+          this.existingResources = data.map((cpr) => {
+            return {
+              label: `${cpr.compositePhysResSpecData.nameRu} (${cpr.compositePhysResSpecData.id}), ${cpr.resourceFullNumber}`,
+              value: {
+                lineData: cpr.lineData,
+                spec: cpr.compositePhysResSpecData,
+              },
+            };
+          });
+        }
       });
     },
     fetchPhysicalContainers(
@@ -361,7 +367,7 @@ export const usePrepareStore = defineStore('prepareStore', {
           compositePhysResFullNum,
         }
       ).then((creationResult) => {
-        MP_API.patch(`/mount/mounted-port/${mountedPortId}`, {
+        MP_API.patch(`/mounted-port/${mountedPortId}`, {
           usageStateId: 2,
         }).then((mountResult) => {
           // TODO: handle success/error
