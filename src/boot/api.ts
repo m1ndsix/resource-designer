@@ -4,15 +4,15 @@ import axios, { AxiosInstance } from 'axios';
 
 const PC_API_URL =
   process.env.PC_API_URL ||
-  'http://10.8.26.62:1323/api/physical-container-be/v1.0'; // - URL сервиса physical-container-be
+  'http://10.8.27.97:6126/api/physical-container-be/v1.0'; // - URL сервиса physical-container-be
 const CPR_API_URL =
   process.env.CPR_API_URL ||
-  'http://10.8.26.62:1324/api/composite-physical-resource-be/v1.0'; // - URL сервиса composite-physical-resource
+  'http://10.8.27.97:6124/api/composite-physical-resource-be/v1.0'; // - URL сервиса composite-physical-resource
 const MP_API_URL =
-  process.env.MP_API_URL || 'http://10.8.26.62:1325/api/mounted-port-be/v1.0'; // - URL сервиса mounted-port-be
+  process.env.MP_API_URL || 'http://10.8.27.97:6125/api/mounted-port-be/v1.0'; // - URL сервиса mounted-port-be
 const CPR_RO_URL =
   process.env.CPR_RO_URL ||
-  'http://10.8.26.62:1326/api/cpr-resource-order-be/v1.0'; // - URL сервиса resource-order-be
+  'http://10.8.27.97:6127/api/cpr-resource-order-be/v1.0'; // - URL сервиса resource-order-be
 
 const LOC_API_URL = process.env.LOC_API_URL || 'http://10.6.4.118:6009/api/v1'; // - URL сервиса location
 const POR_API_URL =
@@ -20,9 +20,10 @@ const POR_API_URL =
   'http://10.6.4.118:6010/api/product-offer-request-be/v1.0'; // - URL сервиса product-offer
 const TE_URL =
   process.env.TE_URL ||
-  'http://10.8.26.62:1326/api/tech-inspection-request-be/v1.0'; // - URL сервиса tech-inspection
+  'http://10.8.27.97:6244/api/tech-inspection-request-be/v1.0'; // - URL сервиса tech-inspection
 const ME_URL =
-  process.env.ME_URL || 'http://localhost:1328/api/measurement-request-be/v1.0';
+  process.env.ME_URL ||
+  'http://10.8.27.97:6241/api/measurement-request-be/v1.0'; // URL сервиса measurement-request
 
 function createRouter(url: string) {
   return axios.create({
