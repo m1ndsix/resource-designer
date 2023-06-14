@@ -22,6 +22,8 @@ interface WorkOrder {
   executeEmployeeId: number;
   executeData: string;
   stateData: IdName;
+  contactName: string;
+  mobilePhoneNumber: string;
   cprResourceOrderPoReqItems: WorkOrderItem[];
   createDate: string;
   updateDate: string;

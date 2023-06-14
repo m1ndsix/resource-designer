@@ -8,7 +8,7 @@
             color="grey-3"
             label-color="grey"
             outlined
-            v-model="text"
+            v-model="state.dateFrom"
             label="От"
           >
             <template v-slot:append>
@@ -19,7 +19,7 @@
             color="grey-3"
             label-color="grey"
             outlined
-            v-model="text"
+            v-model="state.dateTo"
             label="До"
           >
             <template v-slot:append>
@@ -31,7 +31,7 @@
             color="grey-3"
             label-color="grey"
             outlined
-            v-model="text"
+            v-model="state.contactName"
             label="ФИО"
           >
             <template v-slot:append>
@@ -43,7 +43,7 @@
             color="grey-3"
             label-color="grey"
             outlined
-            v-model="text"
+            v-model="state.address"
             label="Адрес"
           >
             <template v-slot:append>
@@ -55,7 +55,7 @@
             color="grey-3"
             label-color="grey"
             outlined
-            v-model="text"
+            v-model="state.state"
             label="Состояние"
           >
             <template v-slot:append>
@@ -74,6 +74,8 @@
       :loading="isTableLoading"
       v-model:pagination="pagination"
       @request="onTableRequest"
+      :filter="filter"
+      :filter-method="filterOrders"
     >
       <template v-slot:body-cell-action="scope">
         <q-td>
@@ -89,18 +91,30 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<!-- <script setup lang="ts"> -->
+<script setup>
 import { ref, reactive, onMounted } from 'vue';
 import { useOrderStore } from 'stores/order';
 import { useRouter } from 'vue-router';
 import { date } from 'quasar';
 
-const text = ref('');
 const isTableLoading = ref(false);
 const pagination = ref({
   page: 1,
   rowsPerPage: 10,
   rowsNumber: 20,
+});
+function filter() {
+  return {
+    contactName: state.contactName,
+  };
+}
+const state = reactive({
+  dateFrom: '',
+  dateTo: '',
+  contactName: '',
+  address: '',
+  state: '',
 });
 
 const orderStore = useOrderStore();
@@ -139,10 +153,21 @@ function onTableRequest(request) {
   });
 }
 
-function prepareOrder(order: any) {
+function prepareOrder(order) {
   orderStore.selectedOrder = { ...order };
   orderStore.patchWorkOrder(order.cprResourceOrderPoReqId, order.id, 2);
   router.push('/prepare');
+}
+
+function filterOrders() {
+  console.log('filter');
+  if (state.contactName.length > 3) {
+    console.log('name filter');
+    return orderStore.orders.filter((row) =>
+      row.contactName.includes(state.contactName)
+    );
+  }
+  return [];
 }
 
 const columns = reactive([
@@ -172,11 +197,11 @@ const columns = reactive([
     sortable: true,
   },
   {
-    name: 'contactNumber',
+    name: 'mobilePhoneNumber',
     required: true,
     label: 'Номер контакта',
     align: 'left',
-    field: 'contactNumber',
+    field: 'mobilePhoneNumber',
     sortable: true,
   },
   {
