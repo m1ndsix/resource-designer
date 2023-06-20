@@ -4,28 +4,44 @@
       <div class="q-pa-sm q-gutter-sm">
         <q-list>
           <q-item-label header> Время создания поручения </q-item-label>
-          <q-input
-            color="grey-3"
-            label-color="grey"
-            outlined
-            v-model="state.dateFrom"
-            label="От"
-          >
+          <q-input filled v-model="state.dateFrom" mask="date" label="От">
             <template v-slot:append>
-              <q-icon name="event" color="green" />
+              <q-icon name="event" class="cursor-pointer" color="green">
+                <q-popup-proxy
+                  cover
+                  transition-show="scale"
+                  transition-hide="scale"
+                >
+                  <q-date v-model="state.dateFrom" :locale="myLocale">
+                    <div class="row items-center justify-end">
+                      <q-btn v-close-popup label="Close" color="primary" flat />
+                    </div>
+                  </q-date>
+                </q-popup-proxy>
+              </q-icon>
             </template>
           </q-input>
-          <q-input
-            color="grey-3"
-            label-color="grey"
-            outlined
-            v-model="state.dateTo"
-            label="До"
-          >
+          <template v-slot:append>
+            <q-icon name="event" class="cursor-pointer" color="green" />
+          </template>
+          <q-input filled v-model="state.dateTo" mask="date" label="До">
             <template v-slot:append>
-              <q-icon name="event" color="green" />
+              <q-icon name="event" class="cursor-pointer" color="green">
+                <q-popup-proxy
+                  cover
+                  transition-show="scale"
+                  transition-hide="scale"
+                >
+                  <q-date v-model="state.dateTo" :locale="myLocale">
+                    <div class="row items-center justify-end">
+                      <q-btn v-close-popup label="Close" color="primary" flat />
+                    </div>
+                  </q-date>
+                </q-popup-proxy>
+              </q-icon>
             </template>
           </q-input>
+
           <q-item-label header> По ФИО контакта </q-item-label>
           <q-input
             color="grey-3"
@@ -51,17 +67,18 @@
             </template>
           </q-input>
           <q-item-label header> По состоянию </q-item-label>
-          <q-input
+          <q-select
             color="grey-3"
             label-color="grey"
             outlined
             v-model="state.state"
+            :options="options"
             label="Состояние"
           >
             <template v-slot:append>
               <q-icon name="list_alt" color="green" />
             </template>
-          </q-input>
+          </q-select>
         </q-list>
       </div>
     </q-drawer>
@@ -108,9 +125,32 @@ const state = reactive({
   state: '',
 });
 
+const options = [
+  'Новый',
+  'В работе',
+  'На уточнении адреса',
+  'Уточнение завершено',
+  'Выполнено',
+];
+
 const orderStore = useOrderStore();
 
 const router = useRouter();
+
+const myLocale = {
+  days: 'Понедельник_Вторник_Среда_Четверг_Пятница_Суббота_Воскресенье'.split(
+    '_'
+  ),
+  daysShort: 'Пнд_Втр_Срд_Чтв_Птн_Сбт_Вск'.split('_'),
+  months:
+    'Январь_Февраль_Март_Апрель_Май_Июнь_Июль_Аугуст_Сентябрь_Октябрь_Ноябрь_Декабрь'.split(
+      '_'
+    ),
+  monthsShort: 'Янв_Фев_Мар_Апр_Май_Июн_Июл_Авг_Сен_Окт_Ноя_Дек'.split('_'),
+  firstDayOfWeek: 1,
+  format24h: true,
+  pluralDay: 'dias',
+};
 
 onMounted(() => {
   isTableLoading.value = true;
