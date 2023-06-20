@@ -68,14 +68,12 @@
     <q-table
       dense
       title="Поручения"
-      :rows="orderStore.orders"
+      :rows="filteredOrders"
       :columns="columns"
       row-key="name"
       :loading="isTableLoading"
       v-model:pagination="pagination"
       @request="onTableRequest"
-      :filter="filter"
-      :filter-method="filterOrders"
     >
       <template v-slot:body-cell-action="scope">
         <q-td>
@@ -90,10 +88,8 @@
     </q-table>
   </div>
 </template>
-
-<!-- <script setup lang="ts"> -->
 <script setup>
-import { ref, reactive, onMounted } from 'vue';
+import { ref, reactive, onMounted, computed } from 'vue';
 import { useOrderStore } from 'stores/order';
 import { useRouter } from 'vue-router';
 import { date } from 'quasar';
@@ -104,11 +100,6 @@ const pagination = ref({
   rowsPerPage: 10,
   rowsNumber: 20,
 });
-function filter() {
-  return {
-    contactName: state.contactName,
-  };
-}
 const state = reactive({
   dateFrom: '',
   dateTo: '',
@@ -157,17 +148,6 @@ function prepareOrder(order) {
   orderStore.selectedOrder = { ...order };
   orderStore.patchWorkOrder(order.cprResourceOrderPoReqId, order.id, 2);
   router.push('/prepare');
-}
-
-function filterOrders() {
-  console.log('filter');
-  if (state.contactName.length > 3) {
-    console.log('name filter');
-    return orderStore.orders.filter((row) =>
-      row.contactName.includes(state.contactName)
-    );
-  }
-  return [];
 }
 
 const columns = reactive([
@@ -234,4 +214,42 @@ const columns = reactive([
     sortable: true,
   },
 ]);
+
+const filteredOrders = computed(() => {
+  let filtered = orderStore.orders;
+
+  // Фильтрация по дате
+  if (state.dateFrom && state.dateTo) {
+    filtered = filtered.filter((order) => {
+      const orderDate = new Date(order.createDate);
+      const fromDate = new Date(state.dateFrom);
+      const toDate = new Date(state.dateTo);
+      return orderDate >= fromDate && orderDate <= toDate;
+    });
+  }
+
+  // Фильтрация по имени
+  if (state.contactName) {
+    filtered = filtered.filter((row) =>
+      row.contactName.toLowerCase().includes(state.contactName.toLowerCase())
+    );
+  }
+
+  // Фильтрация по адресу
+  if (state.address) {
+    const lowercaseAddress = state.address.toLowerCase();
+    filtered = filtered.filter((row) =>
+      row.geoPlace.nameRu.toLowerCase().includes(lowercaseAddress)
+    );
+  }
+
+  // Фильтрация по состоянию
+  if (state.state) {
+    filtered = filtered.filter((row) =>
+      row.stateData.nameRu.toLowerCase().includes(state.state.toLowerCase())
+    );
+  }
+
+  return filtered;
+});
 </script>
