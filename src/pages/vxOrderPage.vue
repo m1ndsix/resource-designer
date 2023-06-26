@@ -1,7 +1,7 @@
 <template>
   <ag-grid-vue
     class="ag-theme-alpine"
-    style="height: 500px"
+    style="height: 700px"
     :columnDefs="columnDefs.value"
     :rowData="rowData.value"
     :defaultColDef="defaultColDef"
@@ -40,18 +40,29 @@ export default {
     const columnDefs = reactive({
       value: [
         { headerName: '№ Поручения', field: 'id' },
-        { headerName: '№ Запроса на ПП', field: 'productOfferRequestId' },
-        { headerName: 'ФИО', field: 'contactName', minWidth: 250 },
+        {
+          headerName: '№ Запроса на ПП',
+          field: 'productOfferRequestId',
+        },
+        {
+          headerName: 'ФИО',
+          field: 'contactName',
+          minWidth: 250,
+        },
         {
           headerName: 'Адрес',
           field: 'geoPlace.nameRu',
           minWidth: 350,
         },
-        { headerName: 'Состояние', field: 'stateData.nameRu' },
+        {
+          headerName: 'Состояние',
+          field: 'stateData.nameRu',
+        },
         {
           field: 'createDate',
           headerName: 'Создан',
           cellClass: 'dateLong',
+          floatingFilter: true,
           valueFormatter: (params) => {
             var createDate = new Date(params.value);
             var day = createDate.getDate().toString().padStart(2, '0');
@@ -87,6 +98,7 @@ export default {
       filter: true,
       flex: 1,
       resizable: true,
+      floatingFilter: true,
     };
 
     const excelStyles = [
