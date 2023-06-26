@@ -1,144 +1,237 @@
 <template>
-  <ag-grid-vue
-    class="ag-theme-alpine"
-    style="height: 700px"
-    :columnDefs="columnDefs.value"
-    :rowData="rowData.value"
-    :defaultColDef="defaultColDef"
-    rowSelection="multiple"
-    animateRows="true"
-    @cell-clicked="cellWasClicked"
-    @grid-ready="onGridReady"
-  >
-  </ag-grid-vue>
+  <div>
+    <q-drawer show-if-above bordered>
+      <div class="q-pa-sm q-gutter-sm">
+        <q-list>
+          <q-item-label header> Время создания поручения </q-item-label>
+          <q-input
+            color="grey-3"
+            label-color="grey"
+            outlined
+            v-model="state.dateFrom"
+            label="От"
+          >
+            <template v-slot:append>
+              <q-icon name="event" color="green" />
+            </template>
+          </q-input>
+          <q-input
+            color="grey-3"
+            label-color="grey"
+            outlined
+            v-model="state.dateTo"
+            label="До"
+          >
+            <template v-slot:append>
+              <q-icon name="event" color="green" />
+            </template>
+          </q-input>
+          <q-item-label header> По ФИО контакта </q-item-label>
+          <q-input
+            color="grey-3"
+            label-color="grey"
+            outlined
+            v-model="state.contactName"
+            label="ФИО"
+          >
+            <template v-slot:append>
+              <q-icon name="account_circle" color="green" />
+            </template>
+          </q-input>
+          <q-item-label header> По адресу </q-item-label>
+          <q-input
+            color="grey-3"
+            label-color="grey"
+            outlined
+            v-model="state.address"
+            label="Адрес"
+          >
+            <template v-slot:append>
+              <q-icon name="home" color="green" />
+            </template>
+          </q-input>
+          <q-item-label header> По состоянию </q-item-label>
+          <q-input
+            color="grey-3"
+            label-color="grey"
+            outlined
+            v-model="state.state"
+            label="Состояние"
+          >
+            <template v-slot:append>
+              <q-icon name="list_alt" color="green" />
+            </template>
+          </q-input>
+        </q-list>
+      </div>
+    </q-drawer>
+    <q-table
+      dense
+      title="Поручения"
+      :rows="orderStore.orders"
+      :columns="columns"
+      row-key="name"
+      :loading="isTableLoading"
+      v-model:pagination="pagination"
+      @request="onTableRequest"
+      :filter="filter"
+      :filter-method="filterOrders"
+    >
+      <template v-slot:body-cell-action="scope">
+        <q-td>
+          <q-btn
+            v-model="scope.selected"
+            color="secondary"
+            label="Взять в работу"
+            @click="prepareOrder(scope.row)"
+          />
+        </q-td>
+      </template>
+    </q-table>
+  </div>
 </template>
 
-<script>
-import { AgGridVue } from 'ag-grid-vue3';
-import { reactive, onMounted, ref } from 'vue';
-import { CPR_RO_API } from 'boot/api';
+<!-- <script setup lang="ts"> -->
+<script setup>
+import { ref, reactive, onMounted } from 'vue';
 import { useOrderStore } from 'stores/order';
 import { useRouter } from 'vue-router';
+import { date } from 'quasar';
 
-import 'ag-grid-community/styles/ag-grid.css';
-import 'ag-grid-community/styles/ag-theme-alpine.css';
+const isTableLoading = ref(false);
+const pagination = ref({
+  page: 1,
+  rowsPerPage: 10,
+  rowsNumber: 20,
+});
+function filter() {
+  return {
+    contactName: state.contactName,
+  };
+}
+const state = reactive({
+  dateFrom: '',
+  dateTo: '',
+  contactName: '',
+  address: '',
+  state: '',
+});
 
-export default {
-  name: 'App',
-  components: {
-    AgGridVue,
+const orderStore = useOrderStore();
+
+const router = useRouter();
+
+onMounted(() => {
+  isTableLoading.value = true;
+  orderStore.getOrders(0, 10).then(() => {
+    isTableLoading.value = false;
+  });
+  orderStore.getBaseCfsSpecs();
+  orderStore.getProductSpecs();
+  orderStore.getCprSpecs();
+});
+
+function onTableRequest(request) {
+  isTableLoading.value = true;
+
+  const newPagination = request.pagination;
+  const offset = (newPagination.page - 1) * newPagination.rowsPerPage;
+  const limit = newPagination.rowsPerPage;
+
+  orderStore.getOrders(offset, limit).then(() => {
+    let newRowsNumber =
+      (newPagination.page - 1) * newPagination.rowsPerPage +
+      orderStore.orderCount;
+
+    newRowsNumber =
+      orderStore.orderCount < limit ? newRowsNumber : newRowsNumber + limit;
+
+    pagination.value.rowsNumber = newRowsNumber;
+    pagination.value.page = newPagination.page;
+    pagination.value.rowsPerPage = newPagination.rowsPerPage;
+    isTableLoading.value = false;
+  });
+}
+
+function prepareOrder(order) {
+  orderStore.selectedOrder = { ...order };
+  orderStore.patchWorkOrder(order.cprResourceOrderPoReqId, order.id, 2);
+  router.push('/prepare');
+}
+
+function filterOrders() {
+  console.log('filter');
+  if (state.contactName.length > 3) {
+    console.log('name filter');
+    return orderStore.orders.filter((row) =>
+      row.contactName.includes(state.contactName)
+    );
+  }
+  return [];
+}
+
+const columns = reactive([
+  { name: 'action', label: 'Действие', field: 'action', align: 'left' },
+  {
+    name: 'id',
+    required: true,
+    label: '№ поручения',
+    align: 'left',
+    field: 'id',
+    sortable: true,
   },
-  setup() {
-    const orderStore = useOrderStore();
-    const router = useRouter();
-    const gridApi = ref(null);
-    const rowData = reactive({});
-    const onGridReady = (params) => {
-      gridApi.value = params.api;
-    };
-
-    const columnDefs = reactive({
-      value: [
-        { headerName: '№ Поручения', field: 'id' },
-        {
-          headerName: '№ Запроса на ПП',
-          field: 'productOfferRequestId',
-        },
-        {
-          headerName: 'ФИО',
-          field: 'contactName',
-          minWidth: 250,
-        },
-        {
-          headerName: 'Адрес',
-          field: 'geoPlace.nameRu',
-          minWidth: 350,
-        },
-        {
-          headerName: 'Состояние',
-          field: 'stateData.nameRu',
-        },
-        {
-          field: 'createDate',
-          headerName: 'Создан',
-          cellClass: 'dateLong',
-          floatingFilter: true,
-          valueFormatter: (params) => {
-            var createDate = new Date(params.value);
-            var day = createDate.getDate().toString().padStart(2, '0');
-            var month = (createDate.getMonth() + 1).toString().padStart(2, '0');
-            var year = createDate.getFullYear().toString();
-            var hour = createDate.getHours().toString().padStart(2, '0');
-            var min = createDate.getMinutes().toString().padStart(2, '0');
-            var sec = createDate.getSeconds().toString().padStart(2, '0');
-            return (
-              day +
-              '/' +
-              month +
-              '/' +
-              year +
-              ' ' +
-              hour +
-              ':' +
-              min +
-              ':' +
-              sec
-            );
-          },
-        },
-        {
-          headerName: 'Исполнитель',
-          field: 'createUser',
-        },
-      ],
-    });
-
-    const defaultColDef = {
-      sortable: true,
-      filter: true,
-      flex: 1,
-      resizable: true,
-      floatingFilter: true,
-    };
-
-    const excelStyles = [
-      {
-        id: 'dateLong',
-        dataType: 'DateTime',
-        numberFormat: {
-          format: 'dd/mm/yyy h:mm:ss AM/PM',
-        },
-      },
-    ];
-
-    onMounted(() => {
-      CPR_RO_API.get(
-        '/cpr-resource-order-po-req/work-order?limit=10&offset=0'
-      ).then(({ data }) => {
-        if (data && data.length > 0) {
-          rowData.value = data;
-        }
-      });
-    });
-
-    return {
-      onGridReady,
-      columnDefs,
-      rowData,
-      defaultColDef,
-      excelStyles,
-      cellWasClicked: (event) => {
-        orderStore.selectedOrder = { ...event.data };
-        orderStore.patchWorkOrder(
-          event.data.cprResourceOrderPoReqId,
-          event.data.id,
-          2
-        );
-        router.push('/prepare');
-      },
-    };
+  {
+    name: 'productOfferRequestId',
+    required: true,
+    label: '№ запроса на ПП',
+    align: 'left',
+    field: 'productOfferRequestId',
+    sortable: true,
   },
-};
+  {
+    name: 'contactName',
+    required: true,
+    label: 'ФИО контакта',
+    align: 'left',
+    field: 'contactName',
+    sortable: true,
+  },
+  {
+    name: 'mobilePhoneNumber',
+    required: true,
+    label: 'Номер контакта',
+    align: 'left',
+    field: 'mobilePhoneNumber',
+    sortable: true,
+  },
+  {
+    name: 'geoPlace',
+    required: true,
+    label: 'Адрес',
+    align: 'left',
+    field: (row) => row.geoPlace.nameRu,
+    sortable: true,
+  },
+  {
+    name: 'stateData',
+    required: true,
+    label: 'Состояние',
+    align: 'left',
+    field: (row) => row.stateData.nameRu,
+    sortable: true,
+  },
+  {
+    name: 'createDate',
+    align: 'center',
+    label: 'Создан',
+    field: (row) => date.formatDate(row.createDate, 'YYYY-MM-DD HH:mm:ss'),
+    sortable: true,
+  },
+  {
+    name: 'createUser',
+    label: 'Исполнитель',
+    field: 'createUser',
+    sortable: true,
+  },
+]);
 </script>
-
-<style lang="scss"></style>

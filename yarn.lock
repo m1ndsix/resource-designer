@@ -476,16 +476,6 @@ acorn@^8.8.0:
   resolved "https://registry.npmjs.org/acorn/-/acorn-8.8.2.tgz"
   integrity sha512-xjIYgE8HBrkpd/sJqOGNspf8uHG+NOHGOw6a/Urj8taM2EXfdNAH2oFcPeIFfsv3+kz/mJrS5VuMqbNLjCa2vw==
 
-ag-grid-community@^30.0.2:
-  version "30.0.2"
-  resolved "https://registry.yarnpkg.com/ag-grid-community/-/ag-grid-community-30.0.2.tgz#dc03f32bddf9b221932a0fd5a89f5f04b48deb07"
-  integrity sha512-yJ+H/y2UvuzJpDdD1osLswZFBaUVd8vHxyOhreUihYC763Yz16jgIgP/8vmqpbSHHmJZ7bqs5ojV2uehLJ8BGQ==
-
-ag-grid-vue3@^30.0.2:
-  version "30.0.2"
-  resolved "https://registry.yarnpkg.com/ag-grid-vue3/-/ag-grid-vue3-30.0.2.tgz#64b68b84b1acada3cad2423fef58e70f1436ec09"
-  integrity sha512-n1n4Y83kn7zGdWF9r3h+suOxZkKSg+CuwK2sqQdfyLv9D7Ji6zWI+oaJY5nTgR53xLz8yVRVdQWovF1R1j4DMQ==
-
 ajv@^6.10.0, ajv@^6.12.4:
   version "6.12.6"
   resolved "https://registry.npmjs.org/ajv/-/ajv-6.12.6.tgz"
