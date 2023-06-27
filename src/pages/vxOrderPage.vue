@@ -9,6 +9,7 @@
             label-color="grey"
             outlined
             v-model="state.dateFrom"
+            debounce="2500"
             label="От"
           >
             <template v-slot:append>
@@ -93,7 +94,7 @@
 
 <!-- <script setup lang="ts"> -->
 <script setup>
-import { ref, reactive, onMounted } from 'vue';
+import { ref, reactive, onMounted, watchEffect } from 'vue';
 import { useOrderStore } from 'stores/order';
 import { useRouter } from 'vue-router';
 import { date } from 'quasar';
@@ -101,7 +102,7 @@ import { date } from 'quasar';
 const isTableLoading = ref(false);
 const pagination = ref({
   page: 1,
-  rowsPerPage: 10,
+  rowsPerPage: 5,
   rowsNumber: 20,
 });
 function filter() {
@@ -110,7 +111,7 @@ function filter() {
   };
 }
 const state = reactive({
-  dateFrom: '',
+  dateFrom: '2000-01-01',
   dateTo: '',
   contactName: '',
   address: '',
@@ -121,9 +122,18 @@ const orderStore = useOrderStore();
 
 const router = useRouter();
 
+watchEffect(() => {
+  if (state.dateFrom) {
+    isTableLoading.value = true;
+    orderStore.getOrders(0, 5, state.dateFrom + 'T00:00:00Z').then(() => {
+      isTableLoading.value = false;
+    });
+  }
+});
+
 onMounted(() => {
   isTableLoading.value = true;
-  orderStore.getOrders(0, 10).then(() => {
+  orderStore.getOrders(0, 5, state.dateFrom + 'T00:00:00Z').then(() => {
     isTableLoading.value = false;
   });
   orderStore.getBaseCfsSpecs();
@@ -138,19 +148,21 @@ function onTableRequest(request) {
   const offset = (newPagination.page - 1) * newPagination.rowsPerPage;
   const limit = newPagination.rowsPerPage;
 
-  orderStore.getOrders(offset, limit).then(() => {
-    let newRowsNumber =
-      (newPagination.page - 1) * newPagination.rowsPerPage +
-      orderStore.orderCount;
+  orderStore
+    .getOrders(offset, limit, state.dateFrom + 'T00:00:00Z')
+    .then(() => {
+      let newRowsNumber =
+        (newPagination.page - 1) * newPagination.rowsPerPage +
+        orderStore.orderCount;
 
-    newRowsNumber =
-      orderStore.orderCount < limit ? newRowsNumber : newRowsNumber + limit;
+      newRowsNumber =
+        orderStore.orderCount < limit ? newRowsNumber : newRowsNumber + limit;
 
-    pagination.value.rowsNumber = newRowsNumber;
-    pagination.value.page = newPagination.page;
-    pagination.value.rowsPerPage = newPagination.rowsPerPage;
-    isTableLoading.value = false;
-  });
+      pagination.value.rowsNumber = newRowsNumber;
+      pagination.value.page = newPagination.page;
+      pagination.value.rowsPerPage = newPagination.rowsPerPage;
+      isTableLoading.value = false;
+    });
 }
 
 function prepareOrder(order) {
