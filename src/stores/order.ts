@@ -125,13 +125,19 @@ export const useOrderStore = defineStore('orderStore', {
     },
   },
   actions: {
-    async getOrders(offset: number, limit: number, dateFrom: string) {
+    async getOrders(
+      offset: number,
+      limit: number,
+      dateFrom: string,
+      contactName: string
+    ) {
       try {
         await CPR_RO_API.get('/cpr-resource-order-po-req/work-order', {
           params: {
             offset,
             limit,
             dateFrom,
+            contactName,
           },
         }).then(({ data }) => {
           if (data && data.length > 0) {

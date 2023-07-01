@@ -10,9 +10,13 @@ const CPR_API_URL =
   'http://10.8.27.97:6124/api/composite-physical-resource-be/v1.0'; // - URL сервиса composite-physical-resource
 const MP_API_URL =
   process.env.MP_API_URL || 'http://10.8.27.97:6125/api/mounted-port-be/v1.0'; // - URL сервиса mounted-port-be
+// const CPR_RO_URL =
+//   process.env.CPR_RO_URL ||
+//   'http://10.8.27.97:6127/api/cpr-resource-order-be/v1.0'; // - URL сервиса resource-order-be
+
 const CPR_RO_URL =
   process.env.CPR_RO_URL ||
-  'http://10.8.27.97:6127/api/cpr-resource-order-be/v1.0'; // - URL сервиса resource-order-be
+  'http://localhost:1326/api/cpr-resource-order-be/v1.0'; // - URL сервиса resource-order-be
 
 const LOC_API_URL = process.env.LOC_API_URL || 'http://10.6.4.118:6009/api/v1'; // - URL сервиса location
 const POR_API_URL =

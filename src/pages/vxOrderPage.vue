@@ -76,7 +76,6 @@
       v-model:pagination="pagination"
       @request="onTableRequest"
       :filter="filter"
-      :filter-method="filterOrders"
     >
       <template v-slot:body-cell-action="scope">
         <q-td>
@@ -105,11 +104,7 @@ const pagination = ref({
   rowsPerPage: 5,
   rowsNumber: 20,
 });
-function filter() {
-  return {
-    contactName: state.contactName,
-  };
-}
+
 const state = reactive({
   dateFrom: '2000-01-01',
   dateTo: '',
@@ -123,19 +118,23 @@ const orderStore = useOrderStore();
 const router = useRouter();
 
 watchEffect(() => {
-  if (state.dateFrom) {
+  if (state.dateFrom || state.contactName) {
     isTableLoading.value = true;
-    orderStore.getOrders(0, 5, state.dateFrom + 'T00:00:00Z').then(() => {
-      isTableLoading.value = false;
-    });
+    orderStore
+      .getOrders(0, 5, state.dateFrom + 'T00:00:00Z', state.contactName)
+      .then(() => {
+        isTableLoading.value = false;
+      });
   }
 });
 
 onMounted(() => {
   isTableLoading.value = true;
-  orderStore.getOrders(0, 5, state.dateFrom + 'T00:00:00Z').then(() => {
-    isTableLoading.value = false;
-  });
+  orderStore
+    .getOrders(0, 5, state.dateFrom + 'T00:00:00Z', state.contactName)
+    .then(() => {
+      isTableLoading.value = false;
+    });
   orderStore.getBaseCfsSpecs();
   orderStore.getProductSpecs();
   orderStore.getCprSpecs();
@@ -149,7 +148,7 @@ function onTableRequest(request) {
   const limit = newPagination.rowsPerPage;
 
   orderStore
-    .getOrders(offset, limit, state.dateFrom + 'T00:00:00Z')
+    .getOrders(offset, limit, state.dateFrom + 'T00:00:00Z', state.contactName)
     .then(() => {
       let newRowsNumber =
         (newPagination.page - 1) * newPagination.rowsPerPage +
@@ -169,17 +168,6 @@ function prepareOrder(order) {
   orderStore.selectedOrder = { ...order };
   orderStore.patchWorkOrder(order.cprResourceOrderPoReqId, order.id, 2);
   router.push('/prepare');
-}
-
-function filterOrders() {
-  console.log('filter');
-  if (state.contactName.length > 3) {
-    console.log('name filter');
-    return orderStore.orders.filter((row) =>
-      row.contactName.includes(state.contactName)
-    );
-  }
-  return [];
 }
 
 const columns = reactive([
