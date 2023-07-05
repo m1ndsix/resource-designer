@@ -131,7 +131,8 @@ export const useOrderStore = defineStore('orderStore', {
       dateFrom: string,
       dateTo: string,
       contactName: string,
-      nameRu: string
+      nameRu: string,
+      state: string
     ) {
       try {
         await CPR_RO_API.get('/cpr-resource-order-po-req/work-order', {
@@ -142,6 +143,7 @@ export const useOrderStore = defineStore('orderStore', {
             dateTo,
             contactName,
             nameRu,
+            state,
           },
         }).then(({ data }) => {
           if (data && data.length > 0) {

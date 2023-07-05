@@ -21,6 +21,7 @@
             label-color="grey"
             outlined
             v-model="state.dateTo"
+            debounce="2500"
             label="До"
           >
             <template v-slot:append>
@@ -33,6 +34,7 @@
             label-color="grey"
             outlined
             v-model="state.contactName"
+            debounce="2500"
             label="ФИО"
           >
             <template v-slot:append>
@@ -58,6 +60,7 @@
             label-color="grey"
             outlined
             v-model="state.state"
+            debounce="2500"
             label="Состояние"
           >
             <template v-slot:append>
@@ -77,8 +80,6 @@
       :loading="isTableLoading"
       v-model:pagination="pagination"
       @request="onTableRequest"
-      :filter="filter"
-      @requestServerInteraction="refreshTable"
     >
       <template v-slot:body-cell-action="scope">
         <q-td>
@@ -94,7 +95,6 @@
   </div>
 </template>
 
-<!-- <script setup lang="ts"> -->
 <script setup>
 import { ref, reactive, onMounted, watchEffect } from 'vue';
 import { useOrderStore } from 'stores/order';
@@ -123,7 +123,18 @@ const router = useRouter();
 const myTable = ref();
 
 watchEffect(() => {
-  if (state.dateFrom || state.dateTo || state.contactName || state.address) {
+  console.log('state.dateFrom', state.dateFrom);
+  console.log('state.dateTo', state.dateTo);
+  console.log('state.contactName', state.contactName);
+  console.log('state.address', state.address);
+  console.log('state.state', state.state);
+  if (
+    state.state ||
+    state.address ||
+    state.dateFrom ||
+    state.dateTo ||
+    state.contactName
+  ) {
     console.log('watchEffect');
     console.log('myTable.value', myTable.value);
     if (myTable.value) {
@@ -132,43 +143,11 @@ watchEffect(() => {
   }
 });
 
-// watchEffect(() => {
-//   if (state.dateFrom || state.contactName || state.address) {
-//     console.log('watchEffect');
-//     isTableLoading.value = true;
-//     orderStore
-//       .getOrders(
-//         0,
-//         5,
-//         state.dateFrom + 'T00:00:00Z',
-//         state.contactName,
-//         state.address
-//       )
-//       .then(() => {
-//         isTableLoading.value = false;
-//       });
-//   }
-// });
-
 onMounted(() => {
   console.log('onMounted');
-  // myTable.value.requestServerInteraction();
-  isTableLoading.value = true;
-  orderStore
-    .getOrders(
-      0,
-      5,
-      state.dateFrom + 'T00:00:00Z',
-      state.dateTo + 'T00:00:00Z',
-      state.contactName,
-      state.address
-    )
-    .then(() => {
-      isTableLoading.value = false;
-    });
-  orderStore.getBaseCfsSpecs();
-  orderStore.getProductSpecs();
-  orderStore.getCprSpecs();
+  // orderStore.getBaseCfsSpecs();
+  // orderStore.getProductSpecs();
+  // orderStore.getCprSpecs();
 });
 
 function onTableRequest(request) {
@@ -187,7 +166,8 @@ function onTableRequest(request) {
       state.dateFrom + 'T00:00:00Z',
       state.dateTo + 'T00:00:00Z',
       state.contactName,
-      state.address
+      state.address,
+      state.state
     )
     .then(() => {
       let newRowsNumber =
