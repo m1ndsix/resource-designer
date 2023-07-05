@@ -45,6 +45,7 @@
             label-color="grey"
             outlined
             v-model="state.address"
+            debounce="2500"
             label="Адрес"
           >
             <template v-slot:append>
@@ -67,6 +68,7 @@
       </div>
     </q-drawer>
     <q-table
+      ref="myTable"
       dense
       title="Поручения"
       :rows="orderStore.orders"
@@ -76,6 +78,7 @@
       v-model:pagination="pagination"
       @request="onTableRequest"
       :filter="filter"
+      @requestServerInteraction="refreshTable"
     >
       <template v-slot:body-cell-action="scope">
         <q-td>
@@ -107,7 +110,7 @@ const pagination = ref({
 
 const state = reactive({
   dateFrom: '2000-01-01',
-  dateTo: '',
+  dateTo: '2030-01-01',
   contactName: '',
   address: '',
   state: '',
@@ -117,21 +120,49 @@ const orderStore = useOrderStore();
 
 const router = useRouter();
 
+const myTable = ref();
+
 watchEffect(() => {
-  if (state.dateFrom || state.contactName) {
-    isTableLoading.value = true;
-    orderStore
-      .getOrders(0, 5, state.dateFrom + 'T00:00:00Z', state.contactName)
-      .then(() => {
-        isTableLoading.value = false;
-      });
+  if (state.dateFrom || state.dateTo || state.contactName || state.address) {
+    console.log('watchEffect');
+    console.log('myTable.value', myTable.value);
+    if (myTable.value) {
+      myTable.value.requestServerInteraction();
+    }
   }
 });
 
+// watchEffect(() => {
+//   if (state.dateFrom || state.contactName || state.address) {
+//     console.log('watchEffect');
+//     isTableLoading.value = true;
+//     orderStore
+//       .getOrders(
+//         0,
+//         5,
+//         state.dateFrom + 'T00:00:00Z',
+//         state.contactName,
+//         state.address
+//       )
+//       .then(() => {
+//         isTableLoading.value = false;
+//       });
+//   }
+// });
+
 onMounted(() => {
+  console.log('onMounted');
+  // myTable.value.requestServerInteraction();
   isTableLoading.value = true;
   orderStore
-    .getOrders(0, 5, state.dateFrom + 'T00:00:00Z', state.contactName)
+    .getOrders(
+      0,
+      5,
+      state.dateFrom + 'T00:00:00Z',
+      state.dateTo + 'T00:00:00Z',
+      state.contactName,
+      state.address
+    )
     .then(() => {
       isTableLoading.value = false;
     });
@@ -141,6 +172,8 @@ onMounted(() => {
 });
 
 function onTableRequest(request) {
+  console.log('onTableRequest');
+  console.log('request ', request);
   isTableLoading.value = true;
 
   const newPagination = request.pagination;
@@ -148,7 +181,14 @@ function onTableRequest(request) {
   const limit = newPagination.rowsPerPage;
 
   orderStore
-    .getOrders(offset, limit, state.dateFrom + 'T00:00:00Z', state.contactName)
+    .getOrders(
+      offset,
+      limit,
+      state.dateFrom + 'T00:00:00Z',
+      state.dateTo + 'T00:00:00Z',
+      state.contactName,
+      state.address
+    )
     .then(() => {
       let newRowsNumber =
         (newPagination.page - 1) * newPagination.rowsPerPage +
