@@ -131,7 +131,7 @@ export const useOrderStore = defineStore('orderStore', {
       dateFrom: string,
       dateTo: string,
       contactName: string,
-      nameRu: string,
+      addressName: string,
       state: string
     ) {
       try {
@@ -142,7 +142,7 @@ export const useOrderStore = defineStore('orderStore', {
             dateFrom,
             dateTo,
             contactName,
-            nameRu,
+            addressName,
             state,
           },
         }).then(({ data }) => {

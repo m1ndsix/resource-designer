@@ -55,18 +55,18 @@
             </template>
           </q-input>
           <q-item-label header> По состоянию </q-item-label>
-          <q-input
+          <q-select
             color="grey-3"
             label-color="grey"
             outlined
             v-model="state.state"
-            debounce="2500"
+            :options="stateOptions"
             label="Состояние"
           >
             <template v-slot:append>
               <q-icon name="list_alt" color="green" />
             </template>
-          </q-input>
+          </q-select>
         </q-list>
       </div>
     </q-drawer>
@@ -115,6 +115,14 @@ const state = reactive({
   address: '',
   state: '',
 });
+
+const stateOptions = [
+  'Новый',
+  'В работе',
+  'На уточнении адреса',
+  'Уточнение завершено',
+  'Выполнено',
+];
 
 const orderStore = useOrderStore();
 
