@@ -129,7 +129,6 @@ export const useOrderStore = defineStore('orderStore', {
       offset: number,
       limit: number,
       dateFrom: string,
-      dateTo: string,
       contactName: string,
       addressName: string,
       state: string
@@ -140,7 +139,6 @@ export const useOrderStore = defineStore('orderStore', {
             offset,
             limit,
             dateFrom,
-            dateTo,
             contactName,
             addressName,
             state,

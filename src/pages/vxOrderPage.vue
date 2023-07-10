@@ -8,24 +8,30 @@
             color="grey-3"
             label-color="grey"
             outlined
-            v-model="state.dateFrom"
+            v-model="state.dateFromInput"
             debounce="2500"
             label="От"
           >
             <template v-slot:append>
-              <q-icon name="event" color="green" />
-            </template>
-          </q-input>
-          <q-input
-            color="grey-3"
-            label-color="grey"
-            outlined
-            v-model="state.dateTo"
-            debounce="2500"
-            label="До"
-          >
-            <template v-slot:append>
-              <q-icon name="event" color="green" />
+              <q-icon
+                v-if="state.dateFromInput !== ''"
+                class="cursor-pointer"
+                name="clear"
+                @click.stop.prevent="state.dateFromInput = ''"
+              />
+              <q-icon name="event" color="green" class="cursor-pointer">
+                <q-popup-proxy
+                  cover
+                  transition-show="scale"
+                  transition-hide="scale"
+                >
+                  <q-date v-model="state.dateFromInput" mask="YYYY-MM-DD">
+                    <div class="row items-center justify-end">
+                      <q-btn v-close-popup label="Close" color="primary" flat />
+                    </div>
+                  </q-date>
+                </q-popup-proxy>
+              </q-icon>
             </template>
           </q-input>
           <q-item-label header> По ФИО контакта </q-item-label>
@@ -38,6 +44,12 @@
             label="ФИО"
           >
             <template v-slot:append>
+              <q-icon
+                v-if="state.contactName !== ''"
+                class="cursor-pointer"
+                name="clear"
+                @click.stop.prevent="state.contactName = ''"
+              />
               <q-icon name="account_circle" color="green" />
             </template>
           </q-input>
@@ -51,6 +63,12 @@
             label="Адрес"
           >
             <template v-slot:append>
+              <q-icon
+                v-if="state.address !== ''"
+                class="cursor-pointer"
+                name="clear"
+                @click.stop.prevent="state.address = ''"
+              />
               <q-icon name="home" color="green" />
             </template>
           </q-input>
@@ -64,6 +82,12 @@
             label="Состояние"
           >
             <template v-slot:append>
+              <q-icon
+                v-if="state.state !== ''"
+                class="cursor-pointer"
+                name="clear"
+                @click.stop.prevent="state.state = ''"
+              />
               <q-icon name="list_alt" color="green" />
             </template>
           </q-select>
@@ -96,7 +120,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, watchEffect } from 'vue';
+import { ref, reactive, watchEffect } from 'vue';
 import { useOrderStore } from 'stores/order';
 import { useRouter } from 'vue-router';
 import { date } from 'quasar';
@@ -109,8 +133,8 @@ const pagination = ref({
 });
 
 const state = reactive({
-  dateFrom: '2000-01-01',
-  dateTo: '2030-01-01',
+  dateFromInput: '',
+  dateFrom: '',
   contactName: '',
   address: '',
   state: '',
@@ -131,36 +155,25 @@ const router = useRouter();
 const myTable = ref();
 
 watchEffect(() => {
-  console.log('state.dateFrom', state.dateFrom);
-  console.log('state.dateTo', state.dateTo);
-  console.log('state.contactName', state.contactName);
-  console.log('state.address', state.address);
-  console.log('state.state', state.state);
   if (
     state.state ||
     state.address ||
-    state.dateFrom ||
-    state.dateTo ||
+    state.dateFromInput ||
+    state.dateFromInput == '' ||
     state.contactName
   ) {
-    console.log('watchEffect');
-    console.log('myTable.value', myTable.value);
+    if (state.dateFromInput) {
+      state.dateFrom = state.dateFromInput + 'T00:00:00Z';
+    } else {
+      state.dateFrom = '1900-01-01T00:00:00Z';
+    }
     if (myTable.value) {
       myTable.value.requestServerInteraction();
     }
   }
 });
 
-onMounted(() => {
-  console.log('onMounted');
-  // orderStore.getBaseCfsSpecs();
-  // orderStore.getProductSpecs();
-  // orderStore.getCprSpecs();
-});
-
 function onTableRequest(request) {
-  console.log('onTableRequest');
-  console.log('request ', request);
   isTableLoading.value = true;
 
   const newPagination = request.pagination;
@@ -171,8 +184,7 @@ function onTableRequest(request) {
     .getOrders(
       offset,
       limit,
-      state.dateFrom + 'T00:00:00Z',
-      state.dateTo + 'T00:00:00Z',
+      state.dateFrom,
       state.contactName,
       state.address,
       state.state
