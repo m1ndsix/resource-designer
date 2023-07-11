@@ -25,7 +25,11 @@
                   transition-show="scale"
                   transition-hide="scale"
                 >
-                  <q-date v-model="state.dateFromInput" mask="YYYY-MM-DD">
+                  <q-date
+                    v-model="state.dateFromInput"
+                    :locale="myLocale"
+                    mask="YYYY-MM-DD"
+                  >
                     <div class="row items-center justify-end">
                       <q-btn v-close-popup label="Close" color="primary" flat />
                     </div>
@@ -126,12 +130,14 @@ import { useRouter } from 'vue-router';
 import { date } from 'quasar';
 
 const isTableLoading = ref(false);
+const orderStore = useOrderStore();
+const router = useRouter();
+const myTable = ref();
 const pagination = ref({
   page: 1,
   rowsPerPage: 5,
   rowsNumber: 20,
 });
-
 const state = reactive({
   dateFromInput: '',
   dateFrom: '',
@@ -139,7 +145,6 @@ const state = reactive({
   address: '',
   state: '',
 });
-
 const stateOptions = [
   'Новый',
   'В работе',
@@ -147,12 +152,21 @@ const stateOptions = [
   'Уточнение завершено',
   'Выполнено',
 ];
-
-const orderStore = useOrderStore();
-
-const router = useRouter();
-
-const myTable = ref();
+const myLocale = {
+  /* starting with Sunday */
+  days: 'Воскресенье_Понедельник_Вторник_Среда_Четверг_Пятница_Суббота'.split(
+    '_'
+  ),
+  daysShort: 'Вс_Пн_Вт_Ср_Чт_Пт_Сб'.split('_'),
+  months:
+    'Январь_Февраль_Март_Апрель_Май_Июнь_Июль_Август_Сентябрь_Октябрь_Ноябрь_Декабрь'.split(
+      '_'
+    ),
+  monthsShort: 'Янв_Фев_Мрт_Апр_Май_Июн_Июл_Авг_Сен_Окт_Нбр_Дек'.split('_'),
+  firstDayOfWeek: 1, // 0-6, 0 - Sunday, 1 Monday, ...
+  format24h: true,
+  pluralDay: 'дни',
+};
 
 watchEffect(() => {
   if (
@@ -175,11 +189,9 @@ watchEffect(() => {
 
 function onTableRequest(request) {
   isTableLoading.value = true;
-
   const newPagination = request.pagination;
   const offset = (newPagination.page - 1) * newPagination.rowsPerPage;
   const limit = newPagination.rowsPerPage;
-
   orderStore
     .getOrders(
       offset,
