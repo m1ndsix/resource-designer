@@ -135,7 +135,7 @@ const router = useRouter();
 const myTable = ref();
 const pagination = ref({
   page: 1,
-  rowsPerPage: 5,
+  rowsPerPage: 4,
   rowsNumber: 20,
 });
 const state = reactive({
@@ -153,7 +153,6 @@ const stateOptions = [
   'Выполнено',
 ];
 const myLocale = {
-  /* starting with Sunday */
   days: 'Воскресенье_Понедельник_Вторник_Среда_Четверг_Пятница_Суббота'.split(
     '_'
   ),
@@ -163,25 +162,96 @@ const myLocale = {
       '_'
     ),
   monthsShort: 'Янв_Фев_Мрт_Апр_Май_Июн_Июл_Авг_Сен_Окт_Нбр_Дек'.split('_'),
-  firstDayOfWeek: 1, // 0-6, 0 - Sunday, 1 Monday, ...
+  firstDayOfWeek: 1,
   format24h: true,
   pluralDay: 'дни',
 };
 
 watchEffect(() => {
+  console.log('watchEffect');
+
   if (
-    state.state ||
-    state.address ||
-    state.dateFromInput ||
-    state.dateFromInput == '' ||
-    state.contactName
+    (state.dateFromInput &&
+      state.contactName.length == '' &&
+      state.address.length == '' &&
+      state.state == '') ||
+    (state.dateFromInput &&
+      state.contactName.length > 3 &&
+      state.address.length == '' &&
+      state.state == '') ||
+    (state.dateFromInput &&
+      state.contactName.length == '' &&
+      state.address.length > 3 &&
+      state.state == '') ||
+    (state.dateFromInput &&
+      state.contactName.length == '' &&
+      state.address.length == '' &&
+      state.state) ||
+    (state.dateFromInput == '' &&
+      state.contactName.length == '' &&
+      state.address.length == '' &&
+      state.state == '') ||
+    (state.dateFromInput == '' &&
+      state.contactName.length > 3 &&
+      state.address.length == '' &&
+      state.state == '') ||
+    (state.dateFromInput == '' &&
+      state.contactName.length == '' &&
+      state.address.length > 3 &&
+      state.state == '') ||
+    (state.dateFromInput == '' &&
+      state.contactName.length == '' &&
+      state.address.length == '' &&
+      state.state) ||
+    (state.dateFromInput &&
+      state.contactName.length > 3 &&
+      state.address.length == '' &&
+      state.state == '') ||
+    (state.dateFromInput &&
+      state.contactName.length > 3 &&
+      state.address.length > 3 &&
+      state.state == '') ||
+    (state.dateFromInput &&
+      state.contactName.length > 3 &&
+      state.address.length > 3 &&
+      state.state) ||
+    (state.dateFromInput == '' &&
+      state.contactName.length == '' &&
+      state.address.length > 3 &&
+      state.state == '') ||
+    (state.dateFromInput == '' &&
+      state.contactName.length == '' &&
+      state.address.length > 3 &&
+      state.state) ||
+    (state.dateFromInput &&
+      state.contactName.length == '' &&
+      state.address.length > 3 &&
+      state.state == '') ||
+    (state.dateFromInput &&
+      state.contactName.length == '' &&
+      state.address.length > 3 &&
+      state.state) ||
+    (state.dateFromInput &&
+      state.contactName.length > 3 &&
+      state.address.length > 3 &&
+      state.state == '') ||
+    (state.dateFromInput == '' &&
+      state.contactName.length > 3 &&
+      state.address.length > 3 &&
+      state.state == '') ||
+    (state.dateFromInput == '' &&
+      state.contactName.length > 3 &&
+      state.address.length > 3 &&
+      state.state)
   ) {
     if (state.dateFromInput) {
       state.dateFrom = state.dateFromInput + 'T00:00:00Z';
     } else {
       state.dateFrom = '1900-01-01T00:00:00Z';
     }
+
     if (myTable.value) {
+      myTable.value.pagination.page = 0;
       myTable.value.requestServerInteraction();
     }
   }
