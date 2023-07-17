@@ -271,6 +271,9 @@ function onTableRequest(request) {
       pagination.value.rowsPerPage = newPagination.rowsPerPage;
       isTableLoading.value = false;
     });
+  orderStore.getBaseCfsSpecs();
+  orderStore.getProductSpecs();
+  orderStore.getCprSpecs();
 }
 
 function prepareOrder(order) {
