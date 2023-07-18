@@ -221,11 +221,12 @@ export const useOrderStore = defineStore('orderStore', {
         console.log(response);
       });
     },
-    validateWorkOrder(cprRoPoReqId: number, cprRoPoReqWoId: number) {
-      CPR_RO_API.get('/validate', { cprRoPoReqId, cprRoPoReqWoId }).then(
-        (response) => {
-          // TODO: meaningful handler
-          console.log(response);
+    validateWorkOrder(cprRoPoReqWoId: number, cprRoPoReqId: number) {
+      CPR_RO_API.get('/validate', {
+        params: { cprRoPoReqWoId, cprRoPoReqId },
+      }).then((response) => {
+        // TODO: meaningful handler
+        console.log(response);
         }
       );
     },

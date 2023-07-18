@@ -436,8 +436,8 @@ export default {
     onCompleteWorkOrder() {
       // TODO: better naming
       this.orderStore.validateWorkOrder(
-        this.orderStore.selectedOrder.cprResourceOrderPoReqId,
-        this.orderStore.selectedOrder.id
+        this.orderStore.selectedOrder.id,
+        this.orderStore.selectedOrder.cprResourceOrderPoReqId
       );
     },
     onEditItem(item) {
