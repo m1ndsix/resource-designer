@@ -3,7 +3,7 @@
     <div v-if="prepareStore.poRequest" class="row header">
       <div class="col info-section">
         <div class="row">
-          <div class="col">Номер Запроса на ПП:</div>
+          <div class="col">Номер заказа:</div>
           <div class="col">{{ prepareStore.poRequest.id }}</div>
         </div>
         <div class="row">
@@ -11,13 +11,13 @@
           <div class="col">Новый</div>
         </div>
         <div class="row">
-          <div class="col">Участник:</div>
+          <div class="col">Клиент:</div>
           <div class="col">{{ prepareStore.poRequest.partyId }}</div>
         </div>
       </div>
       <div class="col info-section">
         <div class="row">
-          <div class="col">Дивизион:</div>
+          <div class="col">Единица предприятия:</div>
           <div class="col">{{ prepareStore.poRequest.divisionId }}</div>
         </div>
         <div class="row">
