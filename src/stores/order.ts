@@ -107,6 +107,9 @@ interface TechInspection {
   updateApp: string;
 }
 
+let statusCode = 0;
+let errCode = 0;
+
 export const useOrderStore = defineStore('orderStore', {
   state: (): State => {
     return {
@@ -221,19 +224,27 @@ export const useOrderStore = defineStore('orderStore', {
         console.log(response);
       });
     },
-    validateWorkOrder(cprRoPoReqWoId: number, cprRoPoReqId: number) {
-      CPR_RO_API.get('/validate', {
-        params: { cprRoPoReqWoId, cprRoPoReqId },
-      }).then((response) => {
-        // TODO: meaningful handler
-        // console.log('returnedErrCode', returnedErrCode);
-
-        console.log('response');
-        console.log(response);
-        // console.log('response.data', response.data);
-        // console.log('response.data.errCode', response.data.errCode);
-      });
-      return 'errCode';
+    async validateWorkOrder(cprRoPoReqWoId: number, cprRoPoReqId: number) {
+      try {
+        await CPR_RO_API.get('/validate', {
+          params: {
+            cprRoPoReqWoId,
+            cprRoPoReqId,
+          },
+        }).then((response) => {
+          if (response) {
+            statusCode = response.status;
+            errCode = response.data.errCode;
+          } else {
+            console.log('nothing');
+            statusCode = 0;
+            errCode = 1;
+          }
+        });
+      } catch (error) {
+        console.log(error);
+      }
+      return [statusCode, errCode];
     },
   },
 });

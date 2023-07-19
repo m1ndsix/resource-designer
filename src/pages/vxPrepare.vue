@@ -443,25 +443,25 @@ export default {
       this.prepareStore.selectedComponent = nodes;
     },
     onCompleteWorkOrder() {
-      // TODO: better naming
-      this.orderStore.validateWorkOrder(
-        this.orderStore.selectedOrder.id,
-        this.orderStore.selectedOrder.cprResourceOrderPoReqId
-      );
-
-      const result1 = this.orderStore.validateWorkOrder(
-        this.orderStore.selectedOrder.id,
-        this.orderStore.selectedOrder.cprResourceOrderPoReqId
-      );
-
-      console.log('result1', result1);
-
-      // console.log('returnedErrCode', this.returnedErrCode);
-      this.orderStore.patchWorkOrder(
-        this.orderStore.selectedOrder.cprResourceOrderPoReqId,
-        this.orderStore.selectedOrder.id,
-        5
-      );
+      this.orderStore
+        .validateWorkOrder(
+          this.orderStore.selectedOrder.id,
+          this.orderStore.selectedOrder.cprResourceOrderPoReqId
+        )
+        .then((response) => {
+          //response[0] - statusCode
+          //response[1] - errCode
+          if (response[0] == 200 && response[1] == 0) {
+            this.orderStore.patchWorkOrder(
+              this.orderStore.selectedOrder.cprResourceOrderPoReqId,
+              this.orderStore.selectedOrder.id,
+              5
+            );
+            console.log('positive validation');
+          } else {
+            console.log('negative validation');
+          }
+        });
     },
     onRouteToOrderPage() {
       this.router.push('/');
