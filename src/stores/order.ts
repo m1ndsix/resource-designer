@@ -226,9 +226,14 @@ export const useOrderStore = defineStore('orderStore', {
         params: { cprRoPoReqWoId, cprRoPoReqId },
       }).then((response) => {
         // TODO: meaningful handler
+        // console.log('returnedErrCode', returnedErrCode);
+
+        console.log('response');
         console.log(response);
-        }
-      );
+        // console.log('response.data', response.data);
+        // console.log('response.data.errCode', response.data.errCode);
+      });
+      return 'errCode';
     },
   },
 });

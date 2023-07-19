@@ -44,7 +44,13 @@
             color="secondary"
             @click="onCompleteWorkOrder"
           />
-          <q-btn dense label="Вернуться к Списку" size="sm" color="primary" />
+          <q-btn
+            dense
+            label="Вернуться к Списку"
+            size="sm"
+            color="primary"
+            @click="onRouteToOrderPage"
+          />
         </div>
       </div>
     </div>
@@ -234,6 +240,7 @@
 import { ref } from 'vue';
 import { usePrepareStore } from 'stores/prepare';
 import { useOrderStore } from 'src/stores/order';
+import { useRouter } from 'vue-router';
 import vxResourceForm from '../components/vxResourceForm.vue';
 import vxResultTable from '../components/vxResultTable.vue';
 import vxInspectionDialog from '../components/vxInspectionDialog.vue';
@@ -243,6 +250,7 @@ export default {
   setup() {
     const prepareStore = usePrepareStore();
     const orderStore = useOrderStore();
+    const router = useRouter();
     return {
       currentItem: ref(null),
       treeFilter: ref(false),
@@ -258,6 +266,7 @@ export default {
       selectedProduct: ref(null),
       prepareStore,
       orderStore,
+      router,
       voixPositionsCols: [
         {
           name: 'id',
@@ -439,6 +448,23 @@ export default {
         this.orderStore.selectedOrder.id,
         this.orderStore.selectedOrder.cprResourceOrderPoReqId
       );
+
+      const result1 = this.orderStore.validateWorkOrder(
+        this.orderStore.selectedOrder.id,
+        this.orderStore.selectedOrder.cprResourceOrderPoReqId
+      );
+
+      console.log('result1', result1);
+
+      // console.log('returnedErrCode', this.returnedErrCode);
+      this.orderStore.patchWorkOrder(
+        this.orderStore.selectedOrder.cprResourceOrderPoReqId,
+        this.orderStore.selectedOrder.id,
+        5
+      );
+    },
+    onRouteToOrderPage() {
+      this.router.push('/');
     },
     onEditItem(item) {
       this.currentItem = item;
