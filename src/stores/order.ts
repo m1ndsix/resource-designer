@@ -109,6 +109,7 @@ interface TechInspection {
 
 let statusCode = 0;
 let errCode = 0;
+let errMsg = '';
 
 export const useOrderStore = defineStore('orderStore', {
   state: (): State => {
@@ -235,16 +236,18 @@ export const useOrderStore = defineStore('orderStore', {
           if (response) {
             statusCode = response.status;
             errCode = response.data.errCode;
+            errMsg = response.data.errMsg;
           } else {
             console.log('nothing');
             statusCode = 0;
             errCode = 1;
+            errMsg = '';
           }
         });
       } catch (error) {
         console.log(error);
       }
-      return [statusCode, errCode];
+      return [statusCode, errCode, errMsg];
     },
   },
 });

@@ -452,22 +452,21 @@ export default {
         .then((response) => {
           //response[0] - statusCode
           //response[1] - errCode
+          //response[2] - errMsg
           if (response[0] == 200 && response[1] == 0) {
             this.orderStore.patchWorkOrder(
               this.orderStore.selectedOrder.cprResourceOrderPoReqId,
               this.orderStore.selectedOrder.id,
               5
             );
-            console.log('positive validation');
             Notify.create({
-              message: 'This is a "positive" type notification.',
+              message: 'Поручение завершено',
               type: 'positive',
               position: 'top',
             });
           } else {
-            console.log('negative validation');
             Notify.create({
-              message: 'This is a "negative" type notification.',
+              message: 'Ошибка:' + response[2],
               type: 'negative',
               position: 'top',
             });
