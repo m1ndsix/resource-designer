@@ -241,6 +241,7 @@ import { ref } from 'vue';
 import { usePrepareStore } from 'stores/prepare';
 import { useOrderStore } from 'src/stores/order';
 import { useRouter } from 'vue-router';
+import { Notify } from 'quasar';
 import vxResourceForm from '../components/vxResourceForm.vue';
 import vxResultTable from '../components/vxResultTable.vue';
 import vxInspectionDialog from '../components/vxInspectionDialog.vue';
@@ -458,8 +459,18 @@ export default {
               5
             );
             console.log('positive validation');
+            Notify.create({
+              message: 'This is a "positive" type notification.',
+              type: 'positive',
+              position: 'top',
+            });
           } else {
             console.log('negative validation');
+            Notify.create({
+              message: 'This is a "negative" type notification.',
+              type: 'negative',
+              position: 'top',
+            });
           }
         });
     },
