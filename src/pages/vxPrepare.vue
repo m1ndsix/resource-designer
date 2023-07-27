@@ -51,14 +51,6 @@
             color="primary"
             @click="onRouteToOrderPage"
           />
-          <q-btn
-            v-if="tikedNodes"
-            dense
-            label="Показать выбранный продукт"
-            size="sm"
-            color="primary"
-            @click="showTickedNodes"
-          />
         </div>
       </div>
     </div>
@@ -119,8 +111,7 @@
                     size="sm"
                     color="negative"
                     label="Отменить"
-                    :disable="disableAppointBtn()"
-                    @click="cancelProductOfferRequestItem()"
+                    @click="cancelRoPoReqWoItem()"
                   />
                   <q-btn
                     dense
@@ -267,7 +258,6 @@ export default {
     const prepareStore = usePrepareStore();
     const orderStore = useOrderStore();
     const router = useRouter();
-    const tickedNodes = ref(null);
 
     return {
       currentItem: ref(null),
@@ -280,7 +270,7 @@ export default {
       isBulkComponentEdit: ref(false),
       splitterModel: ref(70),
       showAppointed: ref(false),
-      tickedNodes,
+      tickedNodes: ref(null),
       selectedProduct: ref(null),
       prepareStore,
       orderStore,
@@ -459,10 +449,6 @@ export default {
     },
     onNodeTicked(nodes) {
       this.prepareStore.selectedComponent = nodes;
-      console.log(
-        'this.prepareStore.selectedComponent',
-        this.prepareStore.selectedComponent
-      );
     },
     onCompleteWorkOrder() {
       this.orderStore
@@ -603,13 +589,13 @@ export default {
 
       this.openResourceForm = false;
     },
-    rejectProductOfferRequestItem() {
+    rejectProductOfferRequestItem(item) {
       this.prepareStore.patchPORequest(
-        this.orderStore.selectedOrder.productOfferRequestId,
-        this.$refs.qtree.getTickedNodes()[0].poReqItemId
+        item.children[0].productOfferReqId,
+        item.children[0].id
       );
     },
-    cancelProductOfferRequestItem() {
+    cancelRoPoReqWoItem() {
       this.orderStore.patchWorkOrderItem(
         this.orderStore.selectedOrder.cprResourceOrderPoReqId,
         this.orderStore.selectedOrder.id,
