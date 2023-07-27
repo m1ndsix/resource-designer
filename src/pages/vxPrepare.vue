@@ -8,7 +8,7 @@
         </div>
         <div class="row">
           <div class="col">Состояние:</div>
-          <div class="col">Новый</div>
+          <div class="col">{{ prepareStore.poRequest.stateData.nameRu }}</div>
         </div>
         <div class="row">
           <div class="col">Клиент:</div>
@@ -50,6 +50,14 @@
             size="sm"
             color="primary"
             @click="onRouteToOrderPage"
+          />
+          <q-btn
+            v-if="tikedNodes"
+            dense
+            label="Показать выбранный продукт"
+            size="sm"
+            color="primary"
+            @click="showTickedNodes"
           />
         </div>
       </div>
@@ -106,7 +114,14 @@
                     label="Отказать"
                     @click="rejectProductOfferRequestItem(prop.node)"
                   />
-                  <q-btn dense size="sm" color="negative" label="Отменить" />
+                  <q-btn
+                    dense
+                    size="sm"
+                    color="negative"
+                    label="Отменить"
+                    :disable="disableAppointBtn()"
+                    @click="cancelProductOfferRequestItem()"
+                  />
                   <q-btn
                     dense
                     size="sm"
@@ -252,6 +267,8 @@ export default {
     const prepareStore = usePrepareStore();
     const orderStore = useOrderStore();
     const router = useRouter();
+    const tickedNodes = ref(null);
+
     return {
       currentItem: ref(null),
       treeFilter: ref(false),
@@ -263,7 +280,7 @@ export default {
       isBulkComponentEdit: ref(false),
       splitterModel: ref(70),
       showAppointed: ref(false),
-      tickedNodes: ref(null),
+      tickedNodes,
       selectedProduct: ref(null),
       prepareStore,
       orderStore,
@@ -442,6 +459,10 @@ export default {
     },
     onNodeTicked(nodes) {
       this.prepareStore.selectedComponent = nodes;
+      console.log(
+        'this.prepareStore.selectedComponent',
+        this.prepareStore.selectedComponent
+      );
     },
     onCompleteWorkOrder() {
       this.orderStore
@@ -582,16 +603,17 @@ export default {
 
       this.openResourceForm = false;
     },
-    rejectProductOfferRequestItem(item) {
+    rejectProductOfferRequestItem() {
       this.prepareStore.patchPORequest(
         this.orderStore.selectedOrder.productOfferRequestId,
-        16 // TODO: what should be here?
+        this.$refs.qtree.getTickedNodes()[0].poReqItemId
       );
     },
     cancelProductOfferRequestItem() {
-      this.orderStore.patchWorkOrder(
-        this.orderStore.cprResourceOrderPoReqId,
+      this.orderStore.patchWorkOrderItem(
+        this.orderStore.selectedOrder.cprResourceOrderPoReqId,
         this.orderStore.selectedOrder.id,
+        this.orderStore.selectedOrder.cprResourceOrderPoReqItems[0].id,
         2
       );
     },

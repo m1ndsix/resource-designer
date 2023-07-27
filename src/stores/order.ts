@@ -225,6 +225,19 @@ export const useOrderStore = defineStore('orderStore', {
         console.log(response);
       });
     },
+    patchWorkOrderItem(
+      cprRoPoReqId: number,
+      cprRoPoReqWoId: number,
+      cprRoPoReqWoItemId: number,
+      stateId: number
+    ) {
+      CPR_RO_API.patch(
+        `/cpr-resource-order-po-req/${cprRoPoReqId}/work-order/${cprRoPoReqWoId}/item/${cprRoPoReqWoItemId}`,
+        { stateId }
+      ).then((response) => {
+        console.log(response);
+      });
+    },
     async validateWorkOrder(cprRoPoReqWoId: number, cprRoPoReqId: number) {
       try {
         await CPR_RO_API.get('/validate', {
