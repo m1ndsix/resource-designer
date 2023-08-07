@@ -9,7 +9,7 @@
       dense
       :rows="this.editComponents"
       :columns="columns"
-      row-key="name"
+      row-key="id"
       selection="multiple"
       :selected-rows-label="selectedRowsLabel"
       :hide-pagination="true"
