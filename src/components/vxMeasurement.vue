@@ -26,8 +26,10 @@
 <script setup lang="ts">
 import { reactive } from 'vue';
 import { usePrepareStore } from '../stores/prepare';
+import { useOrderStore } from 'stores/order';
 
 const prepareStore = usePrepareStore();
+const orderStore = useOrderStore();
 
 interface State {
   note: string | null;
@@ -38,7 +40,7 @@ const initialState: State = {
 const state: State = reactive(initialState);
 
 interface Props {
-  cprResourceOrderItemIds: number[];
+  cprResourceOrderItemIds: { cprResourceOrderItemId: number }[];
 }
 const props = withDefaults(defineProps<Props>(), {
   cprResourceOrderItemIds: () => [],
@@ -47,7 +49,7 @@ const props = withDefaults(defineProps<Props>(), {
 function sendMeasurement() {
   if (state.note && prepareStore.poRequest?.id) {
     prepareStore.sendMeasurement(
-      prepareStore.poRequest.id,
+      orderStore.selectedOrder.id,
       128,
       'EMPLOYEE_MEASURER',
       state.note,

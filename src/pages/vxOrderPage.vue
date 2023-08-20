@@ -155,8 +155,6 @@ const stateOptions = [
 ];
 
 watchEffect(() => {
-  console.log('watchEffect');
-
   if (
     (state.dateFromInput &&
       state.contactName.length == '' &&
@@ -277,7 +275,6 @@ function onTableRequest(request) {
 }
 
 function prepareOrder(order) {
-  console.log('order', order);
   orderStore.selectedOrder = { ...order };
   orderStore.patchWorkOrder(order.cprResourceOrderPoReqId, order.id, 2);
   router.push('/prepare');

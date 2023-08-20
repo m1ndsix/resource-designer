@@ -25,6 +25,7 @@ interface State {
   streets: IdName[];
   addresses: Address[];
   mountedPorts: PortData[];
+  resourceOrderItemId: any;
 }
 
 interface DataTree {
@@ -244,6 +245,7 @@ export const usePrepareStore = defineStore('prepareStore', {
       mountedPorts: [],
       streets: [],
       addresses: [],
+      resourceOrderItemId: null,
     };
   },
   actions: {
@@ -367,6 +369,7 @@ export const usePrepareStore = defineStore('prepareStore', {
           compositePhysResFullNum,
         }
       ).then((creationResult) => {
+        this.resourceOrderItemId = creationResult.data.data.id;
         MP_API.patch(`/mounted-port/${mountedPortId}`, {
           usageStateId: 2,
         }).then((mountResult) => {
@@ -387,7 +390,7 @@ export const usePrepareStore = defineStore('prepareStore', {
           .then((responses) => {
             // Process individual responses here
             responses.forEach((response) => {
-              console.log(response.data);
+              console.log('response.data', response.data);
             });
           })
           .catch((error) => {
@@ -443,7 +446,7 @@ export const usePrepareStore = defineStore('prepareStore', {
       createEmployeeId: number,
       employeeFuncRoleSpecCode: string,
       description: string,
-      items: number[]
+      items: { cprResourceOrderItemId: number }[]
     ) {
       ME_API.post('/measurement-request', {
         workOrderId,

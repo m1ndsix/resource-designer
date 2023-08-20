@@ -251,7 +251,6 @@ export const useOrderStore = defineStore('orderStore', {
             errCode = response.data.errCode;
             errMsg = response.data.errMsg;
           } else {
-            console.log('nothing');
             statusCode = 0;
             errCode = 1;
             errMsg = '';

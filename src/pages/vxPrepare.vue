@@ -563,6 +563,10 @@ export default {
               if (componentsIds.includes(comp.id)) {
                 comp.state = 'Подготовлен';
                 comp.resource = resource;
+                setTimeout(() => {
+                  comp.resourceOrderItemId =
+                    this.prepareStore.resourceOrderItemId;
+                }, 500);
               }
             });
           });

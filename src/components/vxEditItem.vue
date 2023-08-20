@@ -158,7 +158,9 @@ export default {
         : ['spec', 'action', 'pc', 'port', 'tts', 'measurement-result'];
     },
     cprResourceOrderItemIds() {
-      return this.selectedRows.map((c) => c.id);
+      return this.selectedRows.map((c) => ({
+        cprResourceOrderItemId: c.resourceOrderItemId,
+      }));
     },
   },
   methods: {
