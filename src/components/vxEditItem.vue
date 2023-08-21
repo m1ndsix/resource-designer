@@ -72,7 +72,7 @@ const columns = [
     name: 'spec',
     align: 'center',
     label: 'Спецификация',
-    field: (row) => row.poComponentData.nameRu,
+    field: (row) => row.resource?.spec.nameRu,
     sortable: true,
   },
   {
