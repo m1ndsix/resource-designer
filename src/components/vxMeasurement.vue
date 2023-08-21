@@ -18,7 +18,12 @@
     <q-separator />
 
     <q-card-actions align="right">
-      <q-btn color="positive" label="Отправить" @click="sendMeasurement" />
+      <q-btn
+        color="positive"
+        label="Отправить"
+        @click="sendMeasurement"
+        v-close-popup
+      />
     </q-card-actions>
   </q-card>
 </template>
@@ -27,6 +32,7 @@
 import { reactive } from 'vue';
 import { usePrepareStore } from '../stores/prepare';
 import { useOrderStore } from 'stores/order';
+import { Notify } from 'quasar';
 
 const prepareStore = usePrepareStore();
 const orderStore = useOrderStore();
@@ -56,6 +62,25 @@ function sendMeasurement() {
       props.cprResourceOrderItemIds
     );
   }
+
+  function measurementNotify() {
+    if (prepareStore.measurementResponse.errCode == 0) {
+      Notify.create({
+        message: 'Поручение на измерение отправлено',
+        type: 'positive',
+        position: 'top',
+      });
+    } else {
+      Notify.create({
+        message: 'Ошибка:' + prepareStore.measurementResponse.errMsg,
+        type: 'negative',
+        position: 'top',
+      });
+    }
+  }
+  setTimeout(() => {
+    measurementNotify();
+  }, 2000);
 }
 </script>
 

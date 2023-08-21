@@ -26,6 +26,7 @@ interface State {
   addresses: Address[];
   mountedPorts: PortData[];
   resourceOrderItemId: any;
+  measurementResponse: any;
 }
 
 interface DataTree {
@@ -246,6 +247,7 @@ export const usePrepareStore = defineStore('prepareStore', {
       streets: [],
       addresses: [],
       resourceOrderItemId: null,
+      measurementResponse: null,
     };
   },
   actions: {
@@ -417,6 +419,7 @@ export const usePrepareStore = defineStore('prepareStore', {
       MP_API.get(`/mounted-port-by-parent-pc/${physicalContainerId}`, {})
         .then(({ data }) => {
           this.mountedPorts = data;
+          console.log('this.mountedPorts', this.mountedPorts);
         })
         .catch((error) => {
           console.log(error);
@@ -454,6 +457,8 @@ export const usePrepareStore = defineStore('prepareStore', {
         employeeFuncRoleSpecCode,
         description,
         items,
+      }).then(({ data }) => {
+        this.measurementResponse = data;
       });
     },
   },
