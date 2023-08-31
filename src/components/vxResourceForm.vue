@@ -332,7 +332,7 @@ function onPrepareComponent() {
     if (!isResourceCreated) {
       emit('onAddNewResource', { ...state.newResource });
     }
-    emit('onPrepareComponent', newRes);
+    emit('onPrepareComponent', newRes, props.currentItem);
     resetNewResource();
   } else if (state.resourceTab === 'created') {
     emit('onPrepareComponent', state.selectedCreatedResource);

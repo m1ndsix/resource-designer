@@ -260,7 +260,7 @@ export default {
     const router = useRouter();
 
     return {
-      currentItem: ref(null),
+      currentItem: ref([]),
       treeFilter: ref(false),
       openResourceForm: ref(false),
       openResultTable: ref(false),
@@ -484,7 +484,8 @@ export default {
       this.router.push('/');
     },
     onEditItem(item) {
-      this.currentItem = item;
+      this.currentItem = [];
+      this.currentItem.push(item);
       this.openResourceForm = true;
     },
     onOpenEditItemDialog(event, node) {
@@ -551,11 +552,17 @@ export default {
     onAddNewResource(resource) {
       this.prepareStore.createdResources.push(resource);
     },
-    onPrepareComponent(resource) {
+    onPrepareComponent(resource, currentItem) {
+      let componentsIds = null;
+      let positionIds = null;
       const tickedNodes = this.$refs.qtree.getTickedNodes();
-      const componentsIds = tickedNodes.map((node) => node.id);
-      const positionIds = tickedNodes.map((node) => node.poReqItemId);
-
+      if (tickedNodes.length > 0) {
+        componentsIds = tickedNodes.map((node) => node.id);
+        positionIds = tickedNodes.map((node) => node.poReqItemId);
+      } else {
+        componentsIds = currentItem.map((node) => node.id);
+        positionIds = currentItem.map((node) => node.poReqItemId);
+      }
       this.prepareStore.dataTree.forEach((poType) => {
         poType.children.forEach((address) => {
           address.children.forEach((pos) => {
