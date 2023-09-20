@@ -79,8 +79,8 @@ export default boot(async ({ app }) => {
           checkLoginIframe: false,
         },
         config: {
-          url: 'http://10.8.93.133:8081',
-          realm: 'Test',
+          url: 'https://keycloak.telecom.kz',
+          realm: 'KT',
           clientId: 'cpr-resource-order-design-fe',
         },
         onReady: () => {
