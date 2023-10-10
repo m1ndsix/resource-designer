@@ -23,6 +23,10 @@ const TE_URL =
 const ME_URL =
   process.env.ME_URL ||
   'http://10.8.27.97:6241/api/measurement-request-be/v1.0'; // URL сервиса measurement-request
+// Переменные среды
+const KEYCLOAK_URL = 'https://keycloak.telecom.kz';
+const KEYCLOAK_REALM = 'Test';
+const KEYCLOAK_CLIENT_ID = 'cpr-resource-order-design-fe';
 
 function createRouter(url: string) {
   return axios.create({
@@ -79,9 +83,9 @@ export default boot(async ({ app }) => {
           checkLoginIframe: false,
         },
         config: {
-          url: 'https://keycloak.telecom.kz',
-          realm: 'KT',
-          clientId: 'cpr-resource-order-design-fe',
+          url: KEYCLOAK_URL,
+          realm: KEYCLOAK_REALM,
+          clientId: KEYCLOAK_CLIENT_ID,
         },
         onReady: () => {
           tokenInterceptor(ALL_APIS);
