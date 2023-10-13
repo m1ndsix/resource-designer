@@ -333,11 +333,15 @@ function onPrepareComponent() {
       emit('onAddNewResource', { ...state.newResource });
     }
     emit('onPrepareComponent', newRes, props.currentItem);
+    console.log('newRes', newRes);
+    console.log('props.currentItem', props.currentItem);
     resetNewResource();
   } else if (state.resourceTab === 'created') {
     emit('onPrepareComponent', state.selectedCreatedResource);
+    console.log('props.currentItem', props.currentItem);
   } else {
     emit('onPrepareComponent', state.selectedExistingResource);
+    console.log('props.currentItem', props.currentItem);
   }
 }
 </script>

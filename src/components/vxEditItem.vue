@@ -7,7 +7,7 @@
     </q-card-section>
     <q-table
       dense
-      :rows="this.editComponents"
+      :rows="this.editComponentsCopy"
       :columns="columns"
       row-key="id"
       selection="multiple"
@@ -72,14 +72,14 @@ const columns = [
     name: 'spec',
     align: 'center',
     label: 'Спецификация',
-    field: (row) => row.resource?.spec.nameRu,
+    // field: (row) => row.resource?.spec.nameRu,
     sortable: true,
   },
   {
     name: 'action',
     align: 'center',
     label: 'Действие',
-    field: (row) => row.baseCfsActionSpecData.nameRu,
+    // field: (row) => row.baseCfsActionSpecData.nameRu,
     sortable: true,
   },
   {
@@ -93,28 +93,28 @@ const columns = [
     name: 'pc',
     align: 'center',
     label: 'Физ. контейнер',
-    field: (row) => row.resource?.equipment.physicalContainerNumber,
+    // field: (row) => row.resource?.equipment.physicalContainerNumber,
     sortable: true,
   },
   {
     name: 'port',
     align: 'center',
     label: 'Порт',
-    field: (row) => row.resource?.port.portNumber,
+    // field: (row) => row.resource?.port.portNumber,
     sortable: true,
   },
   {
     name: 'tts',
     align: 'center',
     label: 'Функц. спец. терм. оборудования',
-    field: 'transportCpeFuncSpecId',
+    // field: 'transportCpeFuncSpecId',
     sortable: true,
   },
   {
     name: 'measurement-result',
     align: 'center',
     label: 'Результат измерения',
-    field: 'measurementResult',
+    // field: 'measurementResult',
     sortable: true,
   },
 ];
@@ -135,7 +135,7 @@ export default {
     };
   },
   props: {
-    editComponents: Array,
+    editComponentsCopy: Array,
     isBulkComponentEdit: Boolean,
   },
   components: { vxMeasurement },
@@ -165,6 +165,7 @@ export default {
   },
   methods: {
     editPosition(row) {
+      console.log('row', row);
       this.$emit('onEditItem', row);
     },
     geoPlaceName() {

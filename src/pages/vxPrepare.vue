@@ -235,7 +235,7 @@
   </q-dialog>
   <q-dialog v-model="openEditItemDialog">
     <vx-edit-item
-      :edit-components="editComponents"
+      :edit-components-copy="editComponentsCopy"
       :is-bulk-component-edit="isBulkComponentEdit"
       @on-edit-item="onEditItem"
     />
@@ -267,11 +267,14 @@ export default {
       openInspectionDialog: ref(false),
       openEditItemDialog: ref(false),
       editComponents: ref([]),
+      editComponentsCopy: ref([]),
+      filteredByResource: ref([]),
       isBulkComponentEdit: ref(false),
       splitterModel: ref(70),
       showAppointed: ref(false),
       tickedNodes: ref(null),
       selectedProduct: ref(null),
+      currentResource: ref([]),
       prepareStore,
       orderStore,
       router,
@@ -489,15 +492,78 @@ export default {
       this.openResourceForm = true;
     },
     onOpenEditItemDialog(event, node) {
+      console.log('node', node);
       event.stopPropagation();
 
       if (node.nodeType === 'address') {
         this.editComponents = node.children
           .flatMap((position) => position.children)
           .filter((component) => component.state === 'Подготовлен');
+        console.log(
+          'filter by resource',
+          node.children
+            .flatMap((position) => position.children)
+            .filter((component) => component.resource === this.currentResource)
+        );
+        this.filteredByResource = node.children
+          .flatMap((position) => position.children)
+          .filter((component) => component.resource === this.currentResource);
+
+        if (this.editComponentsCopy.length > 0 && this.filteredByResource) {
+          console.log(
+            'this.editComponentsCopy[0].filter',
+            this.editComponentsCopy[0].filter(
+              (component) => component.id != this.filteredByResource[0].id
+            )
+          );
+          console.log('this.editComponentsCopy[0]', this.editComponentsCopy[0]);
+          console.log(
+            'this.editComponentsCopy[0].length',
+            this.editComponentsCopy[0].length
+          );
+          this.editComponentsCopy[0].splice(
+            0,
+            this.editComponentsCopy[0].length
+          );
+          console.log('this.editComponentsCopy[0]', this.editComponentsCopy[0]);
+          // this.editComponentsCopy[0] = this.editComponentsCopy[0].filter(
+          //   (component) => component.id != this.filteredByResource[0].id
+          // );
+          if (this.editComponentsCopy[0].length > 0) {
+            if (
+              this.editComponentsCopy[0][0].id == this.filteredByResource[0].id
+            ) {
+              console.log('same same');
+
+              this.editComponentsCopy.filter;
+              console.log(
+                'this.editComponentsCopy[0].filter',
+                this.editComponentsCopy[0].filter(
+                  (component) => component.id != this.filteredByResource[0].id
+                )
+              );
+              // this.editComponentsCopy = [];
+            } else {
+              console.log('different different');
+            }
+          }
+        }
+
+        this.editComponentsCopy.push(this.filteredByResource);
+        console.log('this.filteredByResource', this.filteredByResource);
+        console.log(
+          'this.filteredByResource[0]',
+          this.filteredByResource[0].id
+        );
+        console.log('this.editComponentsCopy', this.editComponentsCopy);
+        // console.log(
+        //   'this.editComponentsCopy[0][0].id',
+        //   this.editComponentsCopy[0][0].id
+        // );
+
         this.isBulkComponentEdit = true;
       } else {
-        this.editComponents = [node];
+        this.editComponentsCopy = [node];
         this.isBulkComponentEdit = false;
       }
 
@@ -553,16 +619,27 @@ export default {
       this.prepareStore.createdResources.push(resource);
     },
     onPrepareComponent(resource, currentItem) {
+      console.log('resource', resource);
+      console.log('currentItem', currentItem);
+      this.currentResource = resource;
+      console.log('this.currentResource', this.currentResource);
       let componentsIds = null;
       let positionIds = null;
       const tickedNodes = this.$refs.qtree.getTickedNodes();
+      console.log('tickedNodes', tickedNodes);
       if (tickedNodes.length > 0) {
         componentsIds = tickedNodes.map((node) => node.id);
         positionIds = tickedNodes.map((node) => node.poReqItemId);
       } else {
-        componentsIds = currentItem.map((node) => node.id);
-        positionIds = currentItem.map((node) => node.poReqItemId);
+        for (let i = 0; i <= currentItem.length; i++) {
+          console.log('currentItem ' + [i], currentItem[0][i]);
+        }
+        componentsIds = currentItem[0].map((node) => node.id);
+        positionIds = currentItem[0].map((node) => node.poReqItemId);
       }
+      //TODO
+      console.log('componentsIds', componentsIds);
+      console.log('positionIds', positionIds);
       this.prepareStore.dataTree.forEach((poType) => {
         poType.children.forEach((address) => {
           address.children.forEach((pos) => {
@@ -581,6 +658,7 @@ export default {
       });
       let { cprResourceOrderPoReqId, id, geoPlace } =
         this.orderStore.selectedOrder;
+
       this.prepareStore.createPosition({
         cprRoPoReqId: cprResourceOrderPoReqId,
         cprRoPoReqWoId: id,
