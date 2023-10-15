@@ -30,6 +30,7 @@
             :options="state.equipmentFilterOptions"
             label="Зона поиска"
           />
+
           <q-select
             style="width: 250px"
             v-model="state.newResource.value.spec"

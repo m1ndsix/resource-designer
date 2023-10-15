@@ -235,7 +235,7 @@
   </q-dialog>
   <q-dialog v-model="openEditItemDialog">
     <vx-edit-item
-      :edit-components-copy="editComponentsCopy"
+      :prepared-components-new="preparedComponentsNew"
       :is-bulk-component-edit="isBulkComponentEdit"
       @on-edit-item="onEditItem"
     />
@@ -275,6 +275,8 @@ export default {
       tickedNodes: ref(null),
       selectedProduct: ref(null),
       currentResource: ref([]),
+      currentComponents: ref([]),
+      preparedComponentsNew: ref([]),
       prepareStore,
       orderStore,
       router,
@@ -494,7 +496,8 @@ export default {
     onOpenEditItemDialog(event, node) {
       console.log('node', node);
       event.stopPropagation();
-
+      //TODO разобраться с закоменченным кодом
+      /**
       if (node.nodeType === 'address') {
         this.editComponents = node.children
           .flatMap((position) => position.children)
@@ -508,8 +511,19 @@ export default {
         this.filteredByResource = node.children
           .flatMap((position) => position.children)
           .filter((component) => component.resource === this.currentResource);
-
+        console.log('this.editComponentsCopy', this.editComponentsCopy);
+        // console.log(
+        //   'this.editComponentsCopy[0][0].id',
+        //   this.editComponentsCopy[0][0].id
+        // );
         if (this.editComponentsCopy.length > 0 && this.filteredByResource) {
+          if (
+            this.editComponentsCopy[0].filter(
+              (component) => component.id != this.filteredByResource[0].id
+            )
+          ) {
+            console.log('More than 1 component');
+          }
           console.log(
             'this.editComponentsCopy[0].filter',
             this.editComponentsCopy[0].filter(
@@ -566,7 +580,8 @@ export default {
         this.editComponentsCopy = [node];
         this.isBulkComponentEdit = false;
       }
-
+      */
+      this.isBulkComponentEdit = true;
       this.openEditItemDialog = true;
     },
     onAppoint(event) {
@@ -619,27 +634,17 @@ export default {
       this.prepareStore.createdResources.push(resource);
     },
     onPrepareComponent(resource, currentItem) {
-      console.log('resource', resource);
-      console.log('currentItem', currentItem);
-      this.currentResource = resource;
-      console.log('this.currentResource', this.currentResource);
       let componentsIds = null;
       let positionIds = null;
       const tickedNodes = this.$refs.qtree.getTickedNodes();
-      console.log('tickedNodes', tickedNodes);
+      //TODO добавить отмену галочек при открытии окна редактировании
       if (tickedNodes.length > 0) {
         componentsIds = tickedNodes.map((node) => node.id);
         positionIds = tickedNodes.map((node) => node.poReqItemId);
-      } else {
-        for (let i = 0; i <= currentItem.length; i++) {
-          console.log('currentItem ' + [i], currentItem[0][i]);
-        }
+      } else if (currentItem.length > 0) {
         componentsIds = currentItem[0].map((node) => node.id);
         positionIds = currentItem[0].map((node) => node.poReqItemId);
       }
-      //TODO
-      console.log('componentsIds', componentsIds);
-      console.log('positionIds', positionIds);
       this.prepareStore.dataTree.forEach((poType) => {
         poType.children.forEach((address) => {
           address.children.forEach((pos) => {
@@ -651,11 +656,24 @@ export default {
                   comp.resourceOrderItemId =
                     this.prepareStore.resourceOrderItemId;
                 }, 500);
+                this.currentComponents.push(comp);
               }
             });
           });
         });
       });
+
+      for (let i = 0; i < this.preparedComponentsNew.length; i++) {
+        if (
+          this.preparedComponentsNew[i][0].resource?.port.portNumber ==
+          this.currentComponents[0].resource.port.portNumber
+        ) {
+          this.preparedComponentsNew.splice(i, 1);
+        }
+      }
+      this.preparedComponentsNew.push(this.currentComponents);
+      this.currentComponents = [];
+
       let { cprResourceOrderPoReqId, id, geoPlace } =
         this.orderStore.selectedOrder;
 
