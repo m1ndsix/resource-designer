@@ -202,7 +202,9 @@
                       dense
                       color="info"
                       icon="info"
-                      @click="(event) => onOpenEditItemDialog(event, prop.node)"
+                      @click="
+                        (event) => onOpenResourceInfoDialog(event, prop.node)
+                      "
                     />
                   </div>
                 </div>
@@ -240,6 +242,12 @@
       @on-edit-item="onEditItem"
     />
   </q-dialog>
+  <q-dialog v-model="openResourceInfoDialog">
+    <vx-resource-info
+      :choosen-component="choosenComponent"
+      @on-resource-info="onResourceInfo"
+    />
+  </q-dialog>
 </template>
 
 <script>
@@ -252,6 +260,7 @@ import vxResourceForm from '../components/vxResourceForm.vue';
 import vxResultTable from '../components/vxResultTable.vue';
 import vxInspectionDialog from '../components/vxInspectionDialog.vue';
 import vxEditItem from '../components/vxEditItem.vue';
+import vxResourceInfo from 'src/components/vxResourceInfo.vue';
 
 export default {
   setup() {
@@ -266,6 +275,8 @@ export default {
       openResultTable: ref(false),
       openInspectionDialog: ref(false),
       openEditItemDialog: ref(false),
+      openResourceInfoDialog: ref(false),
+      choosenComponent: ref([]),
       editComponents: ref([]),
       editComponentsCopy: ref([]),
       filteredByResource: ref([]),
@@ -318,6 +329,7 @@ export default {
     vxResultTable,
     vxInspectionDialog,
     vxEditItem,
+    vxResourceInfo,
   },
   mounted() {
     if (!this.poRequest) {
@@ -494,6 +506,7 @@ export default {
       this.openResourceForm = true;
     },
     onOpenEditItemDialog(event, node) {
+      console.log('event', event);
       console.log('node', node);
       event.stopPropagation();
       //TODO разобраться с закоменченным кодом
@@ -583,6 +596,16 @@ export default {
       */
       this.isBulkComponentEdit = true;
       this.openEditItemDialog = true;
+    },
+    onOpenResourceInfoDialog(event, node) {
+      console.log('event', event);
+      console.log('node', node);
+      this.choosenComponent = [];
+      this.choosenComponent.push(node);
+      console.log('this.choosenComponent', this.choosenComponent);
+      event.stopPropagation();
+
+      this.openResourceInfoDialog = true;
     },
     onAppoint(event) {
       event.stopPropagation();
