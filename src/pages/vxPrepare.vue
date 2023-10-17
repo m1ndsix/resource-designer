@@ -243,10 +243,7 @@
     />
   </q-dialog>
   <q-dialog v-model="openResourceInfoDialog">
-    <vx-resource-info
-      :choosen-component="choosenComponent"
-      @on-resource-info="onResourceInfo"
-    />
+    <vx-resource-info :choosen-component="choosenComponent" />
   </q-dialog>
 </template>
 
@@ -376,6 +373,7 @@ export default {
     },
   },
   methods: {
+    //TODO Нужно починить. Если все компоненты назначены, то дерево и кнопки становятся недоступны.
     treeFilterMethod(node, onlyAppointed) {
       if (onlyAppointed) {
         return node.state === 'Новый';
@@ -598,13 +596,9 @@ export default {
       this.openEditItemDialog = true;
     },
     onOpenResourceInfoDialog(event, node) {
-      console.log('event', event);
-      console.log('node', node);
       this.choosenComponent = [];
       this.choosenComponent.push(node);
-      console.log('this.choosenComponent', this.choosenComponent);
       event.stopPropagation();
-
       this.openResourceInfoDialog = true;
     },
     onAppoint(event) {
@@ -668,6 +662,7 @@ export default {
         componentsIds = currentItem[0].map((node) => node.id);
         positionIds = currentItem[0].map((node) => node.poReqItemId);
       }
+      this.tickedNodes = [];
       this.prepareStore.dataTree.forEach((poType) => {
         poType.children.forEach((address) => {
           address.children.forEach((pos) => {

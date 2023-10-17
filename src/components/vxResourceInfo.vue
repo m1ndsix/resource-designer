@@ -9,10 +9,8 @@
       dense
       :rows="this.choosenComponent"
       :columns="columns"
-      :row-key="id"
+      row-key="id"
       :hide-pagination="true"
-      :visible-columns="visibleColumns"
-      v-model:selected="selectedRows"
       style="margin: 10px"
     >
     </q-table>
@@ -78,65 +76,14 @@ const columns = [
   },
 ];
 
-import { ref } from 'vue';
-import { usePrepareStore } from 'stores/prepare';
-
 export default {
   setup() {
-    //TODO Нужно убрать лишнее из ResourceInfo
-
-    const prepareStore = usePrepareStore();
-
     return {
       columns,
-      openMeasurementDialog: ref(false),
-      openResourceForm: ref(false),
-      prepareStore,
-      selectedRows: ref([]),
     };
   },
   props: {
     choosenComponent: Array,
-    isBulkComponentEdit: Boolean,
-  },
-  components: {},
-
-  computed: {
-    disableMeasurement() {
-      return !this.selectedRows.length;
-    },
-    visibleColumns() {
-      return this.isBulkComponentEdit
-        ? [
-            'actions',
-            'spec',
-            'action',
-            'pc',
-            'port',
-            'tts',
-            'measurement-result',
-          ]
-        : ['spec', 'action', 'pc', 'port', 'tts', 'measurement-result'];
-    },
-    cprResourceOrderItemIds() {
-      return this.selectedRows.map((c) => ({
-        cprResourceOrderItemId: c.resourceOrderItemId,
-      }));
-    },
-  },
-  methods: {
-    editPosition(row) {
-      console.log('row', row);
-      this.$emit('onEditItem', row);
-    },
-    geoPlaceName() {
-      return this.prepareStore.geoPlace;
-    },
-    selectedRowsLabel(rowsNumber) {
-      return rowsNumber === 1
-        ? '1 Позиция выбрана'
-        : `${rowsNumber} Позиций выбрано`;
-    },
   },
 };
 </script>
