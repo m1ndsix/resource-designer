@@ -148,7 +148,7 @@
                     dense
                     color="info"
                     icon="info"
-                    @click="(event) => onOpenEditItemDialog(event, prop.node)"
+                    @click="(event) => onOpenEditItemDialog(event)"
                   />
                 </div>
 
@@ -373,10 +373,9 @@ export default {
     },
   },
   methods: {
-    //TODO Нужно починить. Если все компоненты назначены, то дерево и кнопки становятся недоступны.
     treeFilterMethod(node, onlyAppointed) {
       if (onlyAppointed) {
-        return node.state === 'Новый';
+        return node.nodeType === 'position' || node.state === 'Новый';
       } else {
         return true;
       }
@@ -503,95 +502,8 @@ export default {
       this.currentItem.push(item);
       this.openResourceForm = true;
     },
-    onOpenEditItemDialog(event, node) {
-      console.log('event', event);
-      console.log('node', node);
+    onOpenEditItemDialog(event) {
       event.stopPropagation();
-      //TODO разобраться с закоменченным кодом
-      /**
-      if (node.nodeType === 'address') {
-        this.editComponents = node.children
-          .flatMap((position) => position.children)
-          .filter((component) => component.state === 'Подготовлен');
-        console.log(
-          'filter by resource',
-          node.children
-            .flatMap((position) => position.children)
-            .filter((component) => component.resource === this.currentResource)
-        );
-        this.filteredByResource = node.children
-          .flatMap((position) => position.children)
-          .filter((component) => component.resource === this.currentResource);
-        console.log('this.editComponentsCopy', this.editComponentsCopy);
-        // console.log(
-        //   'this.editComponentsCopy[0][0].id',
-        //   this.editComponentsCopy[0][0].id
-        // );
-        if (this.editComponentsCopy.length > 0 && this.filteredByResource) {
-          if (
-            this.editComponentsCopy[0].filter(
-              (component) => component.id != this.filteredByResource[0].id
-            )
-          ) {
-            console.log('More than 1 component');
-          }
-          console.log(
-            'this.editComponentsCopy[0].filter',
-            this.editComponentsCopy[0].filter(
-              (component) => component.id != this.filteredByResource[0].id
-            )
-          );
-          console.log('this.editComponentsCopy[0]', this.editComponentsCopy[0]);
-          console.log(
-            'this.editComponentsCopy[0].length',
-            this.editComponentsCopy[0].length
-          );
-          this.editComponentsCopy[0].splice(
-            0,
-            this.editComponentsCopy[0].length
-          );
-          console.log('this.editComponentsCopy[0]', this.editComponentsCopy[0]);
-          // this.editComponentsCopy[0] = this.editComponentsCopy[0].filter(
-          //   (component) => component.id != this.filteredByResource[0].id
-          // );
-          if (this.editComponentsCopy[0].length > 0) {
-            if (
-              this.editComponentsCopy[0][0].id == this.filteredByResource[0].id
-            ) {
-              console.log('same same');
-
-              this.editComponentsCopy.filter;
-              console.log(
-                'this.editComponentsCopy[0].filter',
-                this.editComponentsCopy[0].filter(
-                  (component) => component.id != this.filteredByResource[0].id
-                )
-              );
-              // this.editComponentsCopy = [];
-            } else {
-              console.log('different different');
-            }
-          }
-        }
-
-        this.editComponentsCopy.push(this.filteredByResource);
-        console.log('this.filteredByResource', this.filteredByResource);
-        console.log(
-          'this.filteredByResource[0]',
-          this.filteredByResource[0].id
-        );
-        console.log('this.editComponentsCopy', this.editComponentsCopy);
-        // console.log(
-        //   'this.editComponentsCopy[0][0].id',
-        //   this.editComponentsCopy[0][0].id
-        // );
-
-        this.isBulkComponentEdit = true;
-      } else {
-        this.editComponentsCopy = [node];
-        this.isBulkComponentEdit = false;
-      }
-      */
       this.isBulkComponentEdit = true;
       this.openEditItemDialog = true;
     },
