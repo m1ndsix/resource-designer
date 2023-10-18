@@ -158,14 +158,30 @@ export default {
         : ['spec', 'action', 'pc', 'port', 'tts', 'measurement-result'];
     },
     cprResourceOrderItemIds() {
+      console.log('this.selectedRows', this.selectedRows);
+      console.log(
+        'this.selectedRows[0][0].resourceOrderItemId',
+        this.selectedRows[0][0].resourceOrderItemId
+      );
+      console.log(
+        'this.selectedRows.map((c) => ({cprResourceOrderItemId: c[0].resourceOrderItemId,}',
+        this.selectedRows.map((c) => ({
+          cprResourceOrderItemId: c[0].resourceOrderItemId,
+        }))
+      );
       return this.selectedRows.map((c) => ({
-        cprResourceOrderItemId: c.resourceOrderItemId,
+        cprResourceOrderItemId: c[0].resourceOrderItemId,
       }));
     },
   },
   methods: {
     editPosition(row) {
       console.log('row', row);
+      console.log(
+        'row[0].resource.port.portNumber',
+        row[0].resource.port.portNumber
+      );
+      console.log('row[0].resource.port.id', row[0].resource.port.id);
       this.$emit('onEditItem', row);
     },
     geoPlaceName() {

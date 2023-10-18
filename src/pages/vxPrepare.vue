@@ -267,6 +267,7 @@ export default {
 
     return {
       currentItem: ref([]),
+      currentPort: ref(null),
       treeFilter: ref(false),
       openResourceForm: ref(false),
       openResultTable: ref(false),
@@ -499,7 +500,11 @@ export default {
     },
     onEditItem(item) {
       this.currentItem = [];
+      this.currentPort = [];
       this.currentItem.push(item);
+      this.currentPort = item[0].resource.port.id;
+      console.log('this.currentPort', this.currentPort);
+      // this.currentPort.push(item.);
       this.openResourceForm = true;
     },
     onOpenEditItemDialog(event) {

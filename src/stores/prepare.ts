@@ -451,6 +451,14 @@ export const usePrepareStore = defineStore('prepareStore', {
       description: string,
       items: { cprResourceOrderItemId: number }[]
     ) {
+      console.log(
+        'sendMeasurement ',
+        workOrderId,
+        createEmployeeId,
+        employeeFuncRoleSpecCode,
+        description,
+        items
+      );
       ME_API.post('/measurement-request', {
         workOrderId,
         createEmployeeId,
