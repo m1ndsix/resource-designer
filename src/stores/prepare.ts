@@ -354,6 +354,7 @@ export const usePrepareStore = defineStore('prepareStore', {
       compositePhysResNum,
       compositePhysResFullNum,
       mountedPortId,
+      currentPortId,
       poRequestItemId,
       poReqItemCompIds,
     }) {
@@ -377,6 +378,15 @@ export const usePrepareStore = defineStore('prepareStore', {
         }).then((mountResult) => {
           // TODO: handle success/error
           console.log(mountResult);
+          if (currentPortId) {
+            MP_API.patch(`/mounted-port/${currentPortId}`, {
+              usageStateId: 1,
+              cprResourceOrderItemId: -1,
+            }).then((mountResult) => {
+              // TODO: handle success/error
+              console.log(mountResult);
+            });
+          }
         });
 
         const patchPositionRequests = poReqItemCompIds.map((componentId) => {

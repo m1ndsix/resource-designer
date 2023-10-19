@@ -176,12 +176,6 @@ export default {
   },
   methods: {
     editPosition(row) {
-      console.log('row', row);
-      console.log(
-        'row[0].resource.port.portNumber',
-        row[0].resource.port.portNumber
-      );
-      console.log('row[0].resource.port.id', row[0].resource.port.id);
       this.$emit('onEditItem', row);
     },
     geoPlaceName() {

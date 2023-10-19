@@ -267,7 +267,7 @@ export default {
 
     return {
       currentItem: ref([]),
-      currentPort: ref(null),
+      currentPortId: ref(null),
       treeFilter: ref(false),
       openResourceForm: ref(false),
       openResultTable: ref(false),
@@ -500,11 +500,9 @@ export default {
     },
     onEditItem(item) {
       this.currentItem = [];
-      this.currentPort = [];
+      this.currentPortId = null;
       this.currentItem.push(item);
-      this.currentPort = item[0].resource.port.id;
-      console.log('this.currentPort', this.currentPort);
-      // this.currentPort.push(item.);
+      this.currentPortId = item[0].resource.port.id;
       this.openResourceForm = true;
     },
     onOpenEditItemDialog(event) {
@@ -625,10 +623,11 @@ export default {
         compositePhysResNum: '7777777',
         compositePhysResFullNum: '7777777',
         mountedPortId: resource.port.id,
+        currentPortId: this.currentPortId,
         poRequestItemId: positionIds[0], // TODO: need to work with multiple positions,
         poReqItemCompIds: componentsIds,
       });
-
+      this.currentPortId = null;
       this.openResourceForm = false;
     },
     rejectProductOfferRequestItem(item) {
