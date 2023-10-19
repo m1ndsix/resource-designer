@@ -341,23 +341,23 @@ export const usePrepareStore = defineStore('prepareStore', {
       Currently, using promiseAll for each selected component (in single position only). Probably,
       should pass a map with signature: {positionId: [componentIds...]}
     */
-    createPosition({
-      cprRoPoReqId,
-      cprRoPoReqWoId,
-      cprActionSpecId,
-      compositePhysResSpecId,
-      physicalContainerId,
-      geoPlaceId,
-      transportCpeFuncSpecId,
-      wiringTypeId,
-      compositePhysResId,
-      compositePhysResNum,
-      compositePhysResFullNum,
-      mountedPortId,
-      currentPortId,
-      poRequestItemId,
-      poReqItemCompIds,
-    }) {
+    createPosition(
+      cprRoPoReqId: number,
+      cprRoPoReqWoId: number,
+      cprActionSpecId: number,
+      compositePhysResSpecId: number,
+      physicalContainerId: number,
+      geoPlaceId: number,
+      transportCpeFuncSpecId: number,
+      wiringTypeId: number,
+      compositePhysResId: number,
+      compositePhysResNum: number,
+      compositePhysResFullNum: number,
+      mountedPortId: number,
+      currentPortId: number,
+      poRequestItemId: number,
+      poReqItemCompIds: number[]
+    ) {
       CPR_RO_API.post(
         `/cpr-resource-order-po-req/${cprRoPoReqId}/work-order/${cprRoPoReqWoId}/item`,
         {
@@ -410,6 +410,77 @@ export const usePrepareStore = defineStore('prepareStore', {
           });
       });
     },
+    //TODO finish this function
+    editPosition(
+      cprRoPoReqId: number,
+      cprRoPoReqWoId: number,
+      cprRoPoReqWoItemId: number,
+      compositePhysResSpecId: number,
+      physicalContainerId: number,
+      transportCpeFuncSpecId: number,
+      wiringTypeId: number,
+      compositePhysResId: number,
+      compositePhysResNum: number,
+      compositePhysResFullNum: string,
+      externalProjectId: number,
+      externalCompositePhysResNum: number,
+      stateId: number,
+      mountedPortId: number
+    ) {
+      CPR_RO_API.patch(
+        `/cpr-resource-order-po-req/${cprRoPoReqId}/work-order/${cprRoPoReqWoId}/item/${cprRoPoReqWoItemId}`,
+        {
+          compositePhysResSpecId,
+          physicalContainerId,
+          transportCpeFuncSpecId,
+          wiringTypeId,
+          compositePhysResId,
+          compositePhysResNum,
+          compositePhysResFullNum,
+          externalProjectId,
+          externalCompositePhysResNum,
+          stateId,
+        }
+      ).then((creationResult) => {
+        this.resourceOrderItemId = creationResult.data.data.id;
+        MP_API.patch(`/mounted-port/${mountedPortId}`, {
+          usageStateId: 2,
+        }).then((mountResult) => {
+          // TODO: handle success/error
+          console.log(mountResult);
+          if (currentPortId) {
+            MP_API.patch(`/mounted-port/${currentPortId}`, {
+              usageStateId: 1,
+              cprResourceOrderItemId: -1,
+            }).then((mountResult) => {
+              // TODO: handle success/error
+              console.log(mountResult);
+            });
+          }
+        });
+
+        const patchPositionRequests = poReqItemCompIds.map((componentId) => {
+          POR_API.patch(
+            `/po-req-item/${poRequestItemId}/po-req-item-component/${componentId}`,
+            {
+              resourceOrderItemId: creationResult.data.data.id,
+            }
+          );
+        });
+
+        Promise.all(patchPositionRequests)
+          .then((responses) => {
+            // Process individual responses here
+            responses.forEach((response) => {
+              console.log('response.data', response.data);
+            });
+          })
+          .catch((error) => {
+            console.error('Error:', error);
+          });
+      });
+    },
+
     fetchMountedPorts(
       physicalContainerId: number,
       usageStateId: number,
