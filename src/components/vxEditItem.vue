@@ -24,7 +24,7 @@
               color="primary"
               size="sm"
               label="Редакт."
-              @click="editPosition(scope.row)"
+              @click="editPositionItem(scope.row)"
             />
 
             <q-btn color="red" size="sm" label="Отменить" />
@@ -175,7 +175,7 @@ export default {
     },
   },
   methods: {
-    editPosition(row) {
+    editPositionItem(row) {
       this.$emit('onEditItem', row);
     },
     geoPlaceName() {

@@ -229,6 +229,20 @@
       @on-prepare-component="onPrepareComponent"
     />
   </q-dialog>
+  <q-dialog v-model="openEditResourceForm">
+    <vx-edit-resource-form
+      :created-resources="prepareStore.createdResources"
+      :current-item="currentItem"
+      :existing-resources="prepareStore.existingResources"
+      :streets="prepareStore.streets"
+      :addresses="prepareStore.addresses"
+      @on-service-area-selected="onServiceAreaSelected"
+      @on-street-selected="onStreetSelected"
+      @on-address-selected="onAddressSelected"
+      @on-add-new-resource="onAddNewResource"
+      @on-edit-component="onEditComponent"
+    />
+  </q-dialog>
   <q-dialog v-model="openResultTable">
     <vx-result-table />
   </q-dialog>
@@ -254,6 +268,7 @@ import { useOrderStore } from 'src/stores/order';
 import { useRouter } from 'vue-router';
 import { Notify } from 'quasar';
 import vxResourceForm from '../components/vxResourceForm.vue';
+import vxEditResourceForm from '../components/vxEditResourceForm.vue';
 import vxResultTable from '../components/vxResultTable.vue';
 import vxInspectionDialog from '../components/vxInspectionDialog.vue';
 import vxEditItem from '../components/vxEditItem.vue';
@@ -270,6 +285,7 @@ export default {
       currentPortId: ref(null),
       treeFilter: ref(false),
       openResourceForm: ref(false),
+      openEditResourceForm: ref(false),
       openResultTable: ref(false),
       openInspectionDialog: ref(false),
       openEditItemDialog: ref(false),
@@ -324,6 +340,7 @@ export default {
   },
   components: {
     vxResourceForm,
+    vxEditResourceForm,
     vxResultTable,
     vxInspectionDialog,
     vxEditItem,
@@ -503,7 +520,7 @@ export default {
       this.currentPortId = null;
       this.currentItem.push(item);
       this.currentPortId = item[0].resource.port.id;
-      this.openResourceForm = true;
+      this.openEditResourceForm = true;
     },
     onOpenEditItemDialog(event) {
       event.stopPropagation();
@@ -611,6 +628,71 @@ export default {
         this.orderStore.selectedOrder;
 
       this.prepareStore.createPosition({
+        cprRoPoReqId: cprResourceOrderPoReqId,
+        cprRoPoReqWoId: id,
+        cprActionSpecId: 1,
+        compositePhysResSpecId: resource.spec.id,
+        physicalContainerId: resource.equipment.id,
+        geoPlaceId: geoPlace.id,
+        transportCpeFuncSpecId: -1,
+        wiringTypeId: resource.equipment.wiringTypeId,
+        compositePhysResId: -1,
+        compositePhysResNum: '7777777',
+        compositePhysResFullNum: '7777777',
+        mountedPortId: resource.port.id,
+        currentPortId: this.currentPortId,
+        poRequestItemId: positionIds[0], // TODO: need to work with multiple positions,
+        poReqItemCompIds: componentsIds,
+      });
+      this.currentPortId = null;
+      this.openResourceForm = false;
+    },
+    onEditComponent(resource, currentItem) {
+      let componentsIds = null;
+      let positionIds = null;
+      const tickedNodes = this.$refs.qtree.getTickedNodes();
+      //TODO добавить отмену галочек при открытии окна редактировании
+      if (tickedNodes.length > 0) {
+        componentsIds = tickedNodes.map((node) => node.id);
+        positionIds = tickedNodes.map((node) => node.poReqItemId);
+      } else if (currentItem.length > 0) {
+        componentsIds = currentItem[0].map((node) => node.id);
+        positionIds = currentItem[0].map((node) => node.poReqItemId);
+      }
+      this.tickedNodes = [];
+      this.prepareStore.dataTree.forEach((poType) => {
+        poType.children.forEach((address) => {
+          address.children.forEach((pos) => {
+            pos.children.forEach((comp) => {
+              if (componentsIds.includes(comp.id)) {
+                comp.state = 'Подготовлен';
+                comp.resource = resource;
+                setTimeout(() => {
+                  comp.resourceOrderItemId =
+                    this.prepareStore.resourceOrderItemId;
+                }, 500);
+                this.currentComponents.push(comp);
+              }
+            });
+          });
+        });
+      });
+
+      for (let i = 0; i < this.preparedComponentsNew.length; i++) {
+        if (
+          this.preparedComponentsNew[i][0].resource?.port.portNumber ==
+          this.currentComponents[0].resource.port.portNumber
+        ) {
+          this.preparedComponentsNew.splice(i, 1);
+        }
+      }
+      this.preparedComponentsNew.push(this.currentComponents);
+      this.currentComponents = [];
+
+      let { cprResourceOrderPoReqId, id, geoPlace } =
+        this.orderStore.selectedOrder;
+
+      this.prepareStore.editPosition({
         cprRoPoReqId: cprResourceOrderPoReqId,
         cprRoPoReqWoId: id,
         cprActionSpecId: 1,

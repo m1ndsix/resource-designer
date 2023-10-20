@@ -73,6 +73,9 @@ module.exports = configure(function (ctx) {
         LOC_API_URL: process.env.LOC_API_URL,
         POR_API_URL: process.env.POR_API_URL,
         TE_URL: process.env.TE_URL,
+        KEYCLOAK_URL: process.env.KEYCLOAK_URL,
+        KEYCLOAK_REALM: process.env.KEYCLOAK_REALM,
+        KEYCLOAK_CLIENT_ID: process.env.KEYCLOAK_CLIENT_ID,
       },
       // rawDefine: {}
       // ignorePublicFolder: true,

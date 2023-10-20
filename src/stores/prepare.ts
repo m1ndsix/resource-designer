@@ -341,23 +341,23 @@ export const usePrepareStore = defineStore('prepareStore', {
       Currently, using promiseAll for each selected component (in single position only). Probably,
       should pass a map with signature: {positionId: [componentIds...]}
     */
-    createPosition(
-      cprRoPoReqId: number,
-      cprRoPoReqWoId: number,
-      cprActionSpecId: number,
-      compositePhysResSpecId: number,
-      physicalContainerId: number,
-      geoPlaceId: number,
-      transportCpeFuncSpecId: number,
-      wiringTypeId: number,
-      compositePhysResId: number,
-      compositePhysResNum: number,
-      compositePhysResFullNum: number,
-      mountedPortId: number,
-      currentPortId: number,
-      poRequestItemId: number,
-      poReqItemCompIds: number[]
-    ) {
+    createPosition({
+      cprRoPoReqId,
+      cprRoPoReqWoId,
+      cprActionSpecId,
+      compositePhysResSpecId,
+      physicalContainerId,
+      geoPlaceId,
+      transportCpeFuncSpecId,
+      wiringTypeId,
+      compositePhysResId,
+      compositePhysResNum,
+      compositePhysResFullNum,
+      mountedPortId,
+      currentPortId,
+      poRequestItemId,
+      poReqItemCompIds,
+    }) {
       CPR_RO_API.post(
         `/cpr-resource-order-po-req/${cprRoPoReqId}/work-order/${cprRoPoReqWoId}/item`,
         {
