@@ -16,8 +16,8 @@
         narrow-indicator
       >
         <q-tab name="new" label="Создать Новый" />
-        <!-- <q-tab name="existing" label="Выбрать существующий" /> -->
-        <!-- <q-tab name="created" label="Созданные в проекте" /> -->
+        <q-tab name="existing" label="Выбрать существующий" />
+        <q-tab name="created" label="Созданные в проекте" />
       </q-tabs>
       <q-separator />
 
@@ -134,7 +134,7 @@
 
     <q-card-actions class="row" align="right">
       <q-btn
-        label="Подготовить"
+        label="Редактировать"
         type="submit"
         color="primary"
         :disable="
@@ -323,6 +323,7 @@ function onNewPortSelect(data) {
 }
 
 function onEditComponent() {
+  console.log('props.currentItem', props.currentItem);
   if (state.resourceTab === 'new') {
     const newRes = state.newResource.value;
     state.newResource.label = `${newRes.spec.nameRu} | ${newRes.equipment.physicalContainerNumber} | ${newRes.port.portNumber}`;

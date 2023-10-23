@@ -282,6 +282,7 @@ export default {
 
     return {
       currentItem: ref([]),
+      currentItemId: ref(null),
       currentPortId: ref(null),
       treeFilter: ref(false),
       openResourceForm: ref(false),
@@ -516,9 +517,13 @@ export default {
       this.router.push('/');
     },
     onEditItem(item) {
+      console.log('item', item);
+      console.log('resourceOrderItemId', item[0].resourceOrderItemId);
       this.currentItem = [];
+      this.currentItemId = null;
       this.currentPortId = null;
       this.currentItem.push(item);
+      this.currentItemId = item[0].resourceOrderItemId;
       this.currentPortId = item[0].resource.port.id;
       this.openEditResourceForm = true;
     },
@@ -689,28 +694,32 @@ export default {
       this.preparedComponentsNew.push(this.currentComponents);
       this.currentComponents = [];
 
-      let { cprResourceOrderPoReqId, id, geoPlace } =
-        this.orderStore.selectedOrder;
+      let { cprResourceOrderPoReqId, id } = this.orderStore.selectedOrder;
+
+      console.log(
+        'this.orderStore.selectedOrder',
+        this.orderStore.selectedOrder
+      );
 
       this.prepareStore.editPosition({
         cprRoPoReqId: cprResourceOrderPoReqId,
         cprRoPoReqWoId: id,
-        cprActionSpecId: 1,
+        cprRoPoReqWoItemId: this.currentItemId,
         compositePhysResSpecId: resource.spec.id,
         physicalContainerId: resource.equipment.id,
-        geoPlaceId: geoPlace.id,
         transportCpeFuncSpecId: -1,
         wiringTypeId: resource.equipment.wiringTypeId,
         compositePhysResId: -1,
         compositePhysResNum: '7777777',
-        compositePhysResFullNum: '7777777',
+        compositePhysResFullNum: '7777776',
         mountedPortId: resource.port.id,
         currentPortId: this.currentPortId,
+
         poRequestItemId: positionIds[0], // TODO: need to work with multiple positions,
         poReqItemCompIds: componentsIds,
       });
       this.currentPortId = null;
-      this.openResourceForm = false;
+      this.openEditResourceForm = false;
     },
     rejectProductOfferRequestItem(item) {
       this.prepareStore.patchPORequest(

@@ -373,6 +373,14 @@ export const usePrepareStore = defineStore('prepareStore', {
         }
       ).then((creationResult) => {
         this.resourceOrderItemId = creationResult.data.data.id;
+        console.log(
+          'cprRoPoReqId',
+          cprRoPoReqId,
+          'cprRoPoReqWoId',
+          cprRoPoReqWoId,
+          'cprRoPoReqWoItemId',
+          this.resourceOrderItemId
+        );
         MP_API.patch(`/mounted-port/${mountedPortId}`, {
           usageStateId: 2,
         }).then((mountResult) => {
@@ -410,23 +418,33 @@ export const usePrepareStore = defineStore('prepareStore', {
           });
       });
     },
-    //TODO finish this function
-    editPosition(
-      cprRoPoReqId: number,
-      cprRoPoReqWoId: number,
-      cprRoPoReqWoItemId: number,
-      compositePhysResSpecId: number,
-      physicalContainerId: number,
-      transportCpeFuncSpecId: number,
-      wiringTypeId: number,
-      compositePhysResId: number,
-      compositePhysResNum: number,
-      compositePhysResFullNum: string,
-      externalProjectId: number,
-      externalCompositePhysResNum: number,
-      stateId: number,
-      mountedPortId: number
-    ) {
+
+    editPosition({
+      cprRoPoReqId,
+      cprRoPoReqWoId,
+      cprRoPoReqWoItemId,
+      compositePhysResSpecId,
+      physicalContainerId,
+      transportCpeFuncSpecId,
+      wiringTypeId,
+      compositePhysResId,
+      compositePhysResNum,
+      compositePhysResFullNum,
+      mountedPortId,
+      currentPortId,
+    }) {
+      console.log(
+        'cprRoPoReqId',
+        cprRoPoReqId,
+        'cprRoPoReqWoId',
+        cprRoPoReqWoId,
+        'cprRoPoReqWoItemId',
+        cprRoPoReqWoItemId,
+        'mountedPortId',
+        mountedPortId,
+        'currentPortId',
+        currentPortId
+      );
       CPR_RO_API.patch(
         `/cpr-resource-order-po-req/${cprRoPoReqId}/work-order/${cprRoPoReqWoId}/item/${cprRoPoReqWoItemId}`,
         {
@@ -437,12 +455,8 @@ export const usePrepareStore = defineStore('prepareStore', {
           compositePhysResId,
           compositePhysResNum,
           compositePhysResFullNum,
-          externalProjectId,
-          externalCompositePhysResNum,
-          stateId,
         }
-      ).then((creationResult) => {
-        this.resourceOrderItemId = creationResult.data.data.id;
+      ).then(() => {
         MP_API.patch(`/mounted-port/${mountedPortId}`, {
           usageStateId: 2,
         }).then((mountResult) => {
@@ -458,26 +472,6 @@ export const usePrepareStore = defineStore('prepareStore', {
             });
           }
         });
-
-        const patchPositionRequests = poReqItemCompIds.map((componentId) => {
-          POR_API.patch(
-            `/po-req-item/${poRequestItemId}/po-req-item-component/${componentId}`,
-            {
-              resourceOrderItemId: creationResult.data.data.id,
-            }
-          );
-        });
-
-        Promise.all(patchPositionRequests)
-          .then((responses) => {
-            // Process individual responses here
-            responses.forEach((response) => {
-              console.log('response.data', response.data);
-            });
-          })
-          .catch((error) => {
-            console.error('Error:', error);
-          });
       });
     },
 
