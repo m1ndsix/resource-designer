@@ -25,7 +25,7 @@ const ME_URL =
   'http://10.8.27.97:6241/api/measurement-request-be/v1.0'; // URL сервиса measurement-request
 // Переменные среды
 const KEYCLOAK_URL = process.env.KEYCLOAK_URL || 'https://keycloak.telecom.kz';
-const KEYCLOAK_REALM = process.env.KEYCLOAK_REALM || 'Test';
+const KEYCLOAK_REALM = process.env.KEYCLOAK_REALM || 'KT';
 const KEYCLOAK_CLIENT_ID =
   process.env.KEYCLOAK_CLIENT_ID || 'cpr-resource-order-design-fe';
 

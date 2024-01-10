@@ -1,8 +1,8 @@
 {
-  "name": "design-manager",
+  "name": "resource-designer",
   "version": "0.0.1",
-  "description": "Design Manager",
-  "productName": "Design Manager",
+  "description": "Resource Designer",
+  "productName": "Resource Designer",
   "author": "Akhmad Dias",
   "private": true,
   "scripts": {
