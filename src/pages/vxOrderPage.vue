@@ -120,6 +120,9 @@
           />
         </q-td>
       </template>
+      <template v-slot:loading>
+        <q-inner-loading showing color="primary" />
+      </template>
     </q-table>
   </div>
 </template>

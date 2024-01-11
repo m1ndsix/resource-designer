@@ -375,6 +375,7 @@ export const usePrepareStore = defineStore('prepareStore', {
         this.resourceOrderItemId = creationResult.data.data.id;
         MP_API.patch(`/mounted-port/${mountedPortId}`, {
           usageStateId: 2,
+          cprResourceOrderItemId: this.resourceOrderItemId,
         }).then((mountResult) => {
           // TODO: handle success/error
           console.log(mountResult);
