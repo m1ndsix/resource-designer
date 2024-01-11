@@ -4,6 +4,16 @@
       <q-toolbar>
         <q-btn flat to="/" label="Resource Designer" />
         <q-separator dark vertical inset />
+        <q-space></q-space>
+        <div>{{ $keycloak.userName }}</div>
+        <q-btn
+          color="white"
+          flat
+          size="md"
+          @click="$keycloak.logoutFn()"
+          icon="logout"
+          >Выход</q-btn
+        >
       </q-toolbar>
     </q-header>
 
@@ -13,4 +23,4 @@
   </q-layout>
 </template>
 
-<script setup lang="ts"></script>
+<script setup></script>
