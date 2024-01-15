@@ -104,30 +104,22 @@
                     size="sm"
                     color="dark"
                     label="Отказать"
-                    @click="rejectProductOfferRequestItem(prop.node)"
+                    @click="rejectProductOfferRequestItem(prop.node, $event)"
                   />
                   <q-btn
                     dense
                     size="sm"
                     color="negative"
                     label="Отменить"
-                    @click="cancelRoPoReqWoItem()"
+                    @click="cancelRoPoReqWoItem"
                   />
-                  <q-btn
-                    dense
-                    size="sm"
-                    @click="() => (openInspectionDialog = true)"
-                  >
+
+                  <q-btn dense size="sm" @click="onInspect">
                     <div class="row items-center no-wrap text-teal">
                       <div>Обследовать</div>
                     </div>
                   </q-btn>
-                  <q-btn
-                    dense
-                    no-caps
-                    size="sm"
-                    @click="() => (openResultTable = true)"
-                  >
+                  <q-btn dense no-caps size="sm" @click="lastInspect">
                     <div class="row items-center">
                       <div class="text-center text-teal">
                         {{ lastTechInspectionResultType }}
@@ -601,6 +593,14 @@ export default {
       event.stopPropagation();
       this.openResourceForm = true;
     },
+    onInspect(event) {
+      event.stopPropagation();
+      this.openInspectionDialog = true;
+    },
+    lastInspect(event) {
+      event.stopPropagation();
+      this.openResultTable = true;
+    },
     onStreetSelected(id) {
       this.prepareStore.fetchAddresses(id);
     },
@@ -784,13 +784,16 @@ export default {
       this.currentPortId = null;
       this.openEditResourceForm = false;
     },
-    rejectProductOfferRequestItem(item) {
+    rejectProductOfferRequestItem(item, event) {
+      event.stopPropagation();
       this.prepareStore.patchPORequest(
         item.children[0].productOfferReqId,
         item.children[0].id
       );
     },
-    cancelRoPoReqWoItem() {
+    cancelRoPoReqWoItem(event) {
+      event.stopPropagation();
+      //TODO: указать правильный айди айтема, так же показывать уведомления при успешной и неуспешной отмене
       this.orderStore.patchWorkOrderItem(
         this.orderStore.selectedOrder.cprResourceOrderPoReqId,
         this.orderStore.selectedOrder.id,
