@@ -277,6 +277,7 @@ export const usePrepareStore = defineStore('prepareStore', {
       POR_API.get(
         `/product-offer-request/${poRequestId}/geo-place/${geoPlaceId}`
       ).then(({ data }) => {
+        console.log('fetchProductInfo', data);
         if (data.productOfferWithGeneralGeoPlace.id) {
           this.dataTree[0].children.push(
             makeTree(data.productOfferWithGeneralGeoPlace)

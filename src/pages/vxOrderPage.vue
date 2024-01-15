@@ -278,6 +278,7 @@ function onTableRequest(request) {
 }
 
 function prepareOrder(order) {
+  console.log('order', order);
   orderStore.selectedOrder = { ...order };
   orderStore.patchWorkOrder(order.cprResourceOrderPoReqId, order.id, 2);
   router.push('/prepare');

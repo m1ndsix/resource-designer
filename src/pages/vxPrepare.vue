@@ -35,23 +35,23 @@
           <div class="col">{{ prepareStore.poRequest.contactName }}</div>
         </div>
       </div>
-      <div class="col info-section row flex-center">
-        <div class="q-gutter-sm">
-          <q-btn
-            dense
-            label="Завершить Поручение"
-            size="sm"
-            color="secondary"
-            @click="onCompleteWorkOrder"
-          />
-          <q-btn
-            dense
-            label="Вернуться к Списку"
-            size="sm"
-            color="primary"
-            @click="onRouteToOrderPage"
-          />
-        </div>
+    </div>
+    <div class="col info-section row flex-center">
+      <div class="q-gutter-sm">
+        <q-btn
+          dense
+          label="Завершить Поручение"
+          size="sm"
+          color="secondary"
+          @click="onCompleteWorkOrder"
+        />
+        <q-btn
+          dense
+          label="Вернуться к Списку"
+          size="sm"
+          color="primary"
+          @click="onRouteToOrderPage"
+        />
       </div>
     </div>
 
@@ -273,6 +273,7 @@ import vxResultTable from '../components/vxResultTable.vue';
 import vxInspectionDialog from '../components/vxInspectionDialog.vue';
 import vxEditItem from '../components/vxEditItem.vue';
 import vxResourceInfo from 'src/components/vxResourceInfo.vue';
+import { CPR_RO_API } from 'boot/api';
 
 export default {
   setup() {
@@ -413,7 +414,65 @@ export default {
         const hasAppointed = tickedNodes.some(
           (node) => node.state === 'Подготовлен'
         );
-        return !tickedNodes.length || hasAppointed;
+        console.log('hasAppointed', hasAppointed);
+        console.log(
+          "tickedNodes.some((node) => node.state === 'Подготовлен')",
+          tickedNodes.some((node) => node.state === 'Подготовлен')
+        );
+        console.log('tickedNodes', tickedNodes);
+        if (tickedNodes.length > 0) {
+          console.log(
+            'tickedNodes[0].resourceOrderItemId',
+            tickedNodes[0].resourceOrderItemId
+          );
+          console.log(
+            'this.orderStore.selectedOrder',
+            this.orderStore.selectedOrder
+          );
+          if (
+            this.orderStore.selectedOrder.cprResourceOrderPoReqItems.length > 0
+          ) {
+            console.log(
+              'this.orderStore.selectedOrder.cprResourceOrderPoReqItems[0].id',
+              this.orderStore.selectedOrder.cprResourceOrderPoReqItems[0].id
+            );
+            const leng =
+              this.orderStore.selectedOrder.cprResourceOrderPoReqItems.length;
+            console.log(
+              '2 some - tickedNodes.some((node) => node.resourceOrderItemId === this.orderStore.selectedOrder.cprResourceOrderPoReqItems[0].id)',
+              tickedNodes.some(
+                (node) =>
+                  node.resourceOrderItemId ===
+                  this.orderStore.selectedOrder.cprResourceOrderPoReqItems.some(
+                    (node) => node.id
+                  )
+              )
+            );
+
+            for (let i = 0; i < leng; i++) {
+              const hasAppointed2 = tickedNodes.some(
+                (node) =>
+                  node.resourceOrderItemId ===
+                  this.orderStore.selectedOrder.cprResourceOrderPoReqItems[i].id
+              );
+              console.log(
+                'tickedNodes.some((node) => node.resourceOrderItemId === this.orderStore.selectedOrder.cprResourceOrderPoReqItems[i].id)',
+                tickedNodes.some(
+                  (node) =>
+                    node.resourceOrderItemId ===
+                    this.orderStore.selectedOrder.cprResourceOrderPoReqItems[i]
+                      .id
+                )
+              );
+              if (hasAppointed2) {
+                console.log('hasAppointed2', hasAppointed2);
+                return hasAppointed2;
+              }
+            }
+          }
+        }
+        // return !tickedNodes.length || hasAppointed;
+        return !tickedNodes.length;
       }
       return true;
     },
@@ -587,7 +646,7 @@ export default {
     onAddNewResource(resource) {
       this.prepareStore.createdResources.push(resource);
     },
-    onPrepareComponent(resource, currentItem) {
+    async onPrepareComponent(resource, currentItem) {
       let componentsIds = null;
       let positionIds = null;
       const tickedNodes = this.$refs.qtree.getTickedNodes();
@@ -610,7 +669,7 @@ export default {
                 setTimeout(() => {
                   comp.resourceOrderItemId =
                     this.prepareStore.resourceOrderItemId;
-                }, 500);
+                }, 1000);
                 this.currentComponents.push(comp);
               }
             });
@@ -651,6 +710,31 @@ export default {
       });
       this.currentPortId = null;
       this.openResourceForm = false;
+      console.log(
+        'BEFORE this.orderStore.selectedOrder',
+        this.orderStore.selectedOrder
+      );
+      try {
+        await CPR_RO_API.get(
+          `/cpr-resource-order-po-req/${this.orderStore.selectedOrder.cprResourceOrderPoReqId}/work-order/${this.orderStore.selectedOrder.id}`,
+          {}
+        ).then(({ data }) => {
+          if (data) {
+            // this.orders = data;
+            this.orderStore.selectedOrder = data;
+            console.log('single order', data);
+            console.log(
+              'AFTER this.orderStore.selectedOrder',
+              this.orderStore.selectedOrder
+            );
+          } else {
+            console.log('ERRORRsingle order ');
+            // this.orders = [];
+          }
+        });
+      } catch (error) {
+        console.log(error);
+      }
     },
     onEditComponent(resource, currentItem) {
       let componentsIds = null;
@@ -732,7 +816,7 @@ export default {
         this.orderStore.selectedOrder.cprResourceOrderPoReqId,
         this.orderStore.selectedOrder.id,
         this.orderStore.selectedOrder.cprResourceOrderPoReqItems[0].id,
-        2
+        1
       );
     },
   },

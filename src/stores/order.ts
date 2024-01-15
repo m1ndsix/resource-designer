@@ -219,7 +219,7 @@ export const useOrderStore = defineStore('orderStore', {
     ) {
       CPR_RO_API.patch(
         `/cpr-resource-order-po-req/${cprRoPoReqId}/work-order/${cprRoPoReqWoId}`,
-        { stateId }
+        { stateId: stateId }
       ).then((response) => {
         // TODO: meaningful handler
         console.log(response);
