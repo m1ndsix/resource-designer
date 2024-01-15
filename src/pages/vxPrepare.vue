@@ -710,31 +710,10 @@ export default {
       });
       this.currentPortId = null;
       this.openResourceForm = false;
-      console.log(
-        'BEFORE this.orderStore.selectedOrder',
-        this.orderStore.selectedOrder
+      this.orderStore.getOrder(
+        this.orderStore.selectedOrder.cprResourceOrderPoReqId,
+        this.orderStore.selectedOrder.id
       );
-      try {
-        await CPR_RO_API.get(
-          `/cpr-resource-order-po-req/${this.orderStore.selectedOrder.cprResourceOrderPoReqId}/work-order/${this.orderStore.selectedOrder.id}`,
-          {}
-        ).then(({ data }) => {
-          if (data) {
-            // this.orders = data;
-            this.orderStore.selectedOrder = data;
-            console.log('single order', data);
-            console.log(
-              'AFTER this.orderStore.selectedOrder',
-              this.orderStore.selectedOrder
-            );
-          } else {
-            console.log('ERRORRsingle order ');
-            // this.orders = [];
-          }
-        });
-      } catch (error) {
-        console.log(error);
-      }
     },
     onEditComponent(resource, currentItem) {
       let componentsIds = null;

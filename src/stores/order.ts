@@ -158,6 +158,22 @@ export const useOrderStore = defineStore('orderStore', {
         console.log(error);
       }
     },
+    async getOrder(cprRoPoReqId: number, cprRoPoReqWoId: number) {
+      try {
+        await CPR_RO_API.get(
+          `/cpr-resource-order-po-req/${cprRoPoReqId}/work-order/${cprRoPoReqWoId}`,
+          {}
+        ).then(({ data }) => {
+          if (data) {
+            this.selectedOrder = data;
+          } else {
+            console.log('ERROR ');
+          }
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    },
     async getBaseCfsSpecs() {
       try {
         await CPR_RO_API.get('/get-base-cfs-specs').then(({ data }) => {
