@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
-import { CPR_RO_API, PC_API, TE_API } from 'boot/api';
+import { CPR_RO_API, PC_API, TE_API, POR_API } from 'boot/api';
+import { Notify } from 'quasar';
 
 interface State {
   orders: WorkOrder[];
@@ -250,9 +251,40 @@ export const useOrderStore = defineStore('orderStore', {
       CPR_RO_API.patch(
         `/cpr-resource-order-po-req/${cprRoPoReqId}/work-order/${cprRoPoReqWoId}/item/${cprRoPoReqWoItemId}`,
         { stateId }
-      ).then((response) => {
-        console.log(response);
-      });
+      )
+        .then((response) => {
+          Notify.create({
+            message: 'Успешная отмена',
+            type: 'positive',
+            position: 'top',
+          });
+          console.log(response);
+          console.log('cprRoPoReqId', cprRoPoReqId);
+          console.log('cprRoPoReqWoId', cprRoPoReqWoId);
+          console.log('cprRoPoReqWoItemId', cprRoPoReqWoItemId);
+        })
+        .catch((error) => {
+          console.log(error);
+          Notify.create({
+            message: 'Ошибка отмены',
+            type: 'negative',
+            position: 'top',
+          });
+        });
+    },
+    patchPoReqItemComp(poRequestItemId: number, poReqItemCompId: string) {
+      POR_API.patch(
+        `/po-req-item/${poRequestItemId}/po-req-item-component/${poReqItemCompId}`,
+        {
+          resourceOrderItemId: -1,
+        }
+      )
+        .then(({ data }) => {
+          console.log(data);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
     },
     async validateWorkOrder(cprRoPoReqWoId: number, cprRoPoReqId: number) {
       try {

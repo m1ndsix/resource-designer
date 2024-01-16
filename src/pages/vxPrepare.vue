@@ -387,7 +387,7 @@ export default {
   methods: {
     treeFilterMethod(node, onlyAppointed) {
       if (onlyAppointed) {
-        return node.nodeType === 'position' || node.state === 'Новый';
+        return node.nodeType === 'address' || node.resourceOrderItemId === -1;
       } else {
         return true;
       }
@@ -793,12 +793,17 @@ export default {
     },
     cancelRoPoReqWoItem(event) {
       event.stopPropagation();
-      //TODO: указать правильный айди айтема, так же показывать уведомления при успешной и неуспешной отмене
+      //TODO: указать правильный айди айтема или несколько айтемов, так же показывать уведомления при успешной и неуспешной отмене
+
       this.orderStore.patchWorkOrderItem(
         this.orderStore.selectedOrder.cprResourceOrderPoReqId,
         this.orderStore.selectedOrder.id,
         this.orderStore.selectedOrder.cprResourceOrderPoReqItems[0].id,
-        1
+        2
+      );
+      this.orderStore.getOrder(
+        this.orderStore.selectedOrder.cprResourceOrderPoReqId,
+        this.orderStore.selectedOrder.id
       );
     },
   },
