@@ -794,17 +794,46 @@ export default {
     cancelRoPoReqWoItem(event) {
       event.stopPropagation();
       //TODO: указать правильный айди айтема или несколько айтемов, так же показывать уведомления при успешной и неуспешной отмене
+      //TODO: после отмены по новой вызывать fetchproductinfo, так же разбронировать порты
+      const tickedNodes = this.$refs.qtree.getTickedNodes();
+      tickedNodes.forEach((element) => {
+        console.log(element);
+        console.log(element.id);
+        console.log(element.poReqItemId);
+        console.log(element.resourceOrderItemId);
 
-      this.orderStore.patchWorkOrderItem(
-        this.orderStore.selectedOrder.cprResourceOrderPoReqId,
-        this.orderStore.selectedOrder.id,
-        this.orderStore.selectedOrder.cprResourceOrderPoReqItems[0].id,
-        2
-      );
+        this.orderStore.patchWorkOrderItem(
+          this.orderStore.selectedOrder.cprResourceOrderPoReqId,
+          this.orderStore.selectedOrder.id,
+          element.resourceOrderItemId,
+          2,
+          element.poReqItemId,
+          element.id
+        );
+      });
       this.orderStore.getOrder(
         this.orderStore.selectedOrder.cprResourceOrderPoReqId,
         this.orderStore.selectedOrder.id
       );
+      console.log(
+        'this.orderStore.selectedOrder.cprResourceOrderPoReqId',
+        this.orderStore.selectedOrder.cprResourceOrderPoReqId
+      );
+      console.log(
+        'this.orderStore.selectedOrder.id',
+        this.orderStore.selectedOrder.id
+      );
+
+      // this.orderStore.patchWorkOrderItem(
+      //   this.orderStore.selectedOrder.cprResourceOrderPoReqId,
+      //   this.orderStore.selectedOrder.id,
+      //   this.orderStore.selectedOrder.cprResourceOrderPoReqItems[0].id,
+      //   2
+      // );
+      // this.orderStore.getOrder(
+      //   this.orderStore.selectedOrder.cprResourceOrderPoReqId,
+      //   this.orderStore.selectedOrder.id
+      // );
     },
   },
 };
