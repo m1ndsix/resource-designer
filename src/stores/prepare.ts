@@ -280,6 +280,8 @@ export const usePrepareStore = defineStore('prepareStore', {
         console.log('poRequestId', poRequestId);
         console.log('geoPlaceId', geoPlaceId);
         console.log('fetchProductInfo', data);
+        this.dataTree[0].children = [];
+        this.dataTree[1].children = [];
 
         if (data.productOfferWithGeneralGeoPlace.id) {
           this.dataTree[0].children.push(

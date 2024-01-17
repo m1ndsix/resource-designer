@@ -111,6 +111,7 @@
                     size="sm"
                     color="negative"
                     label="Отменить"
+                    :disable="disableCancelBtn()"
                     @click="cancelRoPoReqWoItem"
                   />
 
@@ -403,67 +404,41 @@ export default {
     disableAppointBtn() {
       if (this.$refs.qtree) {
         const tickedNodes = this.$refs.qtree.getTickedNodes();
-        const hasAppointed = tickedNodes.some(
-          (node) => node.state === 'Подготовлен'
-        );
-        console.log('hasAppointed', hasAppointed);
-        console.log(
-          "tickedNodes.some((node) => node.state === 'Подготовлен')",
-          tickedNodes.some((node) => node.state === 'Подготовлен')
-        );
         console.log('tickedNodes', tickedNodes);
         if (tickedNodes.length > 0) {
-          console.log(
-            'tickedNodes[0].resourceOrderItemId',
-            tickedNodes[0].resourceOrderItemId
-          );
-          console.log(
-            'this.orderStore.selectedOrder',
-            this.orderStore.selectedOrder
-          );
           if (
             this.orderStore.selectedOrder.cprResourceOrderPoReqItems.length > 0
           ) {
-            console.log(
-              'this.orderStore.selectedOrder.cprResourceOrderPoReqItems[0].id',
-              this.orderStore.selectedOrder.cprResourceOrderPoReqItems[0].id
-            );
             const leng =
               this.orderStore.selectedOrder.cprResourceOrderPoReqItems.length;
-            console.log(
-              '2 some - tickedNodes.some((node) => node.resourceOrderItemId === this.orderStore.selectedOrder.cprResourceOrderPoReqItems[0].id)',
-              tickedNodes.some(
-                (node) =>
-                  node.resourceOrderItemId ===
-                  this.orderStore.selectedOrder.cprResourceOrderPoReqItems.some(
-                    (node) => node.id
-                  )
-              )
-            );
-
             for (let i = 0; i < leng; i++) {
               const hasAppointed2 = tickedNodes.some(
                 (node) =>
                   node.resourceOrderItemId ===
                   this.orderStore.selectedOrder.cprResourceOrderPoReqItems[i].id
               );
-              console.log(
-                'tickedNodes.some((node) => node.resourceOrderItemId === this.orderStore.selectedOrder.cprResourceOrderPoReqItems[i].id)',
-                tickedNodes.some(
-                  (node) =>
-                    node.resourceOrderItemId ===
-                    this.orderStore.selectedOrder.cprResourceOrderPoReqItems[i]
-                      .id
-                )
-              );
               if (hasAppointed2) {
-                console.log('hasAppointed2', hasAppointed2);
                 return hasAppointed2;
               }
             }
           }
         }
-        // return !tickedNodes.length || hasAppointed;
+        return !tickedNodes.length;
+      }
+      return true;
+    },
+    disableCancelBtn() {
+      if (this.$refs.qtree) {
+        const tickedNodes = this.$refs.qtree.getTickedNodes();
+        console.log('tickedNodes', tickedNodes);
+        if (tickedNodes.length >= 0) {
+          const hasAppointed2 = tickedNodes.some(
+            (node) => node.resourceOrderItemId === -1
+          );
+          if (hasAppointed2) {
+            return hasAppointed2;
+          }
+        }
         return !tickedNodes.length;
       }
       return true;
@@ -815,6 +790,12 @@ export default {
         this.orderStore.selectedOrder.cprResourceOrderPoReqId,
         this.orderStore.selectedOrder.id
       );
+      setTimeout(() => {
+        this.prepareStore.fetchProductInfo(
+          this.orderStore.selectedOrder.productOfferRequestId,
+          this.orderStore.selectedOrder.geoPlace.id
+        );
+      }, 1000);
       console.log(
         'this.orderStore.selectedOrder.cprResourceOrderPoReqId',
         this.orderStore.selectedOrder.cprResourceOrderPoReqId
