@@ -248,73 +248,61 @@ export const useOrderStore = defineStore('orderStore', {
       cprRoPoReqWoItemId: number,
       stateId: number,
       poRequestItemId: number,
-      poReqItemCompId: string
+      poReqItemCompId: string,
+      unBookPort: boolean
     ) {
-      console.log('cprRoPoReqId', cprRoPoReqId);
-      console.log('cprRoPoReqWoId', cprRoPoReqWoId);
-      console.log('cprRoPoReqWoItemId', cprRoPoReqWoItemId);
-      console.log('stateId', stateId);
-      console.log('poRequestItemId', poRequestItemId);
-      console.log('poReqItemCompId', poReqItemCompId);
-      CPR_RO_API.patch(
-        `/cpr-resource-order-po-req/${cprRoPoReqId}/work-order/${cprRoPoReqWoId}/item/${cprRoPoReqWoItemId}`,
-        { stateId }
+      POR_API.patch(
+        `/po-req-item/${poRequestItemId}/po-req-item-component/${poReqItemCompId}`,
+        {
+          resourceOrderItemId: -1,
+        }
       )
         .then((response) => {
-          POR_API.patch(
-            `/po-req-item/${poRequestItemId}/po-req-item-component/${poReqItemCompId}`,
-            {
-              resourceOrderItemId: -1,
-            }
-          )
-            // TODO: Нужно добавить проверку в случае если на одном порту несколько компонентов, и не разбронировать его в случае если один из компонетов не отменен.
-            .then(({ data }) => {
-              if (cprRoPoReqWoItemId != -1) {
-                console.log('cprRoPoReqWoItemId', cprRoPoReqWoItemId);
-                MP_API.get('/mounted-port', {
-                  params: {
-                    cprResourceOrderItemId: cprRoPoReqWoItemId,
-                    limit: 1,
-                    offset: 0,
-                  },
-                }).then((mPortResult) => {
-                  console.log('port result', mPortResult);
-                  console.log('mPortResult.data[0].id', mPortResult.data[0].id);
-                  MP_API.patch(`/mounted-port/${mPortResult.data[0].id}`, {
-                    usageStateId: 1,
-                    cprResourceOrderItemId: -1,
-                  }).then((unMountPortResult) => {
-                    // TODO: handle success/error
-                    console.log('unMountPortResult', unMountPortResult);
+          if (unBookPort) {
+            CPR_RO_API.patch(
+              `/cpr-resource-order-po-req/${cprRoPoReqId}/work-order/${cprRoPoReqWoId}/item/${cprRoPoReqWoItemId}`,
+              { stateId }
+            )
+              // TODO: Нужно добавить проверку в случае если на одном порту несколько компонентов, и не разбронировать его в случае если один из компонетов не отменен.
+              .then(({ data }) => {
+                if (cprRoPoReqWoItemId != -1) {
+                  MP_API.get('/mounted-port', {
+                    params: {
+                      cprResourceOrderItemId: cprRoPoReqWoItemId,
+                      limit: 1,
+                      offset: 0,
+                    },
+                  }).then((mPortResult) => {
+                    MP_API.patch(`/mounted-port/${mPortResult.data[0].id}`, {
+                      usageStateId: 1,
+                      cprResourceOrderItemId: -1,
+                    }).then((unMountPortResult) => {
+                      // TODO: handle success/error
+                    });
                   });
+                }
+                Notify.create({
+                  message: 'Успешная отмена',
+                  type: 'positive',
+                  position: 'top',
                 });
-              }
-              // MP_API.patch(`/mounted-port/${currentPortId}`, {
-              //   usageStateId: 1,
-              //   cprResourceOrderItemId: -1,
-              // }).then((mountResult) => {
-              //   // TODO: handle success/error
-              //   console.log(mountResult);
-              // });
-              Notify.create({
-                message: 'Успешная отмена',
-                type: 'positive',
-                position: 'top',
+                console.log(data);
+              })
+              .catch((error) => {
+                Notify.create({
+                  message: 'Ошибка отмены',
+                  type: 'negative',
+                  position: 'top',
+                });
+                console.log(error);
               });
-              console.log(data);
-            })
-            .catch((error) => {
-              Notify.create({
-                message: 'Ошибка отмены',
-                type: 'negative',
-                position: 'top',
-              });
-              console.log(error);
+          } else {
+            Notify.create({
+              message: 'Успешная отмена',
+              type: 'positive',
+              position: 'top',
             });
-          console.log(response);
-          console.log('cprRoPoReqId', cprRoPoReqId);
-          console.log('cprRoPoReqWoId', cprRoPoReqWoId);
-          console.log('cprRoPoReqWoItemId', cprRoPoReqWoItemId);
+          }
         })
         .catch((error) => {
           console.log(error);

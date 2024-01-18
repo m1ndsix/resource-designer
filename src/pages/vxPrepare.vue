@@ -768,53 +768,51 @@ export default {
     },
     cancelRoPoReqWoItem(event) {
       event.stopPropagation();
-      //TODO: указать правильный айди айтема или несколько айтемов, так же показывать уведомления при успешной и неуспешной отмене
-      //TODO: после отмены по новой вызывать fetchproductinfo, так же разбронировать порты
+
       const tickedNodes = this.$refs.qtree.getTickedNodes();
-      tickedNodes.forEach((element) => {
-        console.log(element);
-        console.log(element.id);
-        console.log(element.poReqItemId);
-        console.log(element.resourceOrderItemId);
+      const allNodes =
+        this.$refs.qtree.nodes[0].children[0].children[0].children;
+      let unBookPort = true;
+      const unTickedNodes = [];
+
+      allNodes.forEach((nodeElement) => {
+        if (!tickedNodes.some((x) => x.id === nodeElement.id)) {
+          unTickedNodes.push(nodeElement);
+        }
+      });
+
+      tickedNodes.forEach((tickedElement) => {
+        unTickedNodes.forEach((untickedElement) => {
+          if (
+            tickedElement.resourceOrderItemId ===
+            untickedElement.resourceOrderItemId
+          ) {
+            unBookPort = false;
+          }
+        });
 
         this.orderStore.patchWorkOrderItem(
           this.orderStore.selectedOrder.cprResourceOrderPoReqId,
           this.orderStore.selectedOrder.id,
-          element.resourceOrderItemId,
+          tickedElement.resourceOrderItemId,
           2,
-          element.poReqItemId,
-          element.id
+          tickedElement.poReqItemId,
+          tickedElement.id,
+          unBookPort
         );
       });
+
       this.orderStore.getOrder(
         this.orderStore.selectedOrder.cprResourceOrderPoReqId,
         this.orderStore.selectedOrder.id
       );
+
       setTimeout(() => {
         this.prepareStore.fetchProductInfo(
           this.orderStore.selectedOrder.productOfferRequestId,
           this.orderStore.selectedOrder.geoPlace.id
         );
       }, 1000);
-      console.log(
-        'this.orderStore.selectedOrder.cprResourceOrderPoReqId',
-        this.orderStore.selectedOrder.cprResourceOrderPoReqId
-      );
-      console.log(
-        'this.orderStore.selectedOrder.id',
-        this.orderStore.selectedOrder.id
-      );
-
-      // this.orderStore.patchWorkOrderItem(
-      //   this.orderStore.selectedOrder.cprResourceOrderPoReqId,
-      //   this.orderStore.selectedOrder.id,
-      //   this.orderStore.selectedOrder.cprResourceOrderPoReqItems[0].id,
-      //   2
-      // );
-      // this.orderStore.getOrder(
-      //   this.orderStore.selectedOrder.cprResourceOrderPoReqId,
-      //   this.orderStore.selectedOrder.id
-      // );
     },
   },
 };
