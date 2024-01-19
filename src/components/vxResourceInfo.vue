@@ -10,26 +10,32 @@
       :rows="this.choosenComponent"
       :columns="columns"
       row-key="id"
+      :loading="this.prepareStore.infoTableLoading"
       :hide-pagination="true"
       style="margin: 10px"
     >
+      <template v-slot:loading>
+        <q-inner-loading showing color="primary" />
+      </template>
     </q-table>
   </q-card>
 </template>
 
 <script>
+import { usePrepareStore } from 'stores/prepare';
+
 const columns = [
   {
     name: 'actions',
     label: 'Действие над ресурсом',
-    field: 'action',
+    field: (row) => row.baseCfsActionSpecData.nameRu,
     align: 'center',
   },
   {
     name: 'spec',
     align: 'center',
     label: 'Спецификация',
-    field: (row) => row.resource?.spec.nameRu,
+    field: (row) => row.poComponentData.nameRu,
     sortable: true,
   },
   {
@@ -50,14 +56,14 @@ const columns = [
     name: 'pc',
     align: 'center',
     label: 'Физ. контейнер',
-    field: (row) => row.resource?.equipment.physicalContainerNumber,
+    field: 'physicalContainerNumber',
     sortable: true,
   },
   {
     name: 'port',
     align: 'center',
     label: 'Порт',
-    field: (row) => row.resource?.port.portNumber,
+    field: 'portNumber',
     sortable: true,
   },
   {
@@ -78,8 +84,10 @@ const columns = [
 
 export default {
   setup() {
+    const prepareStore = usePrepareStore();
     return {
       columns,
+      prepareStore,
     };
   },
   props: {

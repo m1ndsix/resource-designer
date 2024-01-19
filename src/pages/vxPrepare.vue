@@ -184,11 +184,11 @@
                       option-label="nameRu"
                     />
                     <span v-else>{{ productName(prop.node) }}</span>
-                    <pre v-if="prop.node.state === 'Подготовлен'">
- <b>Ресурс:</b> {{ resourceName(prop.node) }} </pre
+                    <pre v-if="prop.node.resourceOrderItemId != -1">
+ <b>Ресурс:</b> {{ resourceNumber(prop.node) }} </pre
                     >
                     <q-btn
-                      v-if="prop.node.state === 'Подготовлен'"
+                      v-if="prop.node.resourceOrderItemId != -1"
                       style="margin-left: 5px"
                       size="sm"
                       round
@@ -266,7 +266,7 @@ import vxResultTable from '../components/vxResultTable.vue';
 import vxInspectionDialog from '../components/vxInspectionDialog.vue';
 import vxEditItem from '../components/vxEditItem.vue';
 import vxResourceInfo from 'src/components/vxResourceInfo.vue';
-import { CPR_RO_API } from 'boot/api';
+import { CPR_RO_API, MP_API, PC_API } from 'boot/api';
 
 export default {
   setup() {
@@ -502,6 +502,9 @@ export default {
     resourceName(node) {
       return node.state === 'Подготовлен' ? '77777777' : null;
     },
+    resourceNumber(node) {
+      return node.resourceOrderItemId != -1 ? node.newNumber : null;
+    },
     isProductSpecsMultiple(node) {
       const productSpecs = node.productSpecificationData;
       return Array.isArray(productSpecs) && !!productSpecs.length;
@@ -561,6 +564,25 @@ export default {
     onOpenResourceInfoDialog(event, node) {
       this.choosenComponent = [];
       this.choosenComponent.push(node);
+      this.prepareStore.infoTableLoading = true;
+      MP_API.get('/mounted-port', {
+        params: {
+          cprResourceOrderItemId: this.choosenComponent[0].resourceOrderItemId,
+          limit: 1,
+          offset: 0,
+        },
+      }).then((mPortResult) => {
+        this.choosenComponent[0].portNumber = mPortResult.data[0].portNumber;
+        PC_API.get(
+          `/physical-container/${mPortResult.data[0].physicalContainerId}`
+        ).then(({ data }) => {
+          this.choosenComponent[0].physicalContainerNumber =
+            data.physicalContainerNumber;
+          this.prepareStore.infoTableLoading = false;
+        });
+      });
+      this.choosenComponent[0].state = 'Подготовлен';
+
       event.stopPropagation();
       this.openResourceInfoDialog = true;
     },
@@ -625,7 +647,7 @@ export default {
       let componentsIds = null;
       let positionIds = null;
       const tickedNodes = this.$refs.qtree.getTickedNodes();
-      //TODO добавить отмену галочек при открытии окна редактировании
+
       if (tickedNodes.length > 0) {
         componentsIds = tickedNodes.map((node) => node.id);
         positionIds = tickedNodes.map((node) => node.poReqItemId);

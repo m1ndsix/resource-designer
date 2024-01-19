@@ -199,6 +199,8 @@ function makeTree(data) {
               nodeKey: `${pos.id}-${comp.id}`,
               nodeType: 'component',
               state: 'Новый',
+              portNumber: '',
+              physicalContainerNumber: '',
             };
           })
           .value();
@@ -248,6 +250,7 @@ export const usePrepareStore = defineStore('prepareStore', {
       addresses: [],
       resourceOrderItemId: null,
       measurementResponse: null,
+      infoTableLoading: false,
     };
   },
   actions: {
@@ -336,6 +339,7 @@ export const usePrepareStore = defineStore('prepareStore', {
       })
         .then(({ data }) => {
           this.physicalContainers = data;
+          console.log('this.physicalContainers', this.physicalContainers);
         })
         .catch((error) => {
           console.log(error);
