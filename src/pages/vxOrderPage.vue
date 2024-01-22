@@ -250,6 +250,7 @@ function onTableRequest(request) {
   const newPagination = request.pagination;
   const offset = (newPagination.page - 1) * newPagination.rowsPerPage;
   const limit = newPagination.rowsPerPage;
+
   orderStore
     .getOrders(
       offset,
@@ -278,7 +279,6 @@ function onTableRequest(request) {
 }
 
 function prepareOrder(order) {
-  console.log('order', order);
   orderStore.selectedOrder = { ...order };
   orderStore.patchWorkOrder(order.cprResourceOrderPoReqId, order.id, 2);
   router.push('/prepare');

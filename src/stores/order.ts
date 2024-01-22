@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { CPR_RO_API, PC_API, TE_API, POR_API, MP_API } from 'boot/api';
+import { CPR_RO_API, TE_API, POR_API, MP_API } from 'boot/api';
 import { Notify } from 'quasar';
 
 interface State {
@@ -257,7 +257,7 @@ export const useOrderStore = defineStore('orderStore', {
           resourceOrderItemId: -1,
         }
       )
-        .then((response) => {
+        .then(() => {
           if (unBookPort) {
             CPR_RO_API.patch(
               `/cpr-resource-order-po-req/${cprRoPoReqId}/work-order/${cprRoPoReqWoId}/item/${cprRoPoReqWoItemId}`,
@@ -276,7 +276,7 @@ export const useOrderStore = defineStore('orderStore', {
                     MP_API.patch(`/mounted-port/${mPortResult.data[0].id}`, {
                       usageStateId: 1,
                       cprResourceOrderItemId: -1,
-                    }).then((unMountPortResult) => {
+                    }).then(() => {
                       // TODO: handle success/error
                     });
                   });

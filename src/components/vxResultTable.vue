@@ -22,18 +22,18 @@ import { useOrderStore } from 'stores/order';
 
 const orderStore = useOrderStore();
 
-interface Rows {
-  rowId: number;
-  date: string;
-  user: string;
-  extraWork: string;
-  cabelType: string;
-  resultType: string;
-  result: string;
-}
+// interface Rows {
+//   rowId: number;
+//   date: string;
+//   user: string;
+//   extraWork: string;
+//   cabelType: string;
+//   resultType: string;
+//   result: string;
+// }
 
 interface State {
-  columns: any[];
+  columns: unknown[];
 }
 const initialState: State = {
   columns: [

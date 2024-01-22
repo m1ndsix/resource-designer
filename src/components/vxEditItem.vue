@@ -7,9 +7,9 @@
     </q-card-section>
     <q-table
       dense
-      :rows="this.preparedComponentsNew"
+      :rows="prepareStore.preparedComponentsNew"
       :columns="columns"
-      :row-key="(row) => row[0].id"
+      row-key="id"
       selection="multiple"
       :selected-rows-label="selectedRowsLabel"
       :hide-pagination="true"
@@ -65,21 +65,21 @@ const columns = [
   {
     name: 'actions',
     label: 'Действие над ресурсом',
-    field: 'action',
+    field: (row) => row.baseCfsActionSpecData.nameRu,
     align: 'center',
   },
   {
     name: 'spec',
     align: 'center',
     label: 'Спецификация',
-    field: (row) => row[0].resource?.spec.nameRu,
+    field: (row) => row.poComponentData.nameRu,
     sortable: true,
   },
   {
     name: 'action',
     align: 'center',
     label: 'Действие',
-    field: (row) => row[0].baseCfsActionSpecData.nameRu,
+    field: (row) => row.baseCfsActionSpecData.nameRu,
     sortable: true,
   },
   {
@@ -93,14 +93,14 @@ const columns = [
     name: 'pc',
     align: 'center',
     label: 'Физ. контейнер',
-    field: (row) => row[0].resource?.equipment.physicalContainerNumber,
+    field: 'physicalContainerNumber',
     sortable: true,
   },
   {
     name: 'port',
     align: 'center',
     label: 'Порт',
-    field: (row) => row[0].resource?.port.portNumber,
+    field: 'portNumber',
     sortable: true,
   },
   {

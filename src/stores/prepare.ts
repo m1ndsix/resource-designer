@@ -12,34 +12,36 @@ import _ from 'lodash';
 
 interface State {
   poRequest: ProductOfferRequest | null;
-  dataTree: any[];
+  dataTree: unknown[];
   positions: ProductOfferRequestItem[];
   selectedComponent: ProductOfferRequestItemComponent | null;
   components: ProductOfferRequestItemComponent[];
   createdResources: Resource[];
   existingResources: Resource[];
   preparedComponents: PreparedComponents[];
+  preparedComponentsNew: unknown[];
   geoPlaces: unknown[];
   geoPlaceInfo: GeoPlaceInfo | null;
   physicalContainers: IdName[];
   streets: IdName[];
   addresses: Address[];
   mountedPorts: PortData[];
-  resourceOrderItemId: any;
-  measurementResponse: any;
+  resourceOrderItemId: unknown;
+  measurementResponse: unknown;
+  infoTableLoading: boolean;
 }
 
-interface DataTree {
-  nodeKey: number | string;
-  label: string;
-  children: DataNode[];
-}
+// interface DataTree {
+//   nodeKey: number | string;
+//   label: string;
+//   children: DataNode[];
+// }
 
-interface DataNode extends ProductOfferRequest {
-  nodeKey: number;
-  label: string;
-  state: string;
-}
+// interface DataNode extends ProductOfferRequest {
+//   nodeKey: number;
+//   label: string;
+//   state: string;
+// }
 
 interface ProductOfferRequest {
   id: number;
@@ -118,7 +120,7 @@ interface ProductOfferRequestItemComponent {
   oldPoStructName?: string;
   newPoStructId: number;
   newPoStructName?: string;
-  resourceOrderItemId: number;
+  resourceOrderItemId: unknown;
   oldNumber: string;
   newNumber: string;
   oldCount: number;
@@ -242,6 +244,7 @@ export const usePrepareStore = defineStore('prepareStore', {
       createdResources: [],
       existingResources: [],
       preparedComponents: [],
+      preparedComponentsNew: [],
       geoPlaces: [],
       geoPlaceInfo: null,
       physicalContainers: [],
@@ -285,10 +288,38 @@ export const usePrepareStore = defineStore('prepareStore', {
         console.log('fetchProductInfo', data);
         this.dataTree[0].children = [];
         this.dataTree[1].children = [];
+        this.preparedComponentsNew = [];
 
         if (data.productOfferWithGeneralGeoPlace.id) {
           this.dataTree[0].children.push(
             makeTree(data.productOfferWithGeneralGeoPlace)
+          );
+          data.productOfferWithGeneralGeoPlace.productOfferReqItems.forEach(
+            (element) =>
+              element.itemComponents.forEach((element) =>
+                element.resourceOrderItemId != -1
+                  ? (MP_API.get('/mounted-port', {
+                      params: {
+                        cprResourceOrderItemId: element.resourceOrderItemId,
+                        limit: 1,
+                        offset: 0,
+                      },
+                    }).then((mPortResult) => {
+                      if (mPortResult.data) {
+                        element.portNumber = mPortResult.data[0].portNumber;
+                        PC_API.get(
+                          `/physical-container/${mPortResult.data[0].physicalContainerId}`
+                        ).then(({ data }) => {
+                          element.physicalContainerNumber =
+                            data.physicalContainerNumber;
+                        });
+                      } else {
+                        console.log('Порт не найден');
+                      }
+                    }),
+                    this.preparedComponentsNew.push(element))
+                  : console.log('')
+              )
           );
         }
         if (data.productOfferWithP2PGeoPlace.id) {

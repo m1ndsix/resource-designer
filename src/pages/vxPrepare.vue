@@ -266,7 +266,7 @@ import vxResultTable from '../components/vxResultTable.vue';
 import vxInspectionDialog from '../components/vxInspectionDialog.vue';
 import vxEditItem from '../components/vxEditItem.vue';
 import vxResourceInfo from 'src/components/vxResourceInfo.vue';
-import { CPR_RO_API, MP_API, PC_API } from 'boot/api';
+import { MP_API, PC_API } from 'boot/api';
 
 export default {
   setup() {
@@ -572,15 +572,26 @@ export default {
           offset: 0,
         },
       }).then((mPortResult) => {
-        this.choosenComponent[0].portNumber = mPortResult.data[0].portNumber;
-        PC_API.get(
-          `/physical-container/${mPortResult.data[0].physicalContainerId}`
-        ).then(({ data }) => {
-          this.choosenComponent[0].physicalContainerNumber =
-            data.physicalContainerNumber;
+        if (mPortResult.data) {
+          this.choosenComponent[0].portNumber = mPortResult.data[0].portNumber;
+          PC_API.get(
+            `/physical-container/${mPortResult.data[0].physicalContainerId}`
+          ).then(({ data }) => {
+            this.choosenComponent[0].physicalContainerNumber =
+              data.physicalContainerNumber;
+            this.prepareStore.infoTableLoading = false;
+          });
+        } else {
+          Notify.create({
+            message: 'Ошибка: Порт не найден',
+            type: 'negative',
+            position: 'top',
+          });
+          console.log('Порт не найден');
           this.prepareStore.infoTableLoading = false;
-        });
+        }
       });
+
       this.choosenComponent[0].state = 'Подготовлен';
 
       event.stopPropagation();
@@ -711,6 +722,12 @@ export default {
         this.orderStore.selectedOrder.cprResourceOrderPoReqId,
         this.orderStore.selectedOrder.id
       );
+      setTimeout(() => {
+        this.prepareStore.fetchProductInfo(
+          this.orderStore.selectedOrder.productOfferRequestId,
+          this.orderStore.selectedOrder.geoPlace.id
+        );
+      }, 1000);
     },
     onEditComponent(resource, currentItem) {
       let componentsIds = null;

@@ -1,7 +1,6 @@
 import { RouteRecordRaw } from 'vue-router';
 import vxOrderPage from 'pages/vxOrderPage.vue';
 import vxPrepare from 'pages/vxPrepare.vue';
-import vxErrorNotFound from 'pages/vxErrorNotFound.vue';
 
 const routes: RouteRecordRaw[] = [
   {
