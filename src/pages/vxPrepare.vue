@@ -547,14 +547,14 @@ export default {
     },
     onEditItem(item) {
       console.log('item', item);
-      console.log('resourceOrderItemId', item[0].resourceOrderItemId);
-      this.currentItem = [];
-      this.currentItemId = null;
-      this.currentPortId = null;
-      this.currentItem.push(item);
-      this.currentItemId = item[0].resourceOrderItemId;
-      this.currentPortId = item[0].resource.port.id;
-      this.openEditResourceForm = true;
+      // console.log('resourceOrderItemId', item[0].resourceOrderItemId);
+      // this.currentItem = [];
+      // this.currentItemId = null;
+      // this.currentPortId = null;
+      // this.currentItem.push(item);
+      // this.currentItemId = item[0].resourceOrderItemId;
+      // this.currentPortId = item[0].resource.port.id;
+      // this.openEditResourceForm = true;
     },
     onOpenEditItemDialog(event) {
       event.stopPropagation();
@@ -727,7 +727,7 @@ export default {
           this.orderStore.selectedOrder.productOfferRequestId,
           this.orderStore.selectedOrder.geoPlace.id
         );
-      }, 1000);
+      }, 1500);
     },
     onEditComponent(resource, currentItem) {
       let componentsIds = null;

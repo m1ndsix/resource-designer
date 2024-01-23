@@ -10,6 +10,7 @@
       :rows="prepareStore.preparedComponentsNew"
       :columns="columns"
       row-key="id"
+      :loading="prepareStore.preparedTableLoading"
       selection="multiple"
       :selected-rows-label="selectedRowsLabel"
       :hide-pagination="true"
@@ -17,6 +18,9 @@
       v-model:selected="selectedRows"
       style="margin: 10px"
     >
+      <template v-slot:loading>
+        <q-inner-loading showing color="primary" />
+      </template>
       <template v-slot:body-cell-actions="scope">
         <q-td>
           <div class="q-pa-sm q-gutter-sm">
@@ -27,7 +31,12 @@
               @click="editPositionItem(scope.row)"
             />
 
-            <q-btn color="red" size="sm" label="Отменить" />
+            <q-btn
+              color="negative"
+              size="sm"
+              label="Отменить"
+              @click="cancelPositionItem(scope.row)"
+            />
           </div>
         </q-td>
       </template>
@@ -121,16 +130,19 @@ const columns = [
 
 import { ref } from 'vue';
 import { usePrepareStore } from 'stores/prepare';
+import { useOrderStore } from 'src/stores/order';
 import vxMeasurement from './vxMeasurement.vue';
 
 export default {
   setup() {
     const prepareStore = usePrepareStore();
+    const orderStore = useOrderStore();
     return {
       columns,
       openMeasurementDialog: ref(false),
       openResourceForm: ref(false),
       prepareStore,
+      orderStore,
       selectedRows: ref([]),
     };
   },
@@ -177,6 +189,39 @@ export default {
   methods: {
     editPositionItem(row) {
       this.$emit('onEditItem', row);
+    },
+    cancelPositionItem(row) {
+      let unBookPort = true;
+
+      this.prepareStore.preparedComponentsNew.forEach((element) => {
+        if (
+          row.id != element.id &&
+          row.resourceOrderItemId === element.resourceOrderItemId
+        ) {
+          unBookPort = false;
+        }
+      });
+
+      this.orderStore.patchWorkOrderItem(
+        this.orderStore.selectedOrder.cprResourceOrderPoReqId,
+        this.orderStore.selectedOrder.id,
+        row.resourceOrderItemId,
+        2,
+        row.poReqItemId,
+        row.id,
+        unBookPort
+      );
+
+      this.orderStore.getOrder(
+        this.orderStore.selectedOrder.cprResourceOrderPoReqId,
+        this.orderStore.selectedOrder.id
+      );
+      setTimeout(() => {
+        this.prepareStore.fetchProductInfo(
+          this.orderStore.selectedOrder.productOfferRequestId,
+          this.orderStore.selectedOrder.geoPlace.id
+        );
+      }, 1000);
     },
     geoPlaceName() {
       return this.prepareStore.geoPlace;

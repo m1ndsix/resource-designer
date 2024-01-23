@@ -29,6 +29,7 @@ interface State {
   resourceOrderItemId: unknown;
   measurementResponse: unknown;
   infoTableLoading: boolean;
+  preparedTableLoading: boolean;
 }
 
 // interface DataTree {
@@ -254,6 +255,7 @@ export const usePrepareStore = defineStore('prepareStore', {
       resourceOrderItemId: null,
       measurementResponse: null,
       infoTableLoading: false,
+      preparedTableLoading: false,
     };
   },
   actions: {
@@ -280,6 +282,7 @@ export const usePrepareStore = defineStore('prepareStore', {
       });
     },
     fetchProductInfo(poRequestId: number, geoPlaceId: number) {
+      this.preparedTableLoading = true;
       POR_API.get(
         `/product-offer-request/${poRequestId}/geo-place/${geoPlaceId}`
       ).then(({ data }) => {
@@ -312,13 +315,14 @@ export const usePrepareStore = defineStore('prepareStore', {
                         ).then(({ data }) => {
                           element.physicalContainerNumber =
                             data.physicalContainerNumber;
+                          this.preparedComponentsNew.push(element);
                         });
                       } else {
                         console.log('Порт не найден');
                       }
                     }),
-                    this.preparedComponentsNew.push(element))
-                  : console.log('')
+                    (this.preparedTableLoading = false))
+                  : (this.preparedTableLoading = false)
               )
           );
         }
@@ -419,7 +423,6 @@ export const usePrepareStore = defineStore('prepareStore', {
           cprResourceOrderItemId: this.resourceOrderItemId,
         }).then((mountResult) => {
           // TODO: handle success/error
-          console.log(mountResult);
           if (currentPortId) {
             MP_API.patch(`/mounted-port/${currentPortId}`, {
               usageStateId: 1,
