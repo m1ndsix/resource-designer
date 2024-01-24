@@ -205,6 +205,7 @@ function makeTree(data) {
               nodeKey: `${pos.id}-${comp.id}`,
               nodeType: 'component',
               state: 'Новый',
+              portId: '',
               portNumber: '',
               physicalContainerNumber: '',
             };
@@ -313,6 +314,7 @@ export const usePrepareStore = defineStore('prepareStore', {
                       },
                     }).then((mPortResult) => {
                       if (mPortResult.data) {
+                        element.portId = mPortResult.data[0].id;
                         element.portNumber = mPortResult.data[0].portNumber;
                         PC_API.get(
                           `/physical-container/${mPortResult.data[0].physicalContainerId}`
@@ -385,11 +387,7 @@ export const usePrepareStore = defineStore('prepareStore', {
           this.physicalContainers = [];
         });
     },
-    /*
-      TODO: Should handle cases when multiple components in multiple positions are being prepared.
-      Currently, using promiseAll for each selected component (in single position only). Probably,
-      should pass a map with signature: {positionId: [componentIds...]}
-    */
+
     createPosition({
       cprRoPoReqId,
       cprRoPoReqWoId,
@@ -427,11 +425,6 @@ export const usePrepareStore = defineStore('prepareStore', {
           cprResourceOrderItemId: this.resourceOrderItemId,
         })
           .then((mountResult) => {
-            console.log('poReqItemCompIds', poReqItemCompIds);
-            console.log(
-              'poReqItemCompIds[-1]',
-              poReqItemCompIds[poReqItemCompIds.length - 1]
-            );
             poReqItemCompIds.map((componentId) => {
               POR_API.patch(
                 `/po-req-item/${poRequestItemId}/po-req-item-component/${componentId}`,
