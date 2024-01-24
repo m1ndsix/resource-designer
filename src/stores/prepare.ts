@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia';
+import { useOrderStore } from 'src/stores/order';
 import { Notify } from 'quasar';
 import {
   CPR_API,
@@ -426,6 +427,11 @@ export const usePrepareStore = defineStore('prepareStore', {
           cprResourceOrderItemId: this.resourceOrderItemId,
         })
           .then((mountResult) => {
+            console.log('poReqItemCompIds', poReqItemCompIds);
+            console.log(
+              'poReqItemCompIds[-1]',
+              poReqItemCompIds[poReqItemCompIds.length - 1]
+            );
             poReqItemCompIds.map((componentId) => {
               POR_API.patch(
                 `/po-req-item/${poRequestItemId}/po-req-item-component/${componentId}`,
@@ -434,6 +440,19 @@ export const usePrepareStore = defineStore('prepareStore', {
                 }
               )
                 .then(() => {
+                  if (
+                    componentId ===
+                    poReqItemCompIds[poReqItemCompIds.length - 1]
+                  ) {
+                    useOrderStore().getOrder(
+                      useOrderStore().selectedOrder.cprResourceOrderPoReqId,
+                      useOrderStore().selectedOrder.id
+                    );
+                    this.fetchProductInfo(
+                      useOrderStore().selectedOrder.productOfferRequestId,
+                      useOrderStore().selectedOrder.geoPlace.id
+                    );
+                  }
                   Notify.create({
                     message: 'Успешно назначен',
                     type: 'positive',

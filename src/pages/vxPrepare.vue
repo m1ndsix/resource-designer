@@ -670,32 +670,7 @@ export default {
         positionIds = currentItem[0].map((node) => node.poReqItemId);
       }
       this.tickedNodes = [];
-      // this.prepareStore.dataTree.forEach((poType) => {
-      //   poType.children.forEach((address) => {
-      //     address.children.forEach((pos) => {
-      //       pos.children.forEach((comp) => {
-      //         if (componentsIds.includes(comp.id)) {
-      //           comp.state = 'Подготовлен';
-      //           comp.resource = resource;
-      //           setTimeout(() => {
-      //             comp.resourceOrderItemId =
-      //               this.prepareStore.resourceOrderItemId;
-      //           }, 1000);
-      //           this.currentComponents.push(comp);
-      //         }
-      //       });
-      //     });
-      //   });
-      // });
 
-      // for (let i = 0; i < this.preparedComponentsNew.length; i++) {
-      //   if (
-      //     this.preparedComponentsNew[i][0].resource?.port.portNumber ==
-      //     this.currentComponents[0].resource.port.portNumber
-      //   ) {
-      //     this.preparedComponentsNew.splice(i, 1);
-      //   }
-      // }
       this.preparedComponentsNew.push(this.currentComponents);
       this.currentComponents = [];
 
@@ -721,16 +696,6 @@ export default {
       });
       this.currentPortId = null;
       this.openResourceForm = false;
-      this.orderStore.getOrder(
-        this.orderStore.selectedOrder.cprResourceOrderPoReqId,
-        this.orderStore.selectedOrder.id
-      );
-      setTimeout(() => {
-        this.prepareStore.fetchProductInfo(
-          this.orderStore.selectedOrder.productOfferRequestId,
-          this.orderStore.selectedOrder.geoPlace.id
-        );
-      }, 2000);
     },
     onEditComponent(resource, currentItem) {
       console.log('resource', resource);
