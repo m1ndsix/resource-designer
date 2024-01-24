@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia';
+import { Notify } from 'quasar';
 import {
   CPR_API,
   LOC_API,
@@ -20,6 +21,7 @@ interface State {
   existingResources: Resource[];
   preparedComponents: PreparedComponents[];
   preparedComponentsNew: unknown[];
+  editItem: null;
   geoPlaces: unknown[];
   geoPlaceInfo: GeoPlaceInfo | null;
   physicalContainers: IdName[];
@@ -246,6 +248,7 @@ export const usePrepareStore = defineStore('prepareStore', {
       existingResources: [],
       preparedComponents: [],
       preparedComponentsNew: [],
+      editItem: null,
       geoPlaces: [],
       geoPlaceInfo: null,
       physicalContainers: [],
@@ -421,39 +424,51 @@ export const usePrepareStore = defineStore('prepareStore', {
         MP_API.patch(`/mounted-port/${mountedPortId}`, {
           usageStateId: 2,
           cprResourceOrderItemId: this.resourceOrderItemId,
-        }).then((mountResult) => {
-          // TODO: handle success/error
-          if (currentPortId) {
-            MP_API.patch(`/mounted-port/${currentPortId}`, {
-              usageStateId: 1,
-              cprResourceOrderItemId: -1,
-            }).then((mountResult) => {
-              // TODO: handle success/error
-              console.log(mountResult);
+        })
+          .then((mountResult) => {
+            poReqItemCompIds.map((componentId) => {
+              POR_API.patch(
+                `/po-req-item/${poRequestItemId}/po-req-item-component/${componentId}`,
+                {
+                  resourceOrderItemId: creationResult.data.data.id,
+                }
+              )
+                .then(() => {
+                  Notify.create({
+                    message: 'Успешно назначен',
+                    type: 'positive',
+                    position: 'top',
+                  });
+                })
+                .catch((error) => {
+                  console.log(error);
+                  Notify.create({
+                    message: 'Ошибка назначения',
+                    type: 'negative',
+                    position: 'top',
+                  });
+                });
             });
-          }
-        });
+            // TODO: handle success/error
+            console.log(mountResult);
 
-        const patchPositionRequests = poReqItemCompIds.map((componentId) => {
-          POR_API.patch(
-            `/po-req-item/${poRequestItemId}/po-req-item-component/${componentId}`,
-            {
-              resourceOrderItemId: creationResult.data.data.id,
+            if (currentPortId) {
+              MP_API.patch(`/mounted-port/${currentPortId}`, {
+                usageStateId: 1,
+                cprResourceOrderItemId: -1,
+              }).then((mountResult) => {
+                // TODO: handle success/error
+                console.log(mountResult);
+              });
             }
-          ).then((response) => {
-            console.log(response);
-          });
-        });
-
-        Promise.all(patchPositionRequests)
-          .then((responses) => {
-            // Process individual responses here
-            responses.forEach((response) => {
-              console.log('response.data', response);
-            });
           })
           .catch((error) => {
-            console.error('Error:', error);
+            console.log(error);
+            Notify.create({
+              message: 'Ошибка назначения',
+              type: 'negative',
+              position: 'top',
+            });
           });
       });
     },

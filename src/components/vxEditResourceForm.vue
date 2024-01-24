@@ -334,7 +334,7 @@ function onEditComponent() {
     if (!isResourceCreated) {
       emit('onAddNewResource', { ...state.newResource });
     }
-    emit('onEditComponent', newRes, props.currentItem);
+    emit('onEditComponent', newRes, prepareStore.editItem);
     console.log('newRes', newRes);
     console.log('props.currentItem', props.currentItem);
     resetNewResource();

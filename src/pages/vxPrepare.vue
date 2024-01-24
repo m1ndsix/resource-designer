@@ -547,6 +547,8 @@ export default {
     },
     onEditItem(item) {
       console.log('item', item);
+      this.prepareStore.editItem = item;
+      console.log('this.prepareStore.editItem', this.prepareStore.editItem);
       // console.log('resourceOrderItemId', item[0].resourceOrderItemId);
       // this.currentItem = [];
       // this.currentItemId = null;
@@ -554,7 +556,7 @@ export default {
       // this.currentItem.push(item);
       // this.currentItemId = item[0].resourceOrderItemId;
       // this.currentPortId = item[0].resource.port.id;
-      // this.openEditResourceForm = true;
+      this.openEditResourceForm = true;
     },
     onOpenEditItemDialog(event) {
       event.stopPropagation();
@@ -655,6 +657,7 @@ export default {
       this.prepareStore.createdResources.push(resource);
     },
     async onPrepareComponent(resource, currentItem) {
+      console.log('onPrepareComponent currentItem', currentItem);
       let componentsIds = null;
       let positionIds = null;
       const tickedNodes = this.$refs.qtree.getTickedNodes();
@@ -667,32 +670,32 @@ export default {
         positionIds = currentItem[0].map((node) => node.poReqItemId);
       }
       this.tickedNodes = [];
-      this.prepareStore.dataTree.forEach((poType) => {
-        poType.children.forEach((address) => {
-          address.children.forEach((pos) => {
-            pos.children.forEach((comp) => {
-              if (componentsIds.includes(comp.id)) {
-                comp.state = 'Подготовлен';
-                comp.resource = resource;
-                setTimeout(() => {
-                  comp.resourceOrderItemId =
-                    this.prepareStore.resourceOrderItemId;
-                }, 1000);
-                this.currentComponents.push(comp);
-              }
-            });
-          });
-        });
-      });
+      // this.prepareStore.dataTree.forEach((poType) => {
+      //   poType.children.forEach((address) => {
+      //     address.children.forEach((pos) => {
+      //       pos.children.forEach((comp) => {
+      //         if (componentsIds.includes(comp.id)) {
+      //           comp.state = 'Подготовлен';
+      //           comp.resource = resource;
+      //           setTimeout(() => {
+      //             comp.resourceOrderItemId =
+      //               this.prepareStore.resourceOrderItemId;
+      //           }, 1000);
+      //           this.currentComponents.push(comp);
+      //         }
+      //       });
+      //     });
+      //   });
+      // });
 
-      for (let i = 0; i < this.preparedComponentsNew.length; i++) {
-        if (
-          this.preparedComponentsNew[i][0].resource?.port.portNumber ==
-          this.currentComponents[0].resource.port.portNumber
-        ) {
-          this.preparedComponentsNew.splice(i, 1);
-        }
-      }
+      // for (let i = 0; i < this.preparedComponentsNew.length; i++) {
+      //   if (
+      //     this.preparedComponentsNew[i][0].resource?.port.portNumber ==
+      //     this.currentComponents[0].resource.port.portNumber
+      //   ) {
+      //     this.preparedComponentsNew.splice(i, 1);
+      //   }
+      // }
       this.preparedComponentsNew.push(this.currentComponents);
       this.currentComponents = [];
 
@@ -727,76 +730,78 @@ export default {
           this.orderStore.selectedOrder.productOfferRequestId,
           this.orderStore.selectedOrder.geoPlace.id
         );
-      }, 1500);
+      }, 2000);
     },
     onEditComponent(resource, currentItem) {
-      let componentsIds = null;
-      let positionIds = null;
-      const tickedNodes = this.$refs.qtree.getTickedNodes();
-      //TODO добавить отмену галочек при открытии окна редактировании
-      if (tickedNodes.length > 0) {
-        componentsIds = tickedNodes.map((node) => node.id);
-        positionIds = tickedNodes.map((node) => node.poReqItemId);
-      } else if (currentItem.length > 0) {
-        componentsIds = currentItem[0].map((node) => node.id);
-        positionIds = currentItem[0].map((node) => node.poReqItemId);
-      }
-      this.tickedNodes = [];
-      this.prepareStore.dataTree.forEach((poType) => {
-        poType.children.forEach((address) => {
-          address.children.forEach((pos) => {
-            pos.children.forEach((comp) => {
-              if (componentsIds.includes(comp.id)) {
-                comp.state = 'Подготовлен';
-                comp.resource = resource;
-                setTimeout(() => {
-                  comp.resourceOrderItemId =
-                    this.prepareStore.resourceOrderItemId;
-                }, 500);
-                this.currentComponents.push(comp);
-              }
-            });
-          });
-        });
-      });
+      console.log('resource', resource);
+      console.log('currentItem', currentItem);
+      // let componentsIds = null;
+      // let positionIds = null;
+      // const tickedNodes = this.$refs.qtree.getTickedNodes();
+      // //TODO добавить отмену галочек при открытии окна редактировании
+      // if (tickedNodes.length > 0) {
+      //   componentsIds = tickedNodes.map((node) => node.id);
+      //   positionIds = tickedNodes.map((node) => node.poReqItemId);
+      // } else if (currentItem.length > 0) {
+      //   componentsIds = currentItem[0].map((node) => node.id);
+      //   positionIds = currentItem[0].map((node) => node.poReqItemId);
+      // }
+      // this.tickedNodes = [];
+      // this.prepareStore.dataTree.forEach((poType) => {
+      //   poType.children.forEach((address) => {
+      //     address.children.forEach((pos) => {
+      //       pos.children.forEach((comp) => {
+      //         if (componentsIds.includes(comp.id)) {
+      //           comp.state = 'Подготовлен';
+      //           comp.resource = resource;
+      //           setTimeout(() => {
+      //             comp.resourceOrderItemId =
+      //               this.prepareStore.resourceOrderItemId;
+      //           }, 500);
+      //           this.currentComponents.push(comp);
+      //         }
+      //       });
+      //     });
+      //   });
+      // });
 
-      for (let i = 0; i < this.preparedComponentsNew.length; i++) {
-        if (
-          this.preparedComponentsNew[i][0].resource?.port.portNumber ==
-          this.currentComponents[0].resource.port.portNumber
-        ) {
-          this.preparedComponentsNew.splice(i, 1);
-        }
-      }
-      this.preparedComponentsNew.push(this.currentComponents);
-      this.currentComponents = [];
+      // for (let i = 0; i < this.preparedComponentsNew.length; i++) {
+      //   if (
+      //     this.preparedComponentsNew[i][0].resource?.port.portNumber ==
+      //     this.currentComponents[0].resource.port.portNumber
+      //   ) {
+      //     this.preparedComponentsNew.splice(i, 1);
+      //   }
+      // }
+      // this.preparedComponentsNew.push(this.currentComponents);
+      // this.currentComponents = [];
 
-      let { cprResourceOrderPoReqId, id } = this.orderStore.selectedOrder;
+      // let { cprResourceOrderPoReqId, id } = this.orderStore.selectedOrder;
 
-      console.log(
-        'this.orderStore.selectedOrder',
-        this.orderStore.selectedOrder
-      );
+      // console.log(
+      //   'this.orderStore.selectedOrder',
+      //   this.orderStore.selectedOrder
+      // );
 
-      this.prepareStore.editPosition({
-        cprRoPoReqId: cprResourceOrderPoReqId,
-        cprRoPoReqWoId: id,
-        cprRoPoReqWoItemId: this.currentItemId,
-        compositePhysResSpecId: resource.spec.id,
-        physicalContainerId: resource.equipment.id,
-        transportCpeFuncSpecId: -1,
-        wiringTypeId: resource.equipment.wiringTypeId,
-        compositePhysResId: -1,
-        compositePhysResNum: '7777777',
-        compositePhysResFullNum: '7777776',
-        mountedPortId: resource.port.id,
-        currentPortId: this.currentPortId,
+      // this.prepareStore.editPosition({
+      //   cprRoPoReqId: cprResourceOrderPoReqId,
+      //   cprRoPoReqWoId: id,
+      //   cprRoPoReqWoItemId: this.currentItemId,
+      //   compositePhysResSpecId: resource.spec.id,
+      //   physicalContainerId: resource.equipment.id,
+      //   transportCpeFuncSpecId: -1,
+      //   wiringTypeId: resource.equipment.wiringTypeId,
+      //   compositePhysResId: -1,
+      //   compositePhysResNum: '7777777',
+      //   compositePhysResFullNum: '7777776',
+      //   mountedPortId: resource.port.id,
+      //   currentPortId: this.currentPortId,
 
-        poRequestItemId: positionIds[0], // TODO: need to work with multiple positions,
-        poReqItemCompIds: componentsIds,
-      });
-      this.currentPortId = null;
-      this.openEditResourceForm = false;
+      //   poRequestItemId: positionIds[0], // TODO: need to work with multiple positions,
+      //   poReqItemCompIds: componentsIds,
+      // });
+      // this.currentPortId = null;
+      // this.openEditResourceForm = false;
     },
     rejectProductOfferRequestItem(item, event) {
       event.stopPropagation();
@@ -821,6 +826,7 @@ export default {
       });
 
       tickedNodes.forEach((tickedElement) => {
+        unBookPort = true;
         unTickedNodes.forEach((untickedElement) => {
           if (
             tickedElement.resourceOrderItemId ===
