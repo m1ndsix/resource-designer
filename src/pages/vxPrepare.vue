@@ -545,16 +545,7 @@ export default {
       this.router.push('/');
     },
     onEditItem(item) {
-      console.log('item', item);
       this.prepareStore.editItem = item;
-      console.log('this.prepareStore.editItem', this.prepareStore.editItem);
-      // console.log('resourceOrderItemId', item[0].resourceOrderItemId);
-      // this.currentItem = [];
-      // this.currentItemId = null;
-      // this.currentPortId = null;
-      // this.currentItem.push(item);
-      // this.currentItemId = item[0].resourceOrderItemId;
-      // this.currentPortId = item[0].resource.port.id;
       this.openEditResourceForm = true;
     },
     onOpenEditItemDialog(event) {
@@ -656,7 +647,6 @@ export default {
       this.prepareStore.createdResources.push(resource);
     },
     async onPrepareComponent(resource, currentItem) {
-      console.log('onPrepareComponent currentItem', currentItem);
       let componentsIds = null;
       let positionIds = null;
       const tickedNodes = this.$refs.qtree.getTickedNodes();
@@ -694,38 +684,25 @@ export default {
       this.openResourceForm = false;
     },
     onEditComponent(resource, currentItem) {
-      console.log('resource', resource);
-      console.log('currentItem', currentItem);
-      console.log('currentItem.id', currentItem.id);
-      console.log('currentItem.poReqItemId', currentItem.poReqItemId);
-
-      console.log('currentItem.portId', currentItem.portId);
-
-      console.log('resource.port.id', resource.port.id);
-
-      console.log(
-        'this.orderStore.selectedOrder',
-        this.orderStore.selectedOrder
-      );
       let { cprResourceOrderPoReqId, id } = this.orderStore.selectedOrder;
 
-      // this.prepareStore.editPosition({
-      //   cprRoPoReqId: cprResourceOrderPoReqId,
-      //   cprRoPoReqWoId: id,
-      //   cprRoPoReqWoItemId: this.currentItemId,
-      //   compositePhysResSpecId: resource.spec.id,
-      //   physicalContainerId: resource.equipment.id,
-      //   transportCpeFuncSpecId: -1,
-      //   wiringTypeId: resource.equipment.wiringTypeId,
-      //   compositePhysResId: -1,
-      //   compositePhysResNum: '7777777',
-      //   compositePhysResFullNum: '7777776',
-      //   mountedPortId: resource.port.id,
-      //   currentPortId: currentItem.portId,
-      //   poRequestItemId: currentItem.id, // TODO: need to work with multiple positions,
-      //   poReqItemCompIds: currentItem.poReqItemId,
-      // });
-      // this.openEditResourceForm = false;
+      this.prepareStore.editPosition({
+        cprRoPoReqId: cprResourceOrderPoReqId,
+        cprRoPoReqWoId: id,
+        cprRoPoReqWoItemId: currentItem.resourceOrderItemId,
+        compositePhysResSpecId: resource.spec.id,
+        physicalContainerId: resource.equipment.id,
+        transportCpeFuncSpecId: -1,
+        wiringTypeId: resource.equipment.wiringTypeId,
+        compositePhysResId: -1,
+        compositePhysResNum: '7777777',
+        compositePhysResFullNum: '7777776',
+        mountedPortId: resource.port.id,
+        currentPortId: currentItem.portId,
+        poRequestItemId: currentItem.id,
+        poReqItemCompIds: currentItem.poReqItemId,
+      });
+      this.openEditResourceForm = false;
     },
     rejectProductOfferRequestItem(item, event) {
       event.stopPropagation();
@@ -770,18 +747,6 @@ export default {
           unBookPort
         );
       });
-
-      this.orderStore.getOrder(
-        this.orderStore.selectedOrder.cprResourceOrderPoReqId,
-        this.orderStore.selectedOrder.id
-      );
-
-      setTimeout(() => {
-        this.prepareStore.fetchProductInfo(
-          this.orderStore.selectedOrder.productOfferRequestId,
-          this.orderStore.selectedOrder.geoPlace.id
-        );
-      }, 1000);
     },
   },
 };

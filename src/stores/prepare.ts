@@ -401,7 +401,6 @@ export const usePrepareStore = defineStore('prepareStore', {
       compositePhysResNum,
       compositePhysResFullNum,
       mountedPortId,
-      currentPortId,
       poRequestItemId,
       poReqItemCompIds,
     }) {
@@ -425,16 +424,16 @@ export const usePrepareStore = defineStore('prepareStore', {
           cprResourceOrderItemId: this.resourceOrderItemId,
         })
           .then((mountResult) => {
-            poReqItemCompIds.map((componentId) => {
+            for (let i = 0; i < poReqItemCompIds.length; i++) {
               POR_API.patch(
-                `/po-req-item/${poRequestItemId}/po-req-item-component/${componentId}`,
+                `/po-req-item/${poRequestItemId}/po-req-item-component/${poReqItemCompIds[i]}`,
                 {
                   resourceOrderItemId: creationResult.data.data.id,
                 }
               )
                 .then(() => {
                   if (
-                    componentId ===
+                    poReqItemCompIds[i] ===
                     poReqItemCompIds[poReqItemCompIds.length - 1]
                   ) {
                     useOrderStore().getOrder(
@@ -460,19 +459,8 @@ export const usePrepareStore = defineStore('prepareStore', {
                     position: 'top',
                   });
                 });
-            });
-            // TODO: handle success/error
-            console.log(mountResult);
-
-            if (currentPortId) {
-              MP_API.patch(`/mounted-port/${currentPortId}`, {
-                usageStateId: 1,
-                cprResourceOrderItemId: -1,
-              }).then((mountResult) => {
-                // TODO: handle success/error
-                console.log(mountResult);
-              });
             }
+            console.log(mountResult);
           })
           .catch((error) => {
             console.log(error);
@@ -499,18 +487,6 @@ export const usePrepareStore = defineStore('prepareStore', {
       mountedPortId,
       currentPortId,
     }) {
-      console.log(
-        'cprRoPoReqId',
-        cprRoPoReqId,
-        'cprRoPoReqWoId',
-        cprRoPoReqWoId,
-        'cprRoPoReqWoItemId',
-        cprRoPoReqWoItemId,
-        'mountedPortId',
-        mountedPortId,
-        'currentPortId',
-        currentPortId
-      );
       CPR_RO_API.patch(
         `/cpr-resource-order-po-req/${cprRoPoReqId}/work-order/${cprRoPoReqWoId}/item/${cprRoPoReqWoItemId}`,
         {
@@ -525,19 +501,48 @@ export const usePrepareStore = defineStore('prepareStore', {
       ).then(() => {
         MP_API.patch(`/mounted-port/${mountedPortId}`, {
           usageStateId: 2,
-        }).then((mountResult) => {
-          // TODO: handle success/error
-          console.log(mountResult);
-          if (currentPortId) {
+          cprResourceOrderItemId: cprRoPoReqWoItemId,
+        })
+          .then((mountResult) => {
+            // TODO: handle success/error
+            console.log(mountResult);
             MP_API.patch(`/mounted-port/${currentPortId}`, {
               usageStateId: 1,
               cprResourceOrderItemId: -1,
-            }).then((mountResult) => {
-              // TODO: handle success/error
-              console.log(mountResult);
+            })
+              .then((mountResult) => {
+                useOrderStore().getOrder(
+                  useOrderStore().selectedOrder.cprResourceOrderPoReqId,
+                  useOrderStore().selectedOrder.id
+                );
+                this.fetchProductInfo(
+                  useOrderStore().selectedOrder.productOfferRequestId,
+                  useOrderStore().selectedOrder.geoPlace.id
+                );
+                Notify.create({
+                  message: 'Успешно отредактирован',
+                  type: 'positive',
+                  position: 'top',
+                });
+                console.log(mountResult);
+              })
+              .catch((error) => {
+                console.log(error);
+                Notify.create({
+                  message: 'Ошибка редактирования',
+                  type: 'negative',
+                  position: 'top',
+                });
+              });
+          })
+          .catch((error) => {
+            console.log(error);
+            Notify.create({
+              message: 'Ошибка редактирования',
+              type: 'negative',
+              position: 'top',
             });
-          }
-        });
+          });
       });
     },
 

@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia';
+import { usePrepareStore } from 'stores/prepare';
 import { CPR_RO_API, TE_API, POR_API, MP_API } from 'boot/api';
 import { Notify } from 'quasar';
 
@@ -273,19 +274,31 @@ export const useOrderStore = defineStore('orderStore', {
                       offset: 0,
                     },
                   }).then((mPortResult) => {
-                    MP_API.patch(`/mounted-port/${mPortResult.data[0].id}`, {
-                      usageStateId: 1,
-                      cprResourceOrderItemId: -1,
-                    }).then(() => {
-                      // TODO: handle success/error
-                    });
+                    if (mPortResult.data) {
+                      MP_API.patch(`/mounted-port/${mPortResult.data[0].id}`, {
+                        usageStateId: 1,
+                        cprResourceOrderItemId: -1,
+                      }).then(() => {
+                        // TODO: handle success/error
+                        this.getOrder(
+                          this.selectedOrder.cprResourceOrderPoReqId,
+                          this.selectedOrder.id
+                        );
+                        usePrepareStore().fetchProductInfo(
+                          this.selectedOrder.productOfferRequestId,
+                          this.selectedOrder.geoPlace.id
+                        );
+
+                        Notify.create({
+                          message: 'Успешная отмена',
+                          type: 'positive',
+                          position: 'top',
+                        });
+                      });
+                    }
                   });
                 }
-                Notify.create({
-                  message: 'Успешная отмена',
-                  type: 'positive',
-                  position: 'top',
-                });
+
                 console.log(data);
               })
               .catch((error) => {
