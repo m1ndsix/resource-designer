@@ -56,6 +56,8 @@ interface WorkOrderItem {
   compositePhysResSpecId: number;
   compositePhysResSpecData: IdName;
   physicalContainerId: number;
+  physicalContainerNumber: string;
+  portNumber: string;
   geoPlaceId: number;
   geoPlaceData: IdName;
   transportCpeFuncSpecId: number;

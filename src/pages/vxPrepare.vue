@@ -342,6 +342,10 @@ export default {
   },
   mounted() {
     if (!this.poRequest) {
+      console.log(
+        'this.orderStore.selectedOrder',
+        this.orderStore.selectedOrder
+      );
       this.prepareStore.fetchPORequest(
         this.orderStore.selectedOrder.productOfferRequestId
       );
@@ -591,6 +595,56 @@ export default {
     },
     onAppoint(event) {
       event.stopPropagation();
+
+      console.log(
+        'this.prepareStore.preparedComponentsNew',
+        this.prepareStore.preparedComponentsNew
+      );
+
+      this.orderStore.selectedOrder.cprResourceOrderPoReqItems.forEach(
+        (element) => {
+          console.log('element.id', element.id);
+          MP_API.get('/mounted-port', {
+            params: {
+              cprResourceOrderItemId: element.id,
+              limit: 1,
+              offset: 0,
+            },
+          }).then((mPortResult) => {
+            if (mPortResult.data) {
+              console.log('mPortResult.data', mPortResult.data);
+              console.log(
+                'mPortResult.data[0].physicalContainerId',
+                mPortResult.data[0].physicalContainerId
+              );
+              element.portNumber = mPortResult.data[0].portNumber;
+              // element.portId = mPortResult.data[0].id;
+              // element.portNumber = mPortResult.data[0].portNumber;
+              PC_API.get(
+                `/physical-container/${mPortResult.data[0].physicalContainerId}`
+              ).then(({ data }) => {
+                console.log('physCon', data);
+                element.physicalContainerNumber = data.physicalContainerNumber;
+                // element.physicalContainerNumber =
+                //   data.physicalContainerNumber;
+                // this.preparedComponentsNew.push(element);
+              });
+            } else {
+              console.log('Порт не найден');
+            }
+          });
+        }
+      );
+
+      console.log(
+        'this.orderStore.selectedOrder',
+        this.orderStore.selectedOrder
+      );
+      console.log(
+        'this.orderStore.selectedOrder.cprResourceOrderPoReqItems',
+        this.orderStore.selectedOrder.cprResourceOrderPoReqItems
+      );
+
       this.openResourceForm = true;
     },
     onInspect(event) {
