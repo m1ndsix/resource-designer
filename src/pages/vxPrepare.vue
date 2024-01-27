@@ -880,7 +880,7 @@ export default {
           this.router.push('/');
         })
         .onOk(() => {
-          // console.log('>>>> second OK catcher')
+          // console.log('>>> second OK catcher')
         })
         .onCancel(() => {
           // console.log('>>>> Cancel')
