@@ -447,30 +447,18 @@ export const usePrepareStore = defineStore('prepareStore', {
                       useOrderStore().selectedOrder.geoPlace.id
                     );
                   }
-                  Notify.create({
-                    message: 'Успешно назначен',
-                    type: 'positive',
-                    position: 'top',
-                  });
+                  this.notifyMessage('Успешно назначен', 'positive');
                 })
                 .catch((error) => {
                   console.log(error);
-                  Notify.create({
-                    message: 'Ошибка назначения',
-                    type: 'negative',
-                    position: 'top',
-                  });
+                  this.notifyMessage('Ошибка назначения', 'negative');
                 });
             }
             console.log(mountResult);
           })
           .catch((error) => {
             console.log(error);
-            Notify.create({
-              message: 'Ошибка назначения',
-              type: 'negative',
-              position: 'top',
-            });
+            this.notifyMessage('Ошибка назначения', 'negative');
           });
       });
     },
@@ -521,29 +509,17 @@ export const usePrepareStore = defineStore('prepareStore', {
                   useOrderStore().selectedOrder.productOfferRequestId,
                   useOrderStore().selectedOrder.geoPlace.id
                 );
-                Notify.create({
-                  message: 'Успешно отредактирован',
-                  type: 'positive',
-                  position: 'top',
-                });
+                this.notifyMessage('Успешно отредактирован', 'positive');
                 console.log(mountResult);
               })
               .catch((error) => {
                 console.log(error);
-                Notify.create({
-                  message: 'Ошибка редактирования',
-                  type: 'negative',
-                  position: 'top',
-                });
+                this.notifyMessage('Ошибка редактирования', 'negative');
               });
           })
           .catch((error) => {
             console.log(error);
-            Notify.create({
-              message: 'Ошибка редактирования',
-              type: 'negative',
-              position: 'top',
-            });
+            this.notifyMessage('Ошибка редактирования', 'negative');
           });
       });
     },
@@ -615,6 +591,14 @@ export const usePrepareStore = defineStore('prepareStore', {
         items,
       }).then(({ data }) => {
         this.measurementResponse = data;
+      });
+    },
+    notifyMessage(message: string, type: string) {
+      console.log('message', message);
+      Notify.create({
+        message: message,
+        type: type,
+        position: 'top',
       });
     },
   },

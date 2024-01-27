@@ -65,17 +65,15 @@ function sendMeasurement() {
 
   function measurementNotify() {
     if (prepareStore.measurementResponse.errCode == 0) {
-      Notify.create({
-        message: 'Поручение на измерение отправлено',
-        type: 'positive',
-        position: 'top',
-      });
+      prepareStore.notifyMessage(
+        'Поручение на измерение отправлено',
+        'positive'
+      );
     } else {
-      Notify.create({
-        message: 'Ошибка:' + prepareStore.measurementResponse.errMsg,
-        type: 'negative',
-        position: 'top',
-      });
+      prepareStore.notifyMessage(
+        'Ошибка:' + prepareStore.measurementResponse.errMsg,
+        'negative'
+      );
     }
   }
   setTimeout(() => {

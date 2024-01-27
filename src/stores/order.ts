@@ -291,12 +291,10 @@ export const useOrderStore = defineStore('orderStore', {
                           this.selectedOrder.productOfferRequestId,
                           this.selectedOrder.geoPlace.id
                         );
-
-                        Notify.create({
-                          message: 'Успешная отмена',
-                          type: 'positive',
-                          position: 'top',
-                        });
+                        usePrepareStore().notifyMessage(
+                          'Успешная отмена',
+                          'positive'
+                        );
                       });
                     }
                   });
@@ -304,11 +302,7 @@ export const useOrderStore = defineStore('orderStore', {
                 console.log(data);
               })
               .catch((error) => {
-                Notify.create({
-                  message: 'Ошибка отмены',
-                  type: 'negative',
-                  position: 'top',
-                });
+                usePrepareStore().notifyMessage('Ошибка отмены', 'negative');
                 console.log(error);
               });
           } else {
@@ -320,20 +314,12 @@ export const useOrderStore = defineStore('orderStore', {
               this.selectedOrder.productOfferRequestId,
               this.selectedOrder.geoPlace.id
             );
-            Notify.create({
-              message: 'Успешная отмена',
-              type: 'positive',
-              position: 'top',
-            });
+            usePrepareStore().notifyMessage('Успешная отмена', 'positive');
           }
         })
         .catch((error) => {
           console.log(error);
-          Notify.create({
-            message: 'Ошибка отмены',
-            type: 'negative',
-            position: 'top',
-          });
+          usePrepareStore().notifyMessage('Ошибка отмены', 'negative');
         });
     },
     patchPoReqItemComp(poRequestItemId: number, poReqItemCompId: string) {

@@ -211,17 +211,6 @@ export default {
         row.id,
         unBookPort
       );
-
-      this.orderStore.getOrder(
-        this.orderStore.selectedOrder.cprResourceOrderPoReqId,
-        this.orderStore.selectedOrder.id
-      );
-      setTimeout(() => {
-        this.prepareStore.fetchProductInfo(
-          this.orderStore.selectedOrder.productOfferRequestId,
-          this.orderStore.selectedOrder.geoPlace.id
-        );
-      }, 1000);
     },
     geoPlaceName() {
       return this.prepareStore.geoPlace;

@@ -538,17 +538,12 @@ export default {
               this.orderStore.selectedOrder.id,
               5
             );
-            Notify.create({
-              message: 'Поручение завершено',
-              type: 'positive',
-              position: 'top',
-            });
+            this.prepareStore.notifyMessage('Поручение завершено', 'positive');
           } else {
-            Notify.create({
-              message: 'Ошибка:' + response[2],
-              type: 'negative',
-              position: 'top',
-            });
+            this.prepareStore.notifyMessage(
+              'Ошибка:' + response[2],
+              'negative'
+            );
           }
         });
     },
@@ -585,11 +580,7 @@ export default {
             this.prepareStore.infoTableLoading = false;
           });
         } else {
-          Notify.create({
-            message: 'Ошибка: Порт не найден',
-            type: 'negative',
-            position: 'top',
-          });
+          this.prepareStore.notifyMessage('Ошибка: Порт не найден', 'negative');
           console.log('Порт не найден');
           this.prepareStore.infoTableLoading = false;
         }
@@ -785,19 +776,11 @@ export default {
                 this.orderStore.selectedOrder.geoPlace.id
               );
             }
-            Notify.create({
-              message: 'Успешно назначен',
-              type: 'positive',
-              position: 'top',
-            });
+            this.prepareStore.notifyMessage('Успешно назначен', 'positive');
           })
           .catch((error) => {
             console.log(error);
-            Notify.create({
-              message: 'Ошибка назначения',
-              type: 'negative',
-              position: 'top',
-            });
+            this.prepareStore.notifyMessage('Ошибка назначения', 'negative');
           });
       }
 
