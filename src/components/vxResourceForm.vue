@@ -120,9 +120,9 @@
 
         <q-tab-panel name="created">
           <q-option-group
-            v-if="!!props.createdResources"
+            v-if="!!prepareStore.createdResources_2"
             v-model="state.selectedCreatedResource"
-            :options="props.createdResources"
+            :options="prepareStore.createdResources_2"
             color="primary"
           />
           <div v-else>Нет данных</div>
@@ -189,6 +189,7 @@ const emit = defineEmits([
   'onServiceAreaSelected',
   'onAddNewResource',
   'onPrepareComponent',
+  'onPrepareCreated',
   'onStreetSelected',
   'onAddressSelected',
 ]);
@@ -336,8 +337,8 @@ function onPrepareComponent() {
     emit('onPrepareComponent', newRes, props.currentItem);
     resetNewResource();
   } else if (state.resourceTab === 'created') {
-    emit('onPrepareComponent', state.selectedCreatedResource);
-    console.log('props.currentItem', props.currentItem);
+    emit('onPrepareCreated', state.selectedCreatedResource);
+    // console.log('props.currentItem', props.currentItem);
   } else {
     emit('onPrepareComponent', state.selectedExistingResource);
     console.log('props.currentItem', props.currentItem);

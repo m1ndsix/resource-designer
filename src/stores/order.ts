@@ -286,6 +286,7 @@ export const useOrderStore = defineStore('orderStore', {
                           this.selectedOrder.cprResourceOrderPoReqId,
                           this.selectedOrder.id
                         );
+
                         usePrepareStore().fetchProductInfo(
                           this.selectedOrder.productOfferRequestId,
                           this.selectedOrder.geoPlace.id
@@ -300,7 +301,6 @@ export const useOrderStore = defineStore('orderStore', {
                     }
                   });
                 }
-
                 console.log(data);
               })
               .catch((error) => {
@@ -312,6 +312,14 @@ export const useOrderStore = defineStore('orderStore', {
                 console.log(error);
               });
           } else {
+            this.getOrder(
+              this.selectedOrder.cprResourceOrderPoReqId,
+              this.selectedOrder.id
+            );
+            usePrepareStore().fetchProductInfo(
+              this.selectedOrder.productOfferRequestId,
+              this.selectedOrder.geoPlace.id
+            );
             Notify.create({
               message: 'Успешная отмена',
               type: 'positive',

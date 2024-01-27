@@ -220,6 +220,7 @@
       @on-address-selected="onAddressSelected"
       @on-add-new-resource="onAddNewResource"
       @on-prepare-component="onPrepareComponent"
+      @on-prepare-created="onPrepareCreated"
     />
   </q-dialog>
   <q-dialog v-model="openEditResourceForm">
@@ -266,7 +267,7 @@ import vxResultTable from '../components/vxResultTable.vue';
 import vxInspectionDialog from '../components/vxInspectionDialog.vue';
 import vxEditItem from '../components/vxEditItem.vue';
 import vxResourceInfo from 'src/components/vxResourceInfo.vue';
-import { MP_API, PC_API } from 'boot/api';
+import { MP_API, PC_API, POR_API } from 'boot/api';
 
 export default {
   setup() {
@@ -292,13 +293,19 @@ export default {
       isBulkComponentEdit: ref(false),
       splitterModel: ref(70),
       showAppointed: ref(false),
-      tickedNodes: ref(null),
+      tickedNodes: ref([]),
       selectedProduct: ref(null),
       currentResource: ref([]),
       preparedComponentsNew: ref([]),
       prepareStore,
       orderStore,
       router,
+      createdResource_2: {
+        label: null,
+        value: {
+          id: null,
+        },
+      },
       voixPositionsCols: [
         {
           name: 'id',
@@ -625,6 +632,8 @@ export default {
               ).then(({ data }) => {
                 console.log('physCon', data);
                 element.physicalContainerNumber = data.physicalContainerNumber;
+
+                // this.prepareStore.createdResources.push(element);
                 // element.physicalContainerNumber =
                 //   data.physicalContainerNumber;
                 // this.preparedComponentsNew.push(element);
@@ -635,15 +644,24 @@ export default {
           });
         }
       );
+      this.prepareStore.createdResources_2 = [];
+      setTimeout(() => {
+        this.orderStore.selectedOrder.cprResourceOrderPoReqItems.forEach(
+          (element) => {
+            const createdResource = {
+              label:
+                element.compositePhysResSpecData.nameRu +
+                ' ' +
+                element.physicalContainerNumber +
+                ' Порт ' +
+                element.portNumber,
+              value: element.id,
+            };
 
-      console.log(
-        'this.orderStore.selectedOrder',
-        this.orderStore.selectedOrder
-      );
-      console.log(
-        'this.orderStore.selectedOrder.cprResourceOrderPoReqItems',
-        this.orderStore.selectedOrder.cprResourceOrderPoReqItems
-      );
+            this.prepareStore.createdResources_2.push(createdResource);
+          }
+        );
+      }, 1500);
 
       this.openResourceForm = true;
     },
@@ -737,6 +755,55 @@ export default {
       this.currentPortId = null;
       this.openResourceForm = false;
     },
+
+    async onPrepareCreated(resource) {
+      const tickedNodes = this.$refs.qtree.getTickedNodes();
+      let componentsIds = null;
+      let positionIds = null;
+
+      if (tickedNodes.length > 0) {
+        componentsIds = tickedNodes.map((node) => node.id);
+        positionIds = tickedNodes.map((node) => node.poReqItemId);
+      }
+      this.tickedNodes = [];
+
+      for (let i = 0; i < componentsIds.length; i++) {
+        POR_API.patch(
+          `/po-req-item/${positionIds[0]}/po-req-item-component/${componentsIds[i]}`,
+          {
+            resourceOrderItemId: resource,
+          }
+        )
+          .then(() => {
+            if (componentsIds[i] === componentsIds[componentsIds.length - 1]) {
+              useOrderStore().getOrder(
+                useOrderStore().selectedOrder.cprResourceOrderPoReqId,
+                useOrderStore().selectedOrder.id
+              );
+              this.prepareStore.fetchProductInfo(
+                this.orderStore.selectedOrder.productOfferRequestId,
+                this.orderStore.selectedOrder.geoPlace.id
+              );
+            }
+            Notify.create({
+              message: 'Успешно назначен',
+              type: 'positive',
+              position: 'top',
+            });
+          })
+          .catch((error) => {
+            console.log(error);
+            Notify.create({
+              message: 'Ошибка назначения',
+              type: 'negative',
+              position: 'top',
+            });
+          });
+      }
+
+      this.openResourceForm = false;
+    },
+
     onEditComponent(resource, currentItem) {
       let { cprResourceOrderPoReqId, id } = this.orderStore.selectedOrder;
 

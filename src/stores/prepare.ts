@@ -19,6 +19,7 @@ interface State {
   selectedComponent: ProductOfferRequestItemComponent | null;
   components: ProductOfferRequestItemComponent[];
   createdResources: Resource[];
+  createdResources_2: unknown[];
   existingResources: Resource[];
   preparedComponents: PreparedComponents[];
   preparedComponentsNew: unknown[];
@@ -247,6 +248,7 @@ export const usePrepareStore = defineStore('prepareStore', {
       selectedComponent: null,
       components: [],
       createdResources: [],
+      createdResources_2: [],
       existingResources: [],
       preparedComponents: [],
       preparedComponentsNew: [],
