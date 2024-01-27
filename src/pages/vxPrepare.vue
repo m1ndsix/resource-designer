@@ -260,7 +260,7 @@ import { ref } from 'vue';
 import { usePrepareStore } from 'stores/prepare';
 import { useOrderStore } from 'src/stores/order';
 import { useRouter } from 'vue-router';
-import { Notify } from 'quasar';
+import { Notify, Dialog } from 'quasar';
 import vxResourceForm from '../components/vxResourceForm.vue';
 import vxEditResourceForm from '../components/vxEditResourceForm.vue';
 import vxResultTable from '../components/vxResultTable.vue';
@@ -349,39 +349,39 @@ export default {
   },
   mounted() {
     if (!this.poRequest) {
-      console.log(
-        'this.orderStore.selectedOrder',
-        this.orderStore.selectedOrder
-      );
-      this.prepareStore.fetchPORequest(
-        this.orderStore.selectedOrder.productOfferRequestId
-      );
-      this.prepareStore.fetchGeoPlaceInfo(
-        this.orderStore.selectedOrder.geoPlace.id
-      );
-      this.prepareStore.fetchProductInfo(
-        this.orderStore.selectedOrder.productOfferRequestId,
-        this.orderStore.selectedOrder.geoPlace.id
-      );
-      this.prepareStore.fetchCPRInfo(
-        this.orderStore.selectedOrder.geoPlace.id,
-        0,
-        10
-      );
-      this.prepareStore.dataTree = [
-        {
-          label: 'ПП с одним адресом',
-          nodeKey: 'productOfferWithGeneralGeoPlace',
-          noTick: true,
-          children: [],
-        },
-        {
-          label: 'ПП с несколькими адресами',
-          nodeKey: 'productOfferWithP2PGeoPlace',
-          noTick: true,
-          children: [],
-        },
-      ];
+      if (this.orderStore.selectedOrder) {
+        this.prepareStore.fetchPORequest(
+          this.orderStore.selectedOrder.productOfferRequestId
+        );
+        this.prepareStore.fetchGeoPlaceInfo(
+          this.orderStore.selectedOrder.geoPlace.id
+        );
+        this.prepareStore.fetchProductInfo(
+          this.orderStore.selectedOrder.productOfferRequestId,
+          this.orderStore.selectedOrder.geoPlace.id
+        );
+        this.prepareStore.fetchCPRInfo(
+          this.orderStore.selectedOrder.geoPlace.id,
+          0,
+          10
+        );
+        this.prepareStore.dataTree = [
+          {
+            label: 'ПП с одним адресом',
+            nodeKey: 'productOfferWithGeneralGeoPlace',
+            noTick: true,
+            children: [],
+          },
+          {
+            label: 'ПП с несколькими адресами',
+            nodeKey: 'productOfferWithP2PGeoPlace',
+            noTick: true,
+            children: [],
+          },
+        ];
+      } else {
+        this.onConfirm();
+      }
     }
   },
   computed: {
@@ -868,6 +868,26 @@ export default {
           unBookPort
         );
       });
+    },
+    onConfirm() {
+      Dialog.create({
+        title: 'Ошибка',
+        message: 'Заказ не выбран, вернуться к странице заказов?',
+        cancel: true,
+        persistent: true,
+      })
+        .onOk(() => {
+          this.router.push('/');
+        })
+        .onOk(() => {
+          // console.log('>>>> second OK catcher')
+        })
+        .onCancel(() => {
+          // console.log('>>>> Cancel')
+        })
+        .onDismiss(() => {
+          // console.log('I am triggered on both OK and Cancel')
+        });
     },
   },
 };
