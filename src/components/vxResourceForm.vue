@@ -103,9 +103,9 @@
 
         <q-tab-panel name="existing">
           <q-option-group
-            v-if="!!props.existingResources"
+            v-if="!!prepareStore.existingResources_2"
             v-model="state.selectedExistingResource"
-            :options="props.existingResources"
+            :options="prepareStore.existingResources_2"
             color="primary"
           >
             <template v-slot:label="opt">
@@ -190,6 +190,7 @@ const emit = defineEmits([
   'onAddNewResource',
   'onPrepareComponent',
   'onPrepareCreated',
+  'onPrepareExisted',
   'onStreetSelected',
   'onAddressSelected',
 ]);
@@ -337,11 +338,16 @@ function onPrepareComponent() {
     emit('onPrepareComponent', newRes, props.currentItem);
     resetNewResource();
   } else if (state.resourceTab === 'created') {
+    console.log('state.selectedCreatedResource', state.selectedCreatedResource);
     emit('onPrepareCreated', state.selectedCreatedResource);
     // console.log('props.currentItem', props.currentItem);
   } else {
-    emit('onPrepareComponent', state.selectedExistingResource);
-    console.log('props.currentItem', props.currentItem);
+    console.log(
+      'state.selectedExistingResource',
+      state.selectedExistingResource
+    );
+    emit('onPrepareExisted', state.selectedExistingResource);
+    // console.log('props.currentItem', props.currentItem);
   }
 }
 </script>

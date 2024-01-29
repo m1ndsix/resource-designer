@@ -221,6 +221,7 @@
       @on-add-new-resource="onAddNewResource"
       @on-prepare-component="onPrepareComponent"
       @on-prepare-created="onPrepareCreated"
+      @on-prepare-existed="onPrepareExisted"
     />
   </q-dialog>
   <q-dialog v-model="openEditResourceForm">
@@ -350,6 +351,14 @@ export default {
   mounted() {
     if (!this.poRequest) {
       if (this.orderStore.selectedOrder) {
+        console.log(
+          'this.orderStore.selectedOrder',
+          this.orderStore.selectedOrder
+        );
+        console.log(
+          'this.orderStore.selectedOrder.geoPlace.id',
+          this.orderStore.selectedOrder.geoPlace.id
+        );
         this.prepareStore.fetchPORequest(
           this.orderStore.selectedOrder.productOfferRequestId
         );
@@ -364,6 +373,10 @@ export default {
           this.orderStore.selectedOrder.geoPlace.id,
           0,
           10
+        );
+        console.log(
+          'this.prepareStore.existingResources',
+          this.prepareStore.existingResources
         );
         this.prepareStore.dataTree = [
           {
@@ -593,7 +606,10 @@ export default {
     },
     onAppoint(event) {
       event.stopPropagation();
-
+      console.log(
+        'this.prepareStore.existingResources',
+        this.prepareStore.existingResources
+      );
       console.log(
         'this.prepareStore.preparedComponentsNew',
         this.prepareStore.preparedComponentsNew
@@ -650,6 +666,10 @@ export default {
             };
 
             this.prepareStore.createdResources_2.push(createdResource);
+            console.log(
+              'this.prepareStore.createdResources_2',
+              this.prepareStore.createdResources_2
+            );
           }
         );
       }, 1500);
@@ -785,6 +805,69 @@ export default {
       }
 
       this.openResourceForm = false;
+    },
+
+    onPrepareExisted(resource) {
+      MP_API.get('/mounted-port', {
+        params: {
+          compositePhysResId: resource.compositePhysResId,
+          limit: 1,
+          offset: 0,
+        },
+      }).then((mPortResult) => {
+        console.log('mPortResult', mPortResult);
+        if (mPortResult.data) {
+          resource.portId = mPortResult.data[0].id;
+          resource.physicalContainerId =
+            mPortResult.data[0].physicalContainerId;
+          console.log('resource - 2', resource);
+          const tickedNodes = this.$refs.qtree.getTickedNodes();
+          let componentsIds = null;
+          let positionIds = null;
+
+          if (tickedNodes.length > 0) {
+            componentsIds = tickedNodes.map((node) => node.id);
+            positionIds = tickedNodes.map((node) => node.poReqItemId);
+          }
+          this.tickedNodes = [];
+
+          let { cprResourceOrderPoReqId, id, geoPlace } =
+            this.orderStore.selectedOrder;
+
+          this.currentPortId = null;
+          this.openResourceForm = false;
+          this.prepareStore.createPosition({
+            cprRoPoReqId: cprResourceOrderPoReqId,
+            cprRoPoReqWoId: id,
+            cprActionSpecId: 0,
+            compositePhysResSpecId: resource.compositePhysResSpecId,
+            physicalContainerId: resource.physicalContainerId,
+            geoPlaceId: geoPlace.id,
+            transportCpeFuncSpecId: resource.transportCpeFuncSpecId,
+            wiringTypeId: resource.wiringTypeId,
+            compositePhysResId: resource.compositePhysResId,
+            compositePhysResNum: resource.resourceNumber,
+            compositePhysResFullNum: resource.resourceFullNumber,
+            mountedPortId: resource.portId,
+            currentPortId: this.currentPortId,
+            poRequestItemId: positionIds[0], // TODO: need to work with multiple positions,
+            poReqItemCompIds: componentsIds,
+          });
+        } else {
+          // this.prepareStore.notifyMessage('Ошибка: Порт не найден', 'negative');
+          console.log('Порт не найден');
+          // this.prepareStore.infoTableLoading = false;
+        }
+      });
+
+      console.log('resource', resource);
+      console.log(
+        'resource.compositePhysResSpecId',
+        resource.compositePhysResSpecId
+      );
+      // console.log('cprResourceOrderPoReqId', cprResourceOrderPoReqId);
+      // console.log('id', id);
+      // console.log('geoPlace.id', geoPlace.id);
     },
 
     onEditComponent(resource, currentItem) {

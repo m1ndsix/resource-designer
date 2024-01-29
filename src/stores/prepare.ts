@@ -21,6 +21,7 @@ interface State {
   createdResources: Resource[];
   createdResources_2: unknown[];
   existingResources: Resource[];
+  existingResources_2: unknown[];
   preparedComponents: PreparedComponents[];
   preparedComponentsNew: unknown[];
   editItem: null;
@@ -250,6 +251,7 @@ export const usePrepareStore = defineStore('prepareStore', {
       createdResources: [],
       createdResources_2: [],
       existingResources: [],
+      existingResources_2: [],
       preparedComponents: [],
       preparedComponentsNew: [],
       editItem: null,
@@ -350,14 +352,21 @@ export const usePrepareStore = defineStore('prepareStore', {
           limit,
         },
       }).then(({ data }) => {
+        console.log('fetchCPRInfo', data);
         // TODO: no data spec
         if (data) {
-          this.existingResources = data.map((cpr) => {
+          this.existingResources_2 = data.map((cpr) => {
             return {
               label: `${cpr.compositePhysResSpecData.nameRu} (${cpr.compositePhysResSpecData.id}), ${cpr.resourceFullNumber}`,
               value: {
-                lineData: cpr.lineData,
-                spec: cpr.compositePhysResSpecData,
+                compositePhysResId: cpr.id,
+                compositePhysResSpecId: cpr.compositePhysResSpecData.id,
+                resourceNumber: cpr.resourceNumber,
+                resourceFullNumber: cpr.resourceFullNumber,
+                wiringTypeId: cpr.wiringTypeData.id,
+                transportCpeFuncSpecId: cpr.transportCpeFuncSpecId,
+                physicalContainerId: -1,
+                portId: -1,
               },
             };
           });
