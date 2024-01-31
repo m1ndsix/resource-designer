@@ -207,9 +207,6 @@ function makeTree(data) {
               nodeKey: `${pos.id}-${comp.id}`,
               nodeType: 'component',
               state: 'Новый',
-              portId: '',
-              portNumber: '',
-              physicalContainerNumber: '',
             };
           })
           .value();
@@ -311,9 +308,6 @@ export const usePrepareStore = defineStore('prepareStore', {
         this.preparedComponentsNew = [];
 
         if (data.productOfferWithGeneralGeoPlace.id) {
-          this.dataTree[0].children.push(
-            makeTree(data.productOfferWithGeneralGeoPlace)
-          );
           data.productOfferWithGeneralGeoPlace.productOfferReqItems.forEach(
             (element) =>
               element.itemComponents.forEach((element) =>
@@ -333,6 +327,15 @@ export const usePrepareStore = defineStore('prepareStore', {
                         ).then(({ data }) => {
                           element.physicalContainerNumber =
                             data.physicalContainerNumber;
+                          useOrderStore().selectedOrder.cprResourceOrderPoReqItems.forEach(
+                            (item) =>
+                              element.resourceOrderItemId === item.id
+                                ? ((element.cprActionId =
+                                    item.cprActionSpecData.id),
+                                  (element.cprActionName =
+                                    item.cprActionSpecData.nameRu))
+                                : console.log('diff')
+                          );
                           this.preparedComponentsNew.push(element);
                         });
                       } else {
@@ -343,6 +346,11 @@ export const usePrepareStore = defineStore('prepareStore', {
                   : (this.preparedTableLoading = false)
               )
           );
+          setTimeout(() => {
+            this.dataTree[0].children.push(
+              makeTree(data.productOfferWithGeneralGeoPlace)
+            );
+          }, 1500);
         }
         if (data.productOfferWithP2PGeoPlace.id) {
           this.dataTree[1].children.push(

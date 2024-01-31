@@ -32,7 +32,6 @@
 import { reactive } from 'vue';
 import { usePrepareStore } from '../stores/prepare';
 import { useOrderStore } from 'stores/order';
-import { Notify } from 'quasar';
 
 const prepareStore = usePrepareStore();
 const orderStore = useOrderStore();

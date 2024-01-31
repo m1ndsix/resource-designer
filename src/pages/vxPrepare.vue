@@ -261,7 +261,7 @@ import { ref } from 'vue';
 import { usePrepareStore } from 'stores/prepare';
 import { useOrderStore } from 'src/stores/order';
 import { useRouter } from 'vue-router';
-import { Notify, Dialog } from 'quasar';
+import { Dialog } from 'quasar';
 import vxResourceForm from '../components/vxResourceForm.vue';
 import vxEditResourceForm from '../components/vxEditResourceForm.vue';
 import vxResultTable from '../components/vxResultTable.vue';
@@ -468,11 +468,10 @@ export default {
     },
     colorizeActionChip(node) {
       let color;
-      // let action =
-      //   node.nodeType === 'position'
-      //     ? node.productOfferActionData.id
-      //     : node.baseCfsActionSpecData.id;
-      let action = 1;
+      let action =
+        node.nodeType === 'position'
+          ? node.productOfferActionData.id
+          : node.cprActionId;
       switch (action) {
         case 1:
           color = 'blue';
@@ -488,7 +487,7 @@ export default {
     nameActionChip(node) {
       return node.nodeType === 'position'
         ? node.productOfferActionData.nameRu
-        : node.baseCfsActionSpecData.nameRu;
+        : node.cprActionName;
     },
     oldName(node) {
       let name = node.oldProductOfferData.nameRu;
@@ -588,29 +587,6 @@ export default {
     onOpenResourceInfoDialog(event, node) {
       this.choosenComponent = [];
       this.choosenComponent.push(node);
-      this.prepareStore.infoTableLoading = true;
-      MP_API.get('/mounted-port', {
-        params: {
-          cprResourceOrderItemId: this.choosenComponent[0].resourceOrderItemId,
-          limit: 1,
-          offset: 0,
-        },
-      }).then((mPortResult) => {
-        if (mPortResult.data) {
-          this.choosenComponent[0].portNumber = mPortResult.data[0].portNumber;
-          PC_API.get(
-            `/physical-container/${mPortResult.data[0].physicalContainerId}`
-          ).then(({ data }) => {
-            this.choosenComponent[0].physicalContainerNumber =
-              data.physicalContainerNumber;
-            this.prepareStore.infoTableLoading = false;
-          });
-        } else {
-          this.prepareStore.notifyMessage('Ошибка: Порт не найден', 'negative');
-          console.log('Порт не найден');
-          this.prepareStore.infoTableLoading = false;
-        }
-      });
 
       this.choosenComponent[0].state = 'Подготовлен';
 

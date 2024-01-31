@@ -26,12 +26,6 @@ import { usePrepareStore } from 'stores/prepare';
 
 const columns = [
   {
-    name: 'actions',
-    label: 'Действие над ресурсом',
-    field: (row) => row.baseCfsActionSpecData.nameRu,
-    align: 'center',
-  },
-  {
     name: 'spec',
     align: 'center',
     label: 'Спецификация',
@@ -42,7 +36,7 @@ const columns = [
     name: 'action',
     align: 'center',
     label: 'Действие',
-    field: (row) => row.baseCfsActionSpecData.nameRu,
+    field: (row) => row.cprActionName,
     sortable: true,
   },
   {
