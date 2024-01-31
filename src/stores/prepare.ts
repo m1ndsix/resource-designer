@@ -284,6 +284,14 @@ export const usePrepareStore = defineStore('prepareStore', {
         console.log(data);
       });
     },
+    patchPORState(poRequestId: number) {
+      POR_API.patch(`/product-offer-request/${poRequestId}`, {
+        stateId: 4, // Ответ от ТУ
+      }).then(({ data }) => {
+        // TODO: meaningul handler
+        console.log(data);
+      });
+    },
     fetchGeoPlaceInfo(geoPlaceId: number) {
       LOC_API.get(`/geo-place/${geoPlaceId}`).then(({ data }) => {
         this.geoPlaceInfo = data;

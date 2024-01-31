@@ -468,10 +468,11 @@ export default {
     },
     colorizeActionChip(node) {
       let color;
-      let action =
-        node.nodeType === 'position'
-          ? node.productOfferActionData.id
-          : node.baseCfsActionSpecData.id;
+      // let action =
+      //   node.nodeType === 'position'
+      //     ? node.productOfferActionData.id
+      //     : node.baseCfsActionSpecData.id;
+      let action = 1;
       switch (action) {
         case 1:
           color = 'blue';
@@ -542,6 +543,7 @@ export default {
           this.orderStore.selectedOrder.cprResourceOrderPoReqId
         )
         .then((response) => {
+          console.log('response', response);
           //response[0] - statusCode
           //response[1] - errCode
           //response[2] - errMsg
@@ -550,6 +552,17 @@ export default {
               this.orderStore.selectedOrder.cprResourceOrderPoReqId,
               this.orderStore.selectedOrder.id,
               5
+            );
+            // console.log(
+            //   'this.orderStore.selectedOrder',
+            //   this.orderStore.selectedOrder
+            // );
+            // console.log(
+            //   'this.orderStore.selectedOrder.cprResourceOrderPoReqId',
+            //   this.orderStore.selectedOrder.cprResourceOrderPoReqId
+            // );
+            this.prepareStore.patchPORState(
+              this.orderStore.selectedOrder.productOfferRequestId
             );
             this.prepareStore.notifyMessage('Поручение завершено', 'positive');
           } else {
@@ -839,7 +852,7 @@ export default {
           this.prepareStore.createPosition({
             cprRoPoReqId: cprResourceOrderPoReqId,
             cprRoPoReqWoId: id,
-            cprActionSpecId: 0,
+            cprActionSpecId: 1,
             compositePhysResSpecId: resource.compositePhysResSpecId,
             physicalContainerId: resource.physicalContainerId,
             geoPlaceId: geoPlace.id,
