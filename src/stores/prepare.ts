@@ -350,7 +350,7 @@ export const usePrepareStore = defineStore('prepareStore', {
             this.dataTree[0].children.push(
               makeTree(data.productOfferWithGeneralGeoPlace)
             );
-          }, 1500);
+          }, 2000);
         }
         if (data.productOfferWithP2PGeoPlace.id) {
           this.dataTree[1].children.push(

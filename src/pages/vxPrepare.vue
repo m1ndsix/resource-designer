@@ -56,7 +56,10 @@
     </div>
 
     <div class="row">
-      <div class="row">
+      <div class="row" v-if="prepareStore.dataTree[0].children.length == 0">
+        <q-spinner-hourglass size="40px" color="primary" />
+      </div>
+      <div class="row" v-if="prepareStore.dataTree[0].children.length != 0">
         <q-tree
           class="col"
           ref="qtree"
@@ -659,6 +662,7 @@ export default {
               'this.prepareStore.createdResources_2',
               this.prepareStore.createdResources_2
             );
+            this.prepareStore.createdResources_loading = true;
           }
         );
       }, 1500);
