@@ -662,7 +662,6 @@ export default {
               'this.prepareStore.createdResources_2',
               this.prepareStore.createdResources_2
             );
-            this.prepareStore.createdResources_loading = true;
           }
         );
       }, 1500);
