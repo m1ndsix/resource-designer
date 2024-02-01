@@ -130,11 +130,13 @@
 <script setup>
 import { ref, reactive, watchEffect } from 'vue';
 import { useOrderStore } from 'stores/order';
+import { usePrepareStore } from 'stores/prepare';
 import { useRouter } from 'vue-router';
 import { date } from 'quasar';
 
 const isTableLoading = ref(false);
 const orderStore = useOrderStore();
+const prepareStore = usePrepareStore();
 const router = useRouter();
 const myTable = ref();
 const pagination = ref({
@@ -281,6 +283,10 @@ function onTableRequest(request) {
 function prepareOrder(order) {
   orderStore.selectedOrder = { ...order };
   orderStore.patchWorkOrder(order.cprResourceOrderPoReqId, order.id, 2);
+  this.prepareStore.patchPORState(
+    this.orderStore.selectedOrder.productOfferRequestId,
+    2
+  );
   router.push('/prepare');
 }
 

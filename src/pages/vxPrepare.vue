@@ -564,7 +564,8 @@ export default {
             //   this.orderStore.selectedOrder.cprResourceOrderPoReqId
             // );
             this.prepareStore.patchPORState(
-              this.orderStore.selectedOrder.productOfferRequestId
+              this.orderStore.selectedOrder.productOfferRequestId,
+              4
             );
             this.prepareStore.notifyMessage('Поручение завершено', 'positive');
           } else {
@@ -828,7 +829,7 @@ export default {
 
           this.currentPortId = null;
           this.openResourceForm = false;
-          this.prepareStore.createPosition({
+          this.prepareStore.createPosExisRes({
             cprRoPoReqId: cprResourceOrderPoReqId,
             cprRoPoReqWoId: id,
             cprActionSpecId: 1,
@@ -844,6 +845,7 @@ export default {
             currentPortId: this.currentPortId,
             poRequestItemId: positionIds[0], // TODO: need to work with multiple positions,
             poReqItemCompIds: componentsIds,
+            resourceOrderItemId: resource.resourceOrderItemId,
           });
         } else {
           // this.prepareStore.notifyMessage('Ошибка: Порт не найден', 'negative');

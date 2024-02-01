@@ -281,9 +281,9 @@ export const usePrepareStore = defineStore('prepareStore', {
         console.log(data);
       });
     },
-    patchPORState(poRequestId: number) {
+    patchPORState(poRequestId: number, stateId: number) {
       POR_API.patch(`/product-offer-request/${poRequestId}`, {
-        stateId: 4, // Ответ от ТУ
+        stateId: stateId,
       }).then(({ data }) => {
         // TODO: meaningul handler
         console.log(data);
@@ -369,6 +369,8 @@ export const usePrepareStore = defineStore('prepareStore', {
         },
       }).then(({ data }) => {
         console.log('fetchCPRInfo', data);
+        console.log('data[1].id', data[1].id);
+
         // TODO: no data spec
         if (data) {
           this.existingResources_2 = data.map((cpr) => {
@@ -379,10 +381,13 @@ export const usePrepareStore = defineStore('prepareStore', {
                 compositePhysResSpecId: cpr.compositePhysResSpecData.id,
                 resourceNumber: cpr.resourceNumber,
                 resourceFullNumber: cpr.resourceFullNumber,
+                resourceOrderItemId: cpr.resourceOrderItemId,
                 wiringTypeId: cpr.wiringTypeData.id,
                 transportCpeFuncSpecId: cpr.transportCpeFuncSpecId,
                 physicalContainerId: -1,
                 portId: -1,
+                // physicalContainerId: mPortResult.data[0].physicalContainerId,
+                // portId: mPortResult.data[0].id,
               },
             };
           });
@@ -486,6 +491,72 @@ export const usePrepareStore = defineStore('prepareStore', {
             this.notifyMessage('Ошибка назначения', 'negative');
           });
       });
+    },
+    createPosExisRes({
+      cprRoPoReqId,
+      cprRoPoReqWoId,
+      cprActionSpecId,
+      compositePhysResSpecId,
+      physicalContainerId,
+      geoPlaceId,
+      transportCpeFuncSpecId,
+      wiringTypeId,
+      compositePhysResId,
+      compositePhysResNum,
+      compositePhysResFullNum,
+      mountedPortId,
+      poRequestItemId,
+      poReqItemCompIds,
+      resourceOrderItemId,
+    }) {
+      CPR_RO_API.post(
+        `/cpr-resource-order-po-req/${cprRoPoReqId}/work-order/${cprRoPoReqWoId}/item`,
+        {
+          cprActionSpecId,
+          compositePhysResSpecId,
+          physicalContainerId,
+          geoPlaceId,
+          transportCpeFuncSpecId,
+          wiringTypeId,
+          compositePhysResId,
+          compositePhysResNum,
+          compositePhysResFullNum,
+        }
+      )
+        .then(() => {
+          for (let i = 0; i < poReqItemCompIds.length; i++) {
+            POR_API.patch(
+              `/po-req-item/${poRequestItemId}/po-req-item-component/${poReqItemCompIds[i]}`,
+              {
+                resourceOrderItemId: resourceOrderItemId,
+              }
+            )
+              .then(() => {
+                if (
+                  poReqItemCompIds[i] ===
+                  poReqItemCompIds[poReqItemCompIds.length - 1]
+                ) {
+                  useOrderStore().getOrder(
+                    useOrderStore().selectedOrder.cprResourceOrderPoReqId,
+                    useOrderStore().selectedOrder.id
+                  );
+                  this.fetchProductInfo(
+                    useOrderStore().selectedOrder.productOfferRequestId,
+                    useOrderStore().selectedOrder.geoPlace.id
+                  );
+                }
+                this.notifyMessage('Успешно назначен', 'positive');
+              })
+              .catch((error) => {
+                console.log(error);
+                this.notifyMessage('Ошибка назначения', 'negative');
+              });
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+          this.notifyMessage('Ошибка назначения', 'negative');
+        });
     },
 
     editPosition({
