@@ -36,7 +36,7 @@ const columns = [
     name: 'action',
     align: 'center',
     label: 'Действие',
-    field: (row) => row.cprActionName,
+    field: (row) => row.baseCfsActionSpecData.nameRu,
     sortable: true,
   },
   {

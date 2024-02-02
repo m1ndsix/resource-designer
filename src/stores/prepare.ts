@@ -268,6 +268,7 @@ export const usePrepareStore = defineStore('prepareStore', {
     fetchPORequest(poRequestId: number) {
       POR_API.get(`/product-offer-request/${poRequestId}`).then(({ data }) => {
         this.poRequest = data;
+        console.log('this.poRequest', this.poRequest);
       });
     },
     patchPORequest(poRequestId: number, poRequestItemId: number) {
@@ -327,15 +328,6 @@ export const usePrepareStore = defineStore('prepareStore', {
                         ).then(({ data }) => {
                           element.physicalContainerNumber =
                             data.physicalContainerNumber;
-                          useOrderStore().selectedOrder.cprResourceOrderPoReqItems.forEach(
-                            (item) =>
-                              element.resourceOrderItemId === item.id
-                                ? ((element.cprActionId =
-                                    item.cprActionSpecData.id),
-                                  (element.cprActionName =
-                                    item.cprActionSpecData.nameRu))
-                                : console.log('diff')
-                          );
                           this.preparedComponentsNew.push(element);
                         });
                       } else {
@@ -504,7 +496,6 @@ export const usePrepareStore = defineStore('prepareStore', {
       compositePhysResId,
       compositePhysResNum,
       compositePhysResFullNum,
-      mountedPortId,
       poRequestItemId,
       poReqItemCompIds,
       resourceOrderItemId,
