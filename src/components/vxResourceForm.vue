@@ -356,6 +356,7 @@ function onPrepareComponent() {
       'state.selectedExistingResource',
       state.selectedExistingResource
     );
+
     emit('onPrepareExisted', state.selectedExistingResource);
     // console.log('props.currentItem', props.currentItem);
   }

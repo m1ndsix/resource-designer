@@ -103,9 +103,9 @@
 
         <q-tab-panel name="existing">
           <q-option-group
-            v-if="!!props.existingResources"
+            v-if="!!prepareStore.existingResources_2"
             v-model="state.selectedExistingResource"
-            :options="props.existingResources"
+            :options="prepareStore.existingResources_2"
             color="primary"
           >
             <template v-slot:label="opt">
@@ -120,12 +120,21 @@
 
         <q-tab-panel name="created">
           <q-option-group
-            v-if="!!props.createdResources"
+            v-if="prepareStore.createdResources_2.length > 0"
             v-model="state.selectedCreatedResource"
-            :options="props.createdResources"
+            :options="prepareStore.createdResources_2"
             color="primary"
           />
-          <div v-else>Нет данных</div>
+          <div v-else>
+            <div v-if="elementVisible">
+              <q-spinner-tail
+                v-show="elementVisible"
+                size="40px"
+                color="primary"
+              />
+            </div>
+            <div v-else>Нет данных...</div>
+          </div>
         </q-tab-panel>
       </q-tab-panels>
     </q-card-section>
@@ -151,7 +160,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive } from 'vue';
+import { reactive, ref, watchEffect } from 'vue';
 import { Resource } from './models';
 import { useOrderStore } from 'stores/order';
 import { usePrepareStore } from 'stores/prepare';
@@ -180,7 +189,7 @@ const props = withDefaults(defineProps<Props>(), {
 */
 const orderStore = useOrderStore();
 const prepareStore = usePrepareStore();
-
+const elementVisible = ref(false);
 /*
   Emits
 */
@@ -189,6 +198,8 @@ const emit = defineEmits([
   'onServiceAreaSelected',
   'onAddNewResource',
   'onEditComponent',
+  'onPrepareCreated',
+  'onPrepareExisted',
   'onStreetSelected',
   'onAddressSelected',
 ]);
@@ -338,8 +349,41 @@ function onEditComponent() {
     console.log('newRes', newRes);
     console.log('props.currentItem', props.currentItem);
     resetNewResource();
+  } else if (state.resourceTab === 'created') {
+    console.log('state.selectedCreatedResource', state.selectedCreatedResource);
+    console.log('prepareStore.editItem', prepareStore.editItem);
+    // emit(
+    //   'onPrepareCreated',
+    //   state.selectedCreatedResource,
+    //   prepareStore.editItem
+    // );
+    console.log('emit');
+    // console.log('props.currentItem', props.currentItem);
+  } else {
+    console.log(
+      'state.selectedExistingResource',
+      state.selectedExistingResource
+    );
+    console.log('props.currentItem', props.currentItem);
+    console.log('prepareStore.editItem', prepareStore.editItem);
+    emit(
+      'onPrepareExisted',
+      state.selectedExistingResource,
+      prepareStore.editItem
+    );
+    // console.log('props.currentItem', props.currentItem);
   }
 }
+
+watchEffect(() => {
+  if (state.resourceTab === 'created') {
+    elementVisible.value = true;
+
+    setTimeout(() => {
+      elementVisible.value = false;
+    }, 2000);
+  }
+});
 </script>
 
 <style lang="sass" scoped></style>

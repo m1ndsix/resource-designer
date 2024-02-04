@@ -65,6 +65,7 @@
           ref="qtree"
           node-key="nodeKey"
           tick-strategy="leaf"
+          v-model:expanded="expanded"
           :nodes="prepareStore.dataTree"
           :filter="treeFilter"
           :filter-method="treeFilterMethod"
@@ -239,6 +240,8 @@
       @on-address-selected="onAddressSelected"
       @on-add-new-resource="onAddNewResource"
       @on-edit-component="onEditComponent"
+      @on-prepare-existed="onPrepareExisted"
+      @on-prepare-created="onPrepareCreated"
     />
   </q-dialog>
   <q-dialog v-model="openResultTable">
@@ -280,6 +283,7 @@ export default {
     const router = useRouter();
 
     return {
+      expanded: ref([prepareStore.dataTree[0].nodeKey]),
       currentItem: ref([]),
       currentItemId: ref(null),
       currentPortId: ref(null),
@@ -380,6 +384,10 @@ export default {
         console.log(
           'this.prepareStore.existingResources',
           this.prepareStore.existingResources
+        );
+        console.log(
+          'this.prepareStore.dataTree[0]',
+          this.prepareStore.dataTree[0]
         );
         this.prepareStore.dataTree = [
           {
@@ -825,7 +833,8 @@ export default {
       this.openResourceForm = false;
     },
 
-    async onPrepareCreated(resource) {
+    async onPrepareCreated(resource, currentItem) {
+      console.log('onPrepareCreated');
       const tickedNodes = this.$refs.qtree.getTickedNodes();
       let componentsIds = null;
       let positionIds = null;
@@ -833,6 +842,9 @@ export default {
       if (tickedNodes.length > 0) {
         componentsIds = tickedNodes.map((node) => node.id);
         positionIds = tickedNodes.map((node) => node.poReqItemId);
+      } else if (currentItem.length > 0) {
+        componentsIds = currentItem[0].map((node) => node.id);
+        positionIds = currentItem[0].map((node) => node.poReqItemId);
       }
       this.tickedNodes = [];
 
@@ -865,7 +877,7 @@ export default {
       this.openResourceForm = false;
     },
 
-    onPrepareExisted(resource) {
+    onPrepareExisted(resource, currentItem) {
       MP_API.get('/mounted-port', {
         params: {
           compositePhysResId: resource.compositePhysResId,
@@ -886,6 +898,9 @@ export default {
           if (tickedNodes.length > 0) {
             componentsIds = tickedNodes.map((node) => node.id);
             positionIds = tickedNodes.map((node) => node.poReqItemId);
+          } else if (currentItem.length > 0) {
+            componentsIds = currentItem[0].map((node) => node.id);
+            positionIds = currentItem[0].map((node) => node.poReqItemId);
           }
           this.tickedNodes = [];
 

@@ -132,6 +132,7 @@ import { ref } from 'vue';
 import { usePrepareStore } from 'stores/prepare';
 import { useOrderStore } from 'src/stores/order';
 import vxMeasurement from './vxMeasurement.vue';
+import { MP_API, PC_API } from 'boot/api';
 
 export default {
   setup() {
@@ -188,6 +189,70 @@ export default {
   },
   methods: {
     editPositionItem(row) {
+      this.orderStore.selectedOrder.cprResourceOrderPoReqItems.forEach(
+        (element) => {
+          element.compositePhysResId != -1
+            ? MP_API.get('/mounted-port', {
+                params: {
+                  compositePhysResId: element.compositePhysResId,
+                  limit: 1,
+                  offset: 0,
+                },
+              }).then((mPortResult) => {
+                if (mPortResult.data) {
+                  element.portNumber = mPortResult.data[0].portNumber;
+                  PC_API.get(
+                    `/physical-container/${mPortResult.data[0].physicalContainerId}`
+                  ).then(({ data }) => {
+                    console.log('physCon', data);
+                    element.physicalContainerNumber =
+                      data.physicalContainerNumber;
+                  });
+                } else {
+                  console.log('Порт не найден');
+                }
+              })
+            : MP_API.get('/mounted-port', {
+                params: {
+                  cprResourceOrderItemId: element.id,
+                  limit: 1,
+                  offset: 0,
+                },
+              }).then((mPortResult) => {
+                if (mPortResult.data) {
+                  element.portNumber = mPortResult.data[0].portNumber;
+                  PC_API.get(
+                    `/physical-container/${mPortResult.data[0].physicalContainerId}`
+                  ).then(({ data }) => {
+                    console.log('physCon', data);
+                    element.physicalContainerNumber =
+                      data.physicalContainerNumber;
+                  });
+                } else {
+                  console.log('Порт не найден');
+                }
+              });
+        }
+      );
+      this.prepareStore.createdResources_2 = [];
+      setTimeout(() => {
+        this.orderStore.selectedOrder.cprResourceOrderPoReqItems.forEach(
+          (element) => {
+            const createdResource = {
+              label:
+                element.compositePhysResSpecData.nameRu +
+                ' ' +
+                element.physicalContainerNumber +
+                ' Порт ' +
+                element.portNumber,
+              value: element.id,
+            };
+
+            this.prepareStore.createdResources_2.push(createdResource);
+          }
+        );
+      }, 1500);
+      console.log('editPositionItem');
       this.$emit('onEditItem', row);
     },
     cancelPositionItem(row) {
