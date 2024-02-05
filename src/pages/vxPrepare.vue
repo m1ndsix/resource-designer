@@ -835,6 +835,8 @@ export default {
 
     async onPrepareCreated(resource, currentItem) {
       console.log('onPrepareCreated');
+      console.log('resource', resource);
+      console.log('currentItem', currentItem);
       const tickedNodes = this.$refs.qtree.getTickedNodes();
       let componentsIds = null;
       let positionIds = null;
@@ -846,34 +848,101 @@ export default {
         componentsIds = currentItem[0].map((node) => node.id);
         positionIds = currentItem[0].map((node) => node.poReqItemId);
       }
+      console.log('componentsIds', componentsIds);
+      console.log('positionIds', positionIds);
       this.tickedNodes = [];
-
-      for (let i = 0; i < componentsIds.length; i++) {
-        POR_API.patch(
-          `/po-req-item/${positionIds[0]}/po-req-item-component/${componentsIds[i]}`,
-          {
-            resourceOrderItemId: resource,
-          }
-        )
-          .then(() => {
-            if (componentsIds[i] === componentsIds[componentsIds.length - 1]) {
-              useOrderStore().getOrder(
-                useOrderStore().selectedOrder.cprResourceOrderPoReqId,
-                useOrderStore().selectedOrder.id
-              );
-              this.prepareStore.fetchProductInfo(
-                this.orderStore.selectedOrder.productOfferRequestId,
-                this.orderStore.selectedOrder.geoPlace.id
-              );
+      if (resource.compositePhysResId == -1) {
+        for (let i = 0; i < componentsIds.length; i++) {
+          POR_API.patch(
+            `/po-req-item/${positionIds[0]}/po-req-item-component/${componentsIds[i]}`,
+            {
+              resourceOrderItemId: resource.id,
             }
-            this.prepareStore.notifyMessage('Успешно назначен', 'positive');
-          })
-          .catch((error) => {
-            console.log(error);
-            this.prepareStore.notifyMessage('Ошибка назначения', 'negative');
-          });
+          )
+            .then(() => {
+              if (
+                componentsIds[i] === componentsIds[componentsIds.length - 1]
+              ) {
+                useOrderStore().getOrder(
+                  useOrderStore().selectedOrder.cprResourceOrderPoReqId,
+                  useOrderStore().selectedOrder.id
+                );
+                this.prepareStore.fetchProductInfo(
+                  this.orderStore.selectedOrder.productOfferRequestId,
+                  this.orderStore.selectedOrder.geoPlace.id
+                );
+              }
+              this.prepareStore.notifyMessage('Успешно назначен', 'positive');
+            })
+            .catch((error) => {
+              console.log(error);
+              this.prepareStore.notifyMessage('Ошибка назначения', 'negative');
+            });
+        }
+      } else {
+        // MP_API.get('/mounted-port', {
+        //   params: {
+        //     compositePhysResId: resource.compositePhysResId,
+        //     limit: 1,
+        //     offset: 0,
+        //   },
+        // }).then((mPortResult) => {
+        //   POR_API.patch(
+        //     `/po-req-item/${currentItem.poReqItemId}/po-req-item-component/${currentItem.id}`,
+        //     {
+        //       resourceOrderItemId: mPortResult.data[0].cprResourceOrderItemId,
+        //     }
+        //   )
+        //     .then(() => {
+        //       let { cprResourceOrderPoReqId, id } =
+        //         this.orderStore.selectedOrder;
+        //       this.prepareStore.editPosCrtRes({
+        //         cprRoPoReqId: cprResourceOrderPoReqId,
+        //         cprRoPoReqWoId: id,
+        //         cprRoPoReqWoItemId: currentItem.resourceOrderItemId,
+        //         compositePhysResSpecId: resource.compositePhysResSpecId,
+        //         physicalContainerId: resource.physicalContainerId,
+        //         transportCpeFuncSpecId: resource.transportCpeFuncSpecId,
+        //         wiringTypeId: resource.wiringTypeId,
+        //         compositePhysResId: resource.compositePhysResId,
+        //         compositePhysResNum: resource.compositePhysResNum,
+        //         compositePhysResFullNum: resource.compositePhysResFullNum,
+        //         mountedPortId: resource.port.id,
+        //         currentPortId: currentItem.portId,
+        //         poRequestItemId: currentItem.id,
+        //         poReqItemCompIds: currentItem.poReqItemId,
+        //       });
+        //       useOrderStore().getOrder(
+        //         useOrderStore().selectedOrder.cprResourceOrderPoReqId,
+        //         useOrderStore().selectedOrder.id
+        //       );
+        //       this.prepareStore.fetchProductInfo(
+        //         this.orderStore.selectedOrder.productOfferRequestId,
+        //         this.orderStore.selectedOrder.geoPlace.id
+        //       );
+        //       this.prepareStore.notifyMessage('Успешно назначен', 'positive');
+        //     })
+        //     .catch((error) => {
+        //       console.log(error);
+        //       this.prepareStore.notifyMessage('Ошибка назначения', 'negative');
+        //     });
+        // console.log('mPortResult', mPortResult);
+        // console.log(
+        //   'mPortResult.data[0].cprResourceOrderItemId',
+        //   mPortResult.data[0].cprResourceOrderItemId
+        // );
+        console.log(
+          'this.prepareStore.preparedComponentsNew',
+          this.prepareStore.preparedComponentsNew
+        );
+        console.log('componentsIds', currentItem.id);
+        console.log('positionIds', currentItem.poReqItemId);
+        console.log('currentItem', currentItem);
+        console.log('resource.id', resource.id);
+        console.log('resource.id', resource.id);
+        console.log('resource.compositePhysResId', resource.compositePhysResId);
+        // });
       }
-
       this.openResourceForm = false;
     },
 
@@ -995,7 +1064,7 @@ export default {
             unBookPort = false;
           }
         });
-
+        console.log('unBookPort', unBookPort);
         this.orderStore.patchWorkOrderItem(
           this.orderStore.selectedOrder.cprResourceOrderPoReqId,
           this.orderStore.selectedOrder.id,
@@ -1003,7 +1072,8 @@ export default {
           2,
           tickedElement.poReqItemId,
           tickedElement.id,
-          unBookPort
+          unBookPort,
+          tickedElement.compositePhysResId
         );
       });
     },

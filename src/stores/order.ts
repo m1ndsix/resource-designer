@@ -250,7 +250,8 @@ export const useOrderStore = defineStore('orderStore', {
       stateId: number,
       poRequestItemId: number,
       poReqItemCompId: string,
-      unBookPort: boolean
+      unBookPort: boolean,
+      compositePhysResId: number
     ) {
       POR_API.patch(
         `/po-req-item/${poRequestItemId}/po-req-item-component/${poReqItemCompId}`,
@@ -260,13 +261,36 @@ export const useOrderStore = defineStore('orderStore', {
       )
         .then(() => {
           if (unBookPort) {
+            console.log('cprRoPoReqId', cprRoPoReqId);
+            console.log('cprRoPoReqWoId', cprRoPoReqWoId);
+            console.log('cprRoPoReqWoItemId', cprRoPoReqWoItemId);
+            // Решить проблему с cprRoPoReqWoItemId, когда нужно отменять позицию назначению существующим ресурсом, проблема в том что у существующего ресурса другой айтем айди.
             CPR_RO_API.patch(
               `/cpr-resource-order-po-req/${cprRoPoReqId}/work-order/${cprRoPoReqWoId}/item/${cprRoPoReqWoItemId}`,
               { stateId }
             )
               // TODO: Нужно добавить проверку в случае если на одном порту несколько компонентов, и не разбронировать его в случае если один из компонетов не отменен.
               .then(({ data }) => {
-                if (cprRoPoReqWoItemId != -1) {
+                console.log('Patch data', data);
+                if (compositePhysResId != -1) {
+                  // Cancel existed resource
+                  this.getOrder(
+                    this.selectedOrder.cprResourceOrderPoReqId,
+                    this.selectedOrder.id
+                  );
+
+                  usePrepareStore().fetchProductInfo(
+                    this.selectedOrder.productOfferRequestId,
+                    this.selectedOrder.geoPlace.id
+                  );
+                  usePrepareStore().notifyMessage(
+                    'Успешная отмена',
+                    'positive'
+                  );
+                } else if (
+                  cprRoPoReqWoItemId != -1 &&
+                  compositePhysResId == -1
+                ) {
                   MP_API.get('/mounted-port', {
                     params: {
                       cprResourceOrderItemId: cprRoPoReqWoItemId,

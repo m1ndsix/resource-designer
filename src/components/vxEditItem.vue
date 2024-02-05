@@ -238,6 +238,7 @@ export default {
       setTimeout(() => {
         this.orderStore.selectedOrder.cprResourceOrderPoReqItems.forEach(
           (element) => {
+            console.log('!!!!element', element);
             const createdResource = {
               label:
                 element.compositePhysResSpecData.nameRu +
@@ -245,7 +246,16 @@ export default {
                 element.physicalContainerNumber +
                 ' Порт ' +
                 element.portNumber,
-              value: element.id,
+              value: {
+                id: element.id,
+                compositePhysResId: element.compositePhysResId,
+                compositePhysResNum: element.compositePhysResNum,
+                compositePhysResFullNum: element.compositePhysResFullNum,
+                compositePhysResSpecId: element.compositePhysResSpecData.id,
+                physicalContainerId: element.physicalContainerId,
+                transportCpeFuncSpecId: element.transportCpeFuncSpecData.id,
+                wiringTypeId: element.wiringTypeData.id,
+              },
             };
 
             this.prepareStore.createdResources_2.push(createdResource);
@@ -253,6 +263,10 @@ export default {
         );
       }, 1500);
       console.log('editPositionItem');
+      console.log(
+        'this.prepareStore.createdResources_2',
+        this.prepareStore.createdResources_2
+      );
       this.$emit('onEditItem', row);
     },
     cancelPositionItem(row) {
@@ -260,8 +274,10 @@ export default {
 
       this.prepareStore.preparedComponentsNew.forEach((element) => {
         if (
-          row.id != element.id &&
-          row.resourceOrderItemId === element.resourceOrderItemId
+          (row.id != element.id &&
+            row.resourceOrderItemId === element.resourceOrderItemId) ||
+          (row.id != element.id &&
+            row.compositePhysResId === element.compositePhysResId)
         ) {
           unBookPort = false;
         }
@@ -274,7 +290,8 @@ export default {
         2,
         row.poReqItemId,
         row.id,
-        unBookPort
+        unBookPort,
+        row.compositePhysResId
       );
     },
     geoPlaceName() {

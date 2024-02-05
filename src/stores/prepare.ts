@@ -320,9 +320,12 @@ export const usePrepareStore = defineStore('prepareStore', {
                         offset: 0,
                       },
                     }).then((mPortResult) => {
+                      console.log('mPortResult', mPortResult);
                       if (mPortResult.data) {
                         element.portId = mPortResult.data[0].id;
                         element.portNumber = mPortResult.data[0].portNumber;
+                        element.compositePhysResId =
+                          mPortResult.data[0].compositePhysResId;
                         PC_API.get(
                           `/physical-container/${mPortResult.data[0].physicalContainerId}`
                         ).then(({ data }) => {
@@ -550,7 +553,129 @@ export const usePrepareStore = defineStore('prepareStore', {
         });
     },
 
-    editPosition({
+    editPosNewRes({
+      cprRoPoReqId,
+      cprRoPoReqWoId,
+      cprRoPoReqWoItemId,
+      compositePhysResSpecId,
+      physicalContainerId,
+      transportCpeFuncSpecId,
+      wiringTypeId,
+      compositePhysResId,
+      compositePhysResNum,
+      compositePhysResFullNum,
+      mountedPortId,
+      currentPortId,
+    }) {
+      CPR_RO_API.patch(
+        `/cpr-resource-order-po-req/${cprRoPoReqId}/work-order/${cprRoPoReqWoId}/item/${cprRoPoReqWoItemId}`,
+        {
+          compositePhysResSpecId,
+          physicalContainerId,
+          transportCpeFuncSpecId,
+          wiringTypeId,
+          compositePhysResId,
+          compositePhysResNum,
+          compositePhysResFullNum,
+        }
+      ).then(() => {
+        MP_API.patch(`/mounted-port/${mountedPortId}`, {
+          usageStateId: 2,
+          cprResourceOrderItemId: cprRoPoReqWoItemId,
+        })
+          .then((mountResult) => {
+            // TODO: handle success/error
+            console.log(mountResult);
+            MP_API.patch(`/mounted-port/${currentPortId}`, {
+              usageStateId: 1,
+              cprResourceOrderItemId: -1,
+            })
+              .then((mountResult) => {
+                useOrderStore().getOrder(
+                  useOrderStore().selectedOrder.cprResourceOrderPoReqId,
+                  useOrderStore().selectedOrder.id
+                );
+                this.fetchProductInfo(
+                  useOrderStore().selectedOrder.productOfferRequestId,
+                  useOrderStore().selectedOrder.geoPlace.id
+                );
+                this.notifyMessage('Успешно отредактирован', 'positive');
+                console.log(mountResult);
+              })
+              .catch((error) => {
+                console.log(error);
+                this.notifyMessage('Ошибка редактирования', 'negative');
+              });
+          })
+          .catch((error) => {
+            console.log(error);
+            this.notifyMessage('Ошибка редактирования', 'negative');
+          });
+      });
+    },
+
+    editPosExRes({
+      cprRoPoReqId,
+      cprRoPoReqWoId,
+      cprRoPoReqWoItemId,
+      compositePhysResSpecId,
+      physicalContainerId,
+      transportCpeFuncSpecId,
+      wiringTypeId,
+      compositePhysResId,
+      compositePhysResNum,
+      compositePhysResFullNum,
+      mountedPortId,
+      currentPortId,
+    }) {
+      CPR_RO_API.patch(
+        `/cpr-resource-order-po-req/${cprRoPoReqId}/work-order/${cprRoPoReqWoId}/item/${cprRoPoReqWoItemId}`,
+        {
+          compositePhysResSpecId,
+          physicalContainerId,
+          transportCpeFuncSpecId,
+          wiringTypeId,
+          compositePhysResId,
+          compositePhysResNum,
+          compositePhysResFullNum,
+        }
+      ).then(() => {
+        MP_API.patch(`/mounted-port/${mountedPortId}`, {
+          usageStateId: 2,
+          cprResourceOrderItemId: cprRoPoReqWoItemId,
+        })
+          .then((mountResult) => {
+            // TODO: handle success/error
+            console.log(mountResult);
+            MP_API.patch(`/mounted-port/${currentPortId}`, {
+              usageStateId: 1,
+              cprResourceOrderItemId: -1,
+            })
+              .then((mountResult) => {
+                useOrderStore().getOrder(
+                  useOrderStore().selectedOrder.cprResourceOrderPoReqId,
+                  useOrderStore().selectedOrder.id
+                );
+                this.fetchProductInfo(
+                  useOrderStore().selectedOrder.productOfferRequestId,
+                  useOrderStore().selectedOrder.geoPlace.id
+                );
+                this.notifyMessage('Успешно отредактирован', 'positive');
+                console.log(mountResult);
+              })
+              .catch((error) => {
+                console.log(error);
+                this.notifyMessage('Ошибка редактирования', 'negative');
+              });
+          })
+          .catch((error) => {
+            console.log(error);
+            this.notifyMessage('Ошибка редактирования', 'negative');
+          });
+      });
+    },
+
+    editPosCrtRes({
       cprRoPoReqId,
       cprRoPoReqWoId,
       cprRoPoReqWoItemId,

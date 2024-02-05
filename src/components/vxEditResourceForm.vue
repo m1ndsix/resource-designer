@@ -352,11 +352,11 @@ function onEditComponent() {
   } else if (state.resourceTab === 'created') {
     console.log('state.selectedCreatedResource', state.selectedCreatedResource);
     console.log('prepareStore.editItem', prepareStore.editItem);
-    // emit(
-    //   'onPrepareCreated',
-    //   state.selectedCreatedResource,
-    //   prepareStore.editItem
-    // );
+    emit(
+      'onPrepareCreated',
+      state.selectedCreatedResource,
+      prepareStore.editItem
+    );
     console.log('emit');
     // console.log('props.currentItem', props.currentItem);
   } else {
