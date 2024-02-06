@@ -240,6 +240,7 @@
       @on-address-selected="onAddressSelected"
       @on-add-new-resource="onAddNewResource"
       @on-edit-component="onEditComponent"
+      @on-edit-comp-exst="onEditCompExst"
       @on-prepare-existed="onPrepareExisted"
       @on-prepare-created="onPrepareCreated"
     />
@@ -1160,6 +1161,114 @@ export default {
         poRequestItemId: currentItem.id,
         poReqItemCompIds: currentItem.poReqItemId,
       });
+      this.openEditResourceForm = false;
+    },
+
+    onEditCompExst(resource, currentItem) {
+      // console.log(
+      //   'prepareStore.existingResources_2',
+      //   this.prepareStore.existingResources_2
+      // );
+      console.log('resource', resource);
+      console.log('currentItem', currentItem);
+      console.log(
+        'prepareStore.preparedComponentsNew',
+        this.prepareStore.preparedComponentsNew
+      );
+      // let newPos = true;
+      let componentsId = null;
+      let positionId = null;
+      componentsId = currentItem.id;
+      positionId = currentItem.poReqItemId;
+      console.log('componentsId', componentsId);
+      console.log('positionId', positionId);
+
+      for (let i = 0; this.prepareStore.existingResources_2.length > i; i++) {
+        console.log(
+          'prepareStore.existingResources_2.value.compositePhysResId ',
+          i,
+          ' ',
+          this.prepareStore.existingResources_2[i].value.compositePhysResId
+        );
+        if (
+          resource.compositePhysResId ===
+          this.prepareStore.existingResources_2[i].value.compositePhysResId
+        ) {
+          console.log(
+            '!!! SAME this.prepareStore.existingResources_2 ',
+            i,
+            ' ',
+            this.prepareStore.existingResources_2[i]
+          );
+          // newPos = false;
+        }
+        for (
+          let i = 0;
+          this.prepareStore.preparedComponentsNew.length > i;
+          i++
+        ) {
+          if (
+            currentItem.id != this.prepareStore.preparedComponentsNew[i].id &&
+            currentItem.resourceOrderItemId ===
+              this.prepareStore.preparedComponentsNew[i].resourceOrderItemId
+          ) {
+            console.log(
+              'SAME RESOURCE this.prepareStore.preparedComponentsNew[i]',
+              this.prepareStore.preparedComponentsNew[i]
+            );
+          }
+        }
+      }
+      // if (!newPos) {
+      //   console.log('newPos', newPos);
+      //   MP_API.get('/mounted-port', {
+      //     params: {
+      //       compositePhysResId: resource.compositePhysResId,
+      //       limit: 1,
+      //       offset: 0,
+      //     },
+      //   }).then((mPortResult) => {
+      //     POR_API.patch(
+      //       `/po-req-item/${positionId}/po-req-item-component/${componentsId}`,
+      //       {
+      //         resourceOrderItemId: mPortResult.data[0].cprResourceOrderItemId,
+      //       }
+      //     )
+      //       .then(() => {
+      //           useOrderStore().getOrder(
+      //             useOrderStore().selectedOrder.cprResourceOrderPoReqId,
+      //             useOrderStore().selectedOrder.id
+      //           );
+      //           this.prepareStore.fetchProductInfo(
+      //             this.orderStore.selectedOrder.productOfferRequestId,
+      //             this.orderStore.selectedOrder.geoPlace.id
+      //           );
+      //         this.prepareStore.notifyMessage('Успешно назначен', 'positive');
+      //       })
+      //       .catch((error) => {
+      //         console.log(error);
+      //         this.prepareStore.notifyMessage('Ошибка назначения', 'negative');
+      //       });
+      //   });
+      // }
+      // let { cprResourceOrderPoReqId, id } = this.orderStore.selectedOrder;
+
+      // this.prepareStore.editPosition({
+      //   cprRoPoReqId: cprResourceOrderPoReqId,
+      //   cprRoPoReqWoId: id,
+      //   cprRoPoReqWoItemId: currentItem.resourceOrderItemId,
+      //   compositePhysResSpecId: resource.spec.id,
+      //   physicalContainerId: resource.equipment.id,
+      //   transportCpeFuncSpecId: -1,
+      //   wiringTypeId: resource.equipment.wiringTypeId,
+      //   compositePhysResId: -1,
+      //   compositePhysResNum: '7777777',
+      //   compositePhysResFullNum: '7777776',
+      //   mountedPortId: resource.port.id,
+      //   currentPortId: currentItem.portId,
+      //   poRequestItemId: currentItem.id,
+      //   poReqItemCompIds: currentItem.poReqItemId,
+      // });
       this.openEditResourceForm = false;
     },
     rejectProductOfferRequestItem(item, event) {

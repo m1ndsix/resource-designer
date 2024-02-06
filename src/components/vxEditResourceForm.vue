@@ -198,6 +198,7 @@ const emit = defineEmits([
   'onServiceAreaSelected',
   'onAddNewResource',
   'onEditComponent',
+  'onEditCompExst',
   'onPrepareCreated',
   'onPrepareExisted',
   'onStreetSelected',
@@ -367,7 +368,7 @@ function onEditComponent() {
     console.log('props.currentItem', props.currentItem);
     console.log('prepareStore.editItem', prepareStore.editItem);
     emit(
-      'onPrepareExisted',
+      'onEditCompExst',
       state.selectedExistingResource,
       prepareStore.editItem
     );
