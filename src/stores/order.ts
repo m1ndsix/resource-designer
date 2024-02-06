@@ -265,39 +265,67 @@ export const useOrderStore = defineStore('orderStore', {
             console.log('cprRoPoReqWoId', cprRoPoReqWoId);
             console.log('cprRoPoReqWoItemId', cprRoPoReqWoItemId);
             // Решить проблему с cprRoPoReqWoItemId, когда нужно отменять позицию назначению существующим ресурсом, проблема в том что у существующего ресурса другой айтем айди.
-            CPR_RO_API.patch(
-              `/cpr-resource-order-po-req/${cprRoPoReqId}/work-order/${cprRoPoReqWoId}/item/${cprRoPoReqWoItemId}`,
-              { stateId }
-            )
-              // TODO: Нужно добавить проверку в случае если на одном порту несколько компонентов, и не разбронировать его в случае если один из компонетов не отменен.
-              .then(({ data }) => {
-                console.log('Patch data', data);
-                if (compositePhysResId != -1) {
-                  // Cancel existed resource
-                  this.getOrder(
-                    this.selectedOrder.cprResourceOrderPoReqId,
-                    this.selectedOrder.id
-                  );
-
-                  usePrepareStore().fetchProductInfo(
-                    this.selectedOrder.productOfferRequestId,
-                    this.selectedOrder.geoPlace.id
-                  );
-                  usePrepareStore().notifyMessage(
-                    'Успешная отмена',
-                    'positive'
-                  );
-                } else if (
-                  cprRoPoReqWoItemId != -1 &&
-                  compositePhysResId == -1
+            if (compositePhysResId != -1) {
+              for (
+                let i = 0;
+                this.selectedOrder.cprResourceOrderPoReqItems.length > i;
+                i++
+              ) {
+                console.log(
+                  'this.selectedOrder.cprResourceOrderPoReqItems ' + i + ' ',
+                  this.selectedOrder.cprResourceOrderPoReqItems[i]
+                );
+                if (
+                  this.selectedOrder.cprResourceOrderPoReqItems[i]
+                    .compositePhysResId === compositePhysResId
                 ) {
-                  MP_API.get('/mounted-port', {
-                    params: {
-                      cprResourceOrderItemId: cprRoPoReqWoItemId,
-                      limit: 1,
-                      offset: 0,
-                    },
-                  }).then((mPortResult) => {
+                  console.log('SAME');
+                  console.log(
+                    'this.selectedOrder.cprResourceOrderPoReqItems[i].id',
+                    this.selectedOrder.cprResourceOrderPoReqItems[i].id
+                  );
+                  CPR_RO_API.patch(
+                    `/cpr-resource-order-po-req/${cprRoPoReqId}/work-order/${cprRoPoReqWoId}/item/${this.selectedOrder.cprResourceOrderPoReqItems[i].id}`,
+                    { stateId }
+                  )
+                    .then(() => {
+                      // Cancel existed resource
+                      this.getOrder(
+                        this.selectedOrder.cprResourceOrderPoReqId,
+                        this.selectedOrder.id
+                      );
+
+                      usePrepareStore().fetchProductInfo(
+                        this.selectedOrder.productOfferRequestId,
+                        this.selectedOrder.geoPlace.id
+                      );
+                      usePrepareStore().notifyMessage(
+                        'Успешная отмена',
+                        'positive'
+                      );
+                    })
+                    .catch((error) => {
+                      usePrepareStore().notifyMessage(
+                        'Ошибка отмены',
+                        'negative'
+                      );
+                      console.log(error);
+                    });
+                }
+              }
+            } else if (cprRoPoReqWoItemId != -1 && compositePhysResId == -1) {
+              CPR_RO_API.patch(
+                `/cpr-resource-order-po-req/${cprRoPoReqId}/work-order/${cprRoPoReqWoId}/item/${cprRoPoReqWoItemId}`,
+                { stateId }
+              ).then(() => {
+                MP_API.get('/mounted-port', {
+                  params: {
+                    cprResourceOrderItemId: cprRoPoReqWoItemId,
+                    limit: 1,
+                    offset: 0,
+                  },
+                })
+                  .then((mPortResult) => {
                     if (mPortResult.data) {
                       MP_API.patch(`/mounted-port/${mPortResult.data[0].id}`, {
                         usageStateId: 1,
@@ -319,14 +347,16 @@ export const useOrderStore = defineStore('orderStore', {
                         );
                       });
                     }
+                  })
+                  .catch((error) => {
+                    usePrepareStore().notifyMessage(
+                      'Ошибка отмены',
+                      'negative'
+                    );
+                    console.log(error);
                   });
-                }
-                console.log(data);
-              })
-              .catch((error) => {
-                usePrepareStore().notifyMessage('Ошибка отмены', 'negative');
-                console.log(error);
               });
+            }
           } else {
             this.getOrder(
               this.selectedOrder.cprResourceOrderPoReqId,

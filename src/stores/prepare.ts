@@ -379,10 +379,6 @@ export const usePrepareStore = defineStore('prepareStore', {
                 resourceOrderItemId: cpr.resourceOrderItemId,
                 wiringTypeId: cpr.wiringTypeData.id,
                 transportCpeFuncSpecId: cpr.transportCpeFuncSpecId,
-                physicalContainerId: -1,
-                portId: -1,
-                // physicalContainerId: mPortResult.data[0].physicalContainerId,
-                // portId: mPortResult.data[0].id,
               },
             };
           });
