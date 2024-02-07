@@ -1165,58 +1165,159 @@ export default {
     },
 
     onEditCompExst(resource, currentItem) {
-      // console.log(
-      //   'prepareStore.existingResources_2',
-      //   this.prepareStore.existingResources_2
-      // );
+      console.log(
+        'prepareStore.existingResources_2',
+        this.prepareStore.existingResources_2
+      );
       console.log('resource', resource);
       console.log('currentItem', currentItem);
       console.log(
         'prepareStore.preparedComponentsNew',
         this.prepareStore.preparedComponentsNew
       );
-      // let newPos = true;
-      let componentsId = null;
+      let createNewPos = true; // in case if need to create new postion or using already appointed one and just asign data to product offer component
+      let sameResOnComp = false; // in case if currentitem resource also active on other components, therefore no need to unbook port
+      let componentsIds = [];
       let positionId = null;
-      componentsId = currentItem.id;
+      componentsIds.push(currentItem.id);
       positionId = currentItem.poReqItemId;
-      console.log('componentsId', componentsId);
+
+      console.log('componentsId', componentsIds);
       console.log('positionId', positionId);
 
-      for (let i = 0; this.prepareStore.existingResources_2.length > i; i++) {
-        console.log(
-          'prepareStore.existingResources_2.value.compositePhysResId ',
-          i,
-          ' ',
-          this.prepareStore.existingResources_2[i].value.compositePhysResId
-        );
+      for (let i = 0; this.prepareStore.preparedComponentsNew.length > i; i++) {
         if (
           resource.compositePhysResId ===
-          this.prepareStore.existingResources_2[i].value.compositePhysResId
+          this.prepareStore.preparedComponentsNew[i].compositePhysResId
         ) {
           console.log(
-            '!!! SAME this.prepareStore.existingResources_2 ',
+            '!!! SAME this.prepareStore.preparedComponentsNew ',
             i,
             ' ',
-            this.prepareStore.existingResources_2[i]
+            this.prepareStore.preparedComponentsNew[i]
           );
-          // newPos = false;
+          createNewPos = false;
         }
-        for (
-          let i = 0;
-          this.prepareStore.preparedComponentsNew.length > i;
-          i++
+        if (
+          currentItem.id != this.prepareStore.preparedComponentsNew[i].id &&
+          currentItem.resourceOrderItemId ===
+            this.prepareStore.preparedComponentsNew[i].resourceOrderItemId
         ) {
-          if (
-            currentItem.id != this.prepareStore.preparedComponentsNew[i].id &&
-            currentItem.resourceOrderItemId ===
-              this.prepareStore.preparedComponentsNew[i].resourceOrderItemId
-          ) {
-            console.log(
-              'SAME RESOURCE this.prepareStore.preparedComponentsNew[i]',
-              this.prepareStore.preparedComponentsNew[i]
-            );
-          }
+          // console.log(
+          //   'SAME RESOURCE this.prepareStore.preparedComponentsNew[i]',
+          //   this.prepareStore.preparedComponentsNew[i]
+          // );
+          sameResOnComp = true; //other component has same resource as current's edit component
+        }
+      }
+      console.log('sameResOnComp', sameResOnComp);
+      if (sameResOnComp) {
+        console.log('NO NEED TO UNBOOK PORT CURRENT ITEM');
+        if (createNewPos) {
+          console.log('NEED TO CREATE POSITION');
+          //
+          // Создается новая позиция для компонента
+          // но не разбронируется порт который был на редактируемом компоненте
+          //
+          console.log('createNewPos', createNewPos);
+
+          MP_API.get('/mounted-port', {
+            params: {
+              compositePhysResId: resource.compositePhysResId,
+              limit: 1,
+              offset: 0,
+            },
+          }).then((mPortResult) => {
+            console.log('mPortResult', mPortResult);
+            if (mPortResult.data) {
+              resource.physicalContainerId =
+                mPortResult.data[0].physicalContainerId;
+              console.log('RESOURCE', resource);
+              console.log('positionId', positionId);
+              console.log('componentsIds', componentsIds);
+              let { cprResourceOrderPoReqId, id, geoPlace } =
+                this.orderStore.selectedOrder;
+
+              this.prepareStore.createPosExisRes({
+                cprRoPoReqId: cprResourceOrderPoReqId,
+                cprRoPoReqWoId: id,
+                cprActionSpecId: 1,
+                compositePhysResSpecId: resource.compositePhysResSpecId,
+                physicalContainerId: resource.physicalContainerId,
+                geoPlaceId: geoPlace.id,
+                transportCpeFuncSpecId: resource.transportCpeFuncSpecId,
+                wiringTypeId: resource.wiringTypeId,
+                compositePhysResId: resource.compositePhysResId,
+                compositePhysResNum: resource.resourceNumber,
+                compositePhysResFullNum: resource.resourceFullNumber,
+                poRequestItemId: positionId,
+                poReqItemCompIds: componentsIds,
+                resourceOrderItemId: resource.resourceOrderItemId,
+              });
+            }
+          });
+        } else {
+          console.log('NO NEED TO CREATE POSITION');
+          //
+          // Не создается новая позиция для компонента,
+          // а редактируется уже созданая данными выбранного существующего ресурса,
+          // но не разбронируется порт который был на редактируемом компоненте
+          //
+          console.log('createNewPos', createNewPos);
+        }
+      } else {
+        console.log('NEED TO UNBOOK PORT CURRENT ITEM');
+        if (createNewPos) {
+          console.log('NEED TO CREATE POSITION');
+          //
+          // Создается новая позиция для компонента,
+          // так же разбронируется порт который был на редактируемом компоненте
+          //
+          console.log('createNewPos', createNewPos);
+
+          MP_API.get('/mounted-port', {
+            params: {
+              compositePhysResId: resource.compositePhysResId,
+              limit: 1,
+              offset: 0,
+            },
+          }).then((mPortResult) => {
+            console.log('mPortResult', mPortResult);
+            if (mPortResult.data) {
+              resource.physicalContainerId =
+                mPortResult.data[0].physicalContainerId;
+              console.log('RESOURCE', resource);
+              console.log('positionId', positionId);
+              console.log('componentsIds', componentsIds);
+              let { cprResourceOrderPoReqId, id, geoPlace } =
+                this.orderStore.selectedOrder;
+
+              this.prepareStore.createPosExisRes({
+                cprRoPoReqId: cprResourceOrderPoReqId,
+                cprRoPoReqWoId: id,
+                cprActionSpecId: 1,
+                compositePhysResSpecId: resource.compositePhysResSpecId,
+                physicalContainerId: resource.physicalContainerId,
+                geoPlaceId: geoPlace.id,
+                transportCpeFuncSpecId: resource.transportCpeFuncSpecId,
+                wiringTypeId: resource.wiringTypeId,
+                compositePhysResId: resource.compositePhysResId,
+                compositePhysResNum: resource.resourceNumber,
+                compositePhysResFullNum: resource.resourceFullNumber,
+                poRequestItemId: positionId,
+                poReqItemCompIds: componentsIds,
+                resourceOrderItemId: resource.resourceOrderItemId,
+              });
+            }
+          });
+        } else {
+          console.log('NO NEED TO CREATE POSITION');
+          //
+          // Не создается новая позиция для компонента,
+          // а редактируется уже созданая данными выбранного существующего ресурса,
+          // так же разбронируется порт который был на редактируемом компоненте
+          //
+          console.log('createNewPos', createNewPos);
         }
       }
       // if (!newPos) {
