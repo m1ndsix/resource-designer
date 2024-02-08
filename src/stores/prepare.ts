@@ -621,8 +621,6 @@ export const usePrepareStore = defineStore('prepareStore', {
       compositePhysResId,
       compositePhysResNum,
       compositePhysResFullNum,
-      mountedPortId,
-      currentPortId,
     }) {
       CPR_RO_API.patch(
         `/cpr-resource-order-po-req/${cprRoPoReqId}/work-order/${cprRoPoReqWoId}/item/${cprRoPoReqWoItemId}`,
@@ -635,40 +633,22 @@ export const usePrepareStore = defineStore('prepareStore', {
           compositePhysResNum,
           compositePhysResFullNum,
         }
-      ).then(() => {
-        MP_API.patch(`/mounted-port/${mountedPortId}`, {
-          usageStateId: 2,
-          cprResourceOrderItemId: cprRoPoReqWoItemId,
+      )
+        .then(() => {
+          useOrderStore().getOrder(
+            useOrderStore().selectedOrder.cprResourceOrderPoReqId,
+            useOrderStore().selectedOrder.id
+          );
+          this.fetchProductInfo(
+            useOrderStore().selectedOrder.productOfferRequestId,
+            useOrderStore().selectedOrder.geoPlace.id
+          );
+          this.notifyMessage('Успешно отредактирован', 'positive');
         })
-          .then((mountResult) => {
-            // TODO: handle success/error
-            console.log(mountResult);
-            MP_API.patch(`/mounted-port/${currentPortId}`, {
-              usageStateId: 1,
-              cprResourceOrderItemId: -1,
-            })
-              .then((mountResult) => {
-                useOrderStore().getOrder(
-                  useOrderStore().selectedOrder.cprResourceOrderPoReqId,
-                  useOrderStore().selectedOrder.id
-                );
-                this.fetchProductInfo(
-                  useOrderStore().selectedOrder.productOfferRequestId,
-                  useOrderStore().selectedOrder.geoPlace.id
-                );
-                this.notifyMessage('Успешно отредактирован', 'positive');
-                console.log(mountResult);
-              })
-              .catch((error) => {
-                console.log(error);
-                this.notifyMessage('Ошибка редактирования', 'negative');
-              });
-          })
-          .catch((error) => {
-            console.log(error);
-            this.notifyMessage('Ошибка редактирования', 'negative');
-          });
-      });
+        .catch((error) => {
+          console.log(error);
+          this.notifyMessage('Ошибка редактирования', 'negative');
+        });
     },
 
     editPosCrtRes({
