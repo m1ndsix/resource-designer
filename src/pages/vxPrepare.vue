@@ -1188,8 +1188,9 @@ export default {
 
       for (let i = 0; this.prepareStore.preparedComponentsNew.length > i; i++) {
         if (
+          currentItem.id != this.prepareStore.preparedComponentsNew[i].id &&
           resource.compositePhysResId ===
-          this.prepareStore.preparedComponentsNew[i].compositePhysResId
+            this.prepareStore.preparedComponentsNew[i].compositePhysResId
         ) {
           sameCPR = true; // choosen resource already appointed on other component
         }
@@ -1220,6 +1221,8 @@ export default {
             // Не создается новая позиция для компонента,
             // а редактируется уже созданая данными выбранного существующего ресурса,
             // но не разбронируется порт который был на редактируемом компоненте
+            //
+            // ГОТОВО
             //
             console.log('sameCPR', sameCPR);
 
