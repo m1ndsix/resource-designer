@@ -275,7 +275,7 @@ import vxResultTable from '../components/vxResultTable.vue';
 import vxInspectionDialog from '../components/vxInspectionDialog.vue';
 import vxEditItem from '../components/vxEditItem.vue';
 import vxResourceInfo from 'src/components/vxResourceInfo.vue';
-import { MP_API, PC_API, POR_API } from 'boot/api';
+import { MP_API, PC_API, POR_API, CPR_RO_API } from 'boot/api';
 
 export default {
   setup() {
@@ -1205,6 +1205,7 @@ export default {
 
         if (currentItem.compositePhysResId != -1) {
           withCPR = true; // current component has port from existing resource
+          console.log('withCPR = true');
         }
       }
       if (resource.compositePhysResId != currentItem.compositePhysResId) {
@@ -1214,6 +1215,9 @@ export default {
           // выбранный компонент имеет resourceOrderItemId который есть на других компонентах
           console.log('NO NEED TO UNBOOK PORT CURRENT ITEM');
           if (sameCPR) {
+            //
+            // ГОТОВО
+            //
             // выбранный существующий ресурс для назначения уже есть на других компонентах
             // тогда просто патчим компонент в продукт оффере на resourceOrderItemId от выбранного ресурса
             console.log('NO NEED TO CREATE POSITION');
@@ -1221,8 +1225,6 @@ export default {
             // Не создается новая позиция для компонента,
             // а редактируется уже созданая данными выбранного существующего ресурса,
             // но не разбронируется порт который был на редактируемом компоненте
-            //
-            // ГОТОВО
             //
             console.log('sameCPR', sameCPR);
 
@@ -1252,8 +1254,9 @@ export default {
                 );
               });
           } else {
+            //
             // ГОТОВО
-
+            //
             // если выбранного существующего ресурса для назначения нет на назначенных компонентах
             // тогда нужно будет создать новую позицию и назначить на компонент ресурс
             console.log('NEED TO CREATE POSITION');
@@ -1302,13 +1305,267 @@ export default {
           console.log('NEED TO UNBOOK PORT CURRENT ITEM');
           // если редактируемый компонент назначен из сфр(из существующего ресурса), тогда не нужно снимать бронь с его порта
           // если редактируемый компонент назначен не из сфр(из существующего ресурса), а создаынным новым, тогда нужно будет снять бронь с порта и отчистить resourceOrderItemId на нем
+
+          if (sameCPR) {
+            if (withCPR) {
+              console.log('if (sameCPR)if (withCPR)');
+              //
+              // НЕ ГОТОВО
+              //
+              //
+              // TODO: СДЕЛАТЬ success/error
+              //
+              // выбранный существующий ресурс для назначения уже есть на других компонентах
+              // тогда патчим компонент в продукт оффере на resourceOrderItemId от выбранного ресурса
+              // если редактируемый компонент имеет ресурс с СФР то есть до этого был назначен из сущ рес
+              // тогда отменяем позицию на редактируемом компоненте и не отменяем отменяем порт, то есть не чистим на нем все данные связанные с ресурсом
+              let { cprResourceOrderPoReqId, id } =
+                this.orderStore.selectedOrder;
+              for (
+                let i = 0;
+                this.orderStore.selectedOrder.cprResourceOrderPoReqItems
+                  .length > i;
+                i++
+              ) {
+                if (
+                  this.orderStore.selectedOrder.cprResourceOrderPoReqItems[i]
+                    .compositePhysResId === currentItem.compositePhysResId
+                ) {
+                  CPR_RO_API.patch(
+                    `/cpr-resource-order-po-req/${cprResourceOrderPoReqId}/work-order/${id}/item/${this.orderStore.selectedOrder.cprResourceOrderPoReqItems[i].id}`,
+                    { stateId: 2 }
+                  )
+                    .then(() => {
+                      MP_API.get('/mounted-port', {
+                        params: {
+                          compositePhysResId: resource.compositePhysResId,
+                          limit: 1,
+                          offset: 0,
+                        },
+                      })
+                        .then((mPortResult) => {
+                          POR_API.patch(
+                            `/po-req-item/${positionId}/po-req-item-component/${componentsIds[0]}`,
+                            {
+                              resourceOrderItemId:
+                                mPortResult.data[0].cprResourceOrderItemId,
+                            }
+                          )
+                            .then(() => {
+                              useOrderStore().getOrder(
+                                useOrderStore().selectedOrder
+                                  .cprResourceOrderPoReqId,
+                                useOrderStore().selectedOrder.id
+                              );
+                              this.prepareStore.fetchProductInfo(
+                                this.orderStore.selectedOrder
+                                  .productOfferRequestId,
+                                this.orderStore.selectedOrder.geoPlace.id
+                              );
+                              this.prepareStore.notifyMessage(
+                                'Успешно назначен',
+                                'positive'
+                              );
+                            })
+                            .catch((error) => {
+                              console.log(error);
+                              this.prepareStore.notifyMessage(
+                                'Ошибка назначения ресурса на компонент',
+                                'negative'
+                              );
+                            });
+                        })
+                        .catch((error) => {
+                          console.log(error);
+                          this.prepareStore.notifyMessage(
+                            'Ошибка получения порта',
+                            'negative'
+                          );
+                        });
+                    })
+                    .catch((error) => {
+                      console.log(error);
+                      this.prepareStore.notifyMessage(
+                        'Ошибка отмены позиции',
+                        'negative'
+                      );
+                    });
+                }
+              }
+            } else {
+              //
+              // ГОТОВО
+              //
+              //
+              //
+              //
+              // выбранный существующий ресурс для назначения уже есть на других компонентах
+              // тогда патчим компонент в продукт оффере на resourceOrderItemId от выбранного ресурса
+              // если редактируемый компонент имеет ресурс без СФР то есть до этого не был назначен из сущ рес
+              // так же отменяем позицию на редактируемом компоненте и отменяем порт, то есть чистим на нем все данные свящанные с ресурсом
+              console.log('NO NEED TO CREATE POSITION');
+              //
+              // Не создается новая позиция для компонента,
+              // а редактируется уже созданая данными выбранного существующего ресурса,
+              // но не разбронируется порт который был на редактируемом компоненте
+              //
+
+              let { cprResourceOrderPoReqId, id } =
+                this.orderStore.selectedOrder;
+
+              CPR_RO_API.patch(
+                `/cpr-resource-order-po-req/${cprResourceOrderPoReqId}/work-order/${id}/item/${currentItem.resourceOrderItemId}`,
+                { stateId: 2 }
+              )
+                .then(() => {
+                  MP_API.get('/mounted-port', {
+                    params: {
+                      cprResourceOrderItemId: currentItem.resourceOrderItemId,
+                      limit: 1,
+                      offset: 0,
+                    },
+                  })
+                    .then((mPortResult) => {
+                      if (mPortResult.data) {
+                        MP_API.patch(
+                          `/mounted-port/${mPortResult.data[0].id}`,
+                          {
+                            usageStateId: 1,
+                            cprResourceOrderItemId: -1,
+                          }
+                        )
+                          .then(() => {
+                            MP_API.get('/mounted-port', {
+                              params: {
+                                compositePhysResId: resource.compositePhysResId,
+                                limit: 1,
+                                offset: 0,
+                              },
+                            })
+                              .then((mPortResult) => {
+                                POR_API.patch(
+                                  `/po-req-item/${positionId}/po-req-item-component/${componentsIds[0]}`,
+                                  {
+                                    resourceOrderItemId:
+                                      mPortResult.data[0]
+                                        .cprResourceOrderItemId,
+                                  }
+                                )
+                                  .then(() => {
+                                    useOrderStore().getOrder(
+                                      useOrderStore().selectedOrder
+                                        .cprResourceOrderPoReqId,
+                                      useOrderStore().selectedOrder.id
+                                    );
+
+                                    this.prepareStore.fetchProductInfo(
+                                      this.orderStore.selectedOrder
+                                        .productOfferRequestId,
+                                      this.orderStore.selectedOrder.geoPlace.id
+                                    );
+
+                                    this.prepareStore.notifyMessage(
+                                      'Успешно назначен',
+                                      'positive'
+                                    );
+                                  })
+                                  .catch((error) => {
+                                    console.log(error);
+                                    this.prepareStore.notifyMessage(
+                                      'Ошибка назначения',
+                                      'negative'
+                                    );
+                                  });
+                              })
+                              .catch((error) => {
+                                usePrepareStore().notifyMessage(
+                                  'Ошибка получения порта',
+                                  'negative'
+                                );
+                                console.log(error);
+                              });
+                          })
+                          .catch((error) => {
+                            usePrepareStore().notifyMessage(
+                              'Ошибка редактирования порта',
+                              'negative'
+                            );
+                            console.log(error);
+                          });
+                      }
+                    })
+                    .catch((error) => {
+                      usePrepareStore().notifyMessage(
+                        'Порт не найден',
+                        'negative'
+                      );
+                      console.log(error);
+                    });
+                })
+                .catch((error) => {
+                  usePrepareStore().notifyMessage(
+                    'Ошибка отмены позиции',
+                    'negative'
+                  );
+                  console.log(error);
+                });
+            }
+          } else {
+            //
+            // ГОТОВО
+            //
+            // если выбранного существующего ресурса для назначения нет на назначенных компонентах
+            // тогда нужно будет создать новую позицию и назначить на компонент ресурс
+            console.log('NEED TO CREATE POSITION');
+            //
+            // Создается новая позиция для компонента
+            // но не разбронируется порт который был на редактируемом компоненте
+            //
+
+            MP_API.get('/mounted-port', {
+              params: {
+                compositePhysResId: resource.compositePhysResId,
+                limit: 1,
+                offset: 0,
+              },
+            }).then((mPortResult) => {
+              console.log('mPortResult', mPortResult);
+              if (mPortResult.data) {
+                resource.physicalContainerId =
+                  mPortResult.data[0].physicalContainerId;
+                console.log('RESOURCE', resource);
+                console.log('positionId', positionId);
+                console.log('componentsIds', componentsIds);
+                let { cprResourceOrderPoReqId, id, geoPlace } =
+                  this.orderStore.selectedOrder;
+
+                this.prepareStore.createPosExisRes({
+                  cprRoPoReqId: cprResourceOrderPoReqId,
+                  cprRoPoReqWoId: id,
+                  cprActionSpecId: 1,
+                  compositePhysResSpecId: resource.compositePhysResSpecId,
+                  physicalContainerId: resource.physicalContainerId,
+                  geoPlaceId: geoPlace.id,
+                  transportCpeFuncSpecId: resource.transportCpeFuncSpecId,
+                  wiringTypeId: resource.wiringTypeId,
+                  compositePhysResId: resource.compositePhysResId,
+                  compositePhysResNum: resource.resourceNumber,
+                  compositePhysResFullNum: resource.resourceFullNumber,
+                  poRequestItemId: positionId,
+                  poReqItemCompIds: componentsIds,
+                  resourceOrderItemId: resource.resourceOrderItemId,
+                });
+              }
+            });
+          }
+
           if (withCPR) {
-            // компонент назначен из раздела существующих, то есть у него есть СФР, тогда не нужно трогать порт,
-            // делаем только редактирование позиции на новые данные из выбранного ресурса
-            // и присваиваем resourceOrderItemId с выбранного сущ ресурса к компоненту из продукт оффера
             //
             // ГОТОВО
             ///
+            // компонент назначен из раздела существующих, то есть у него есть СФР, тогда не нужно трогать порт,
+            // делаем только редактирование позиции на новые данные из выбранного ресурса
+            // и присваиваем resourceOrderItemId с выбранного сущ ресурса к компоненту из продукт оффера
             for (
               let i = 0;
               this.orderStore.selectedOrder.cprResourceOrderPoReqItems.length >
@@ -1346,58 +1603,65 @@ export default {
               }
             }
           } else {
-          }
-          if (sameCPR) {
-            console.log('NEED TO EDIT POSITION WITH NEW RESOURCE DATA');
+            // TODO:
+            // если редактиуремый компонент назначен без сфр, то есть назначен новым созданным ресурсом
+            // этот компонент имеет ресурс которого нет на других компонентах
+            // в таком случае нужно
             //
-            // Редактируется позиция на выбранном компоненте выбранным существующим ресурсом,
-            // так же разбронируется порт который был на редактируемом компоненте
-            //
-            console.log('sameCPR', sameCPR);
 
-            MP_API.get('/mounted-port', {
-              params: {
-                compositePhysResId: resource.compositePhysResId,
-                limit: 1,
-                offset: 0,
-              },
-            }).then((mPortResult) => {
-              console.log('mPortResult', mPortResult);
-              if (mPortResult.data) {
-                resource.physicalContainerId =
-                  mPortResult.data[0].physicalContainerId;
-                console.log('RESOURCE', resource);
-                console.log('positionId', positionId);
-                console.log('componentsIds', componentsIds);
-                let { cprResourceOrderPoReqId, id, geoPlace } =
-                  this.orderStore.selectedOrder;
-
-                this.prepareStore.createPosExisRes({
-                  cprRoPoReqId: cprResourceOrderPoReqId,
-                  cprRoPoReqWoId: id,
-                  cprActionSpecId: 1,
-                  compositePhysResSpecId: resource.compositePhysResSpecId,
-                  physicalContainerId: resource.physicalContainerId,
-                  geoPlaceId: geoPlace.id,
-                  transportCpeFuncSpecId: resource.transportCpeFuncSpecId,
-                  wiringTypeId: resource.wiringTypeId,
-                  compositePhysResId: resource.compositePhysResId,
-                  compositePhysResNum: resource.resourceNumber,
-                  compositePhysResFullNum: resource.resourceFullNumber,
-                  poRequestItemId: positionId,
-                  poReqItemCompIds: componentsIds,
-                  resourceOrderItemId: resource.resourceOrderItemId,
-                });
-              }
-            });
-          } else {
-            console.log('EDIT POSITION');
-            //
-            // Не создается новая позиция для компонента,
-            // а редактируется уже созданая данными выбранного существующего ресурса,
-            // так же разбронируется порт который был на редактируемом компоненте
-            //
+            console.log('CHECKING WIHTOUT CPR');
           }
+          // if (sameCPR) {
+          //   console.log('NEED TO EDIT POSITION WITH NEW RESOURCE DATA');
+          //   //
+          //   // Редактируется позиция на выбранном компоненте выбранным существующим ресурсом,
+          //   // так же разбронируется порт который был на редактируемом компоненте
+          //   //
+          //   console.log('sameCPR', sameCPR);
+
+          //   MP_API.get('/mounted-port', {
+          //     params: {
+          //       compositePhysResId: resource.compositePhysResId,
+          //       limit: 1,
+          //       offset: 0,
+          //     },
+          //   }).then((mPortResult) => {
+          //     console.log('mPortResult', mPortResult);
+          //     if (mPortResult.data) {
+          //       resource.physicalContainerId =
+          //         mPortResult.data[0].physicalContainerId;
+          //       console.log('RESOURCE', resource);
+          //       console.log('positionId', positionId);
+          //       console.log('componentsIds', componentsIds);
+          //       let { cprResourceOrderPoReqId, id, geoPlace } =
+          //         this.orderStore.selectedOrder;
+
+          //       this.prepareStore.createPosExisRes({
+          //         cprRoPoReqId: cprResourceOrderPoReqId,
+          //         cprRoPoReqWoId: id,
+          //         cprActionSpecId: 1,
+          //         compositePhysResSpecId: resource.compositePhysResSpecId,
+          //         physicalContainerId: resource.physicalContainerId,
+          //         geoPlaceId: geoPlace.id,
+          //         transportCpeFuncSpecId: resource.transportCpeFuncSpecId,
+          //         wiringTypeId: resource.wiringTypeId,
+          //         compositePhysResId: resource.compositePhysResId,
+          //         compositePhysResNum: resource.resourceNumber,
+          //         compositePhysResFullNum: resource.resourceFullNumber,
+          //         poRequestItemId: positionId,
+          //         poReqItemCompIds: componentsIds,
+          //         resourceOrderItemId: resource.resourceOrderItemId,
+          //       });
+          //     }
+          //   });
+          // } else {
+          //   console.log('EDIT POSITION');
+          //   //
+          //   // Не создается новая позиция для компонента,
+          //   // а редактируется уже созданая данными выбранного существующего ресурса,
+          //   // так же разбронируется порт который был на редактируемом компоненте
+          //   //
+          // }
         }
       } else {
         console.log('same resource');
