@@ -342,6 +342,7 @@ export const usePrepareStore = defineStore('prepareStore', {
               )
           );
           setTimeout(() => {
+            this.dataTree[0].children = [];
             this.dataTree[0].children.push(
               makeTree(data.productOfferWithGeneralGeoPlace)
             );

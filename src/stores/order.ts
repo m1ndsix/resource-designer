@@ -261,11 +261,13 @@ export const useOrderStore = defineStore('orderStore', {
       )
         .then(() => {
           if (unBookPort) {
+            console.log('if (unBookPort) {');
             console.log('cprRoPoReqId', cprRoPoReqId);
             console.log('cprRoPoReqWoId', cprRoPoReqWoId);
             console.log('cprRoPoReqWoItemId', cprRoPoReqWoItemId);
             // Решить проблему с cprRoPoReqWoItemId, когда нужно отменять позицию назначению существующим ресурсом, проблема в том что у существующего ресурса другой айтем айди.
             if (compositePhysResId != -1) {
+              console.log('if (compositePhysResId != -1) {');
               for (
                 let i = 0;
                 this.selectedOrder.cprResourceOrderPoReqItems.length > i;
@@ -314,6 +316,9 @@ export const useOrderStore = defineStore('orderStore', {
                 }
               }
             } else if (cprRoPoReqWoItemId != -1 && compositePhysResId == -1) {
+              console.log(
+                '} else if (cprRoPoReqWoItemId != -1 && compositePhysResId == -1) {'
+              );
               CPR_RO_API.patch(
                 `/cpr-resource-order-po-req/${cprRoPoReqId}/work-order/${cprRoPoReqWoId}/item/${cprRoPoReqWoItemId}`,
                 { stateId }
@@ -358,6 +363,7 @@ export const useOrderStore = defineStore('orderStore', {
               });
             }
           } else {
+            console.log('} else {');
             this.getOrder(
               this.selectedOrder.cprResourceOrderPoReqId,
               this.selectedOrder.id
