@@ -1000,35 +1000,29 @@ export default {
       this.openResourceForm = false;
     },
 
-    onPrepareExisted(resource, currentItem) {
+    onPrepareExisted(resource) {
+      let componentsIds = null;
+      let positionIds = null;
+      let sameCPR = false;
       const tickedNodes = this.$refs.qtree.getTickedNodes();
       const allNodes =
         this.$refs.qtree.nodes[0].children[0].children[0].children;
-      let newPos = true;
-      const unTickedNodes = [];
-      let componentsIds = null;
-      let positionIds = null;
+
+      for (let i = 0; allNodes.length > i; i++) {
+        if (resource.compositePhysResId === allNodes[i].compositePhysResId) {
+          sameCPR = true; // choosen resource already appointed on other component
+        }
+      }
 
       if (tickedNodes.length > 0) {
         componentsIds = tickedNodes.map((node) => node.id);
         positionIds = tickedNodes.map((node) => node.poReqItemId);
       }
 
-      allNodes.forEach((nodeElement) => {
-        if (!tickedNodes.some((x) => x.id === nodeElement.id)) {
-          unTickedNodes.push(nodeElement);
-        }
-      });
-
-      tickedNodes.forEach(() => {
-        unTickedNodes.forEach((untickedElement) => {
-          if (
-            resource.compositePhysResId === untickedElement.compositePhysResId
-          ) {
-            newPos = false;
-          }
-        });
-        if (newPos) {
+      if (sameCPR) {
+        // ГОТОВО
+        // Если назначающий ресурс уже имеется на других компонентах
+        for (let i = 0; i < componentsIds.length; i++) {
           MP_API.get('/mounted-port', {
             params: {
               compositePhysResId: resource.compositePhysResId,
@@ -1036,109 +1030,86 @@ export default {
               offset: 0,
             },
           }).then((mPortResult) => {
-            console.log('mPortResult', mPortResult);
-            if (mPortResult.data) {
-              resource.portId = mPortResult.data[0].id;
-              resource.physicalContainerId =
-                mPortResult.data[0].physicalContainerId;
-              console.log('resource - 2', resource);
-              console.log('componentsIds', componentsIds);
-              console.log('positionIds', positionIds);
-
-              // if (tickedNodes.length > 0) {
-              //   componentsIds = tickedNodes.map((node) => node.id);
-              //   positionIds = tickedNodes.map((node) => node.poReqItemId);
-              // } else if (currentItem.length > 0) {
-              //   componentsIds = currentItem[0].map((node) => node.id);
-              //   positionIds = currentItem[0].map((node) => node.poReqItemId);
-              // }
-              this.tickedNodes = [];
-
-              let { cprResourceOrderPoReqId, id, geoPlace } =
-                this.orderStore.selectedOrder;
-
-              this.currentPortId = null;
-              this.openResourceForm = false;
-              this.prepareStore.createPosExisRes({
-                cprRoPoReqId: cprResourceOrderPoReqId,
-                cprRoPoReqWoId: id,
-                cprActionSpecId: 1,
-                compositePhysResSpecId: resource.compositePhysResSpecId,
-                physicalContainerId: resource.physicalContainerId,
-                geoPlaceId: geoPlace.id,
-                transportCpeFuncSpecId: resource.transportCpeFuncSpecId,
-                wiringTypeId: resource.wiringTypeId,
-                compositePhysResId: resource.compositePhysResId,
-                compositePhysResNum: resource.resourceNumber,
-                compositePhysResFullNum: resource.resourceFullNumber,
-                poRequestItemId: positionIds[0], // TODO: need to work with multiple positions,
-                poReqItemCompIds: componentsIds,
-                resourceOrderItemId: resource.resourceOrderItemId,
-              });
-            } else {
-              this.prepareStore.notifyMessage(
-                'Ошибка: Порт не найден',
-                'negative'
-              );
-              console.log('Порт не найден');
-              // this.prepareStore.infoTableLoading = false;
-            }
-          });
-        } else {
-          for (let i = 0; i < componentsIds.length; i++) {
-            MP_API.get('/mounted-port', {
-              params: {
-                compositePhysResId: resource.compositePhysResId,
-                limit: 1,
-                offset: 0,
-              },
-            }).then((mPortResult) => {
-              POR_API.patch(
-                `/po-req-item/${positionIds[0]}/po-req-item-component/${componentsIds[i]}`,
-                {
-                  resourceOrderItemId:
-                    mPortResult.data[0].cprResourceOrderItemId,
+            POR_API.patch(
+              `/po-req-item/${positionIds[0]}/po-req-item-component/${componentsIds[i]}`,
+              {
+                resourceOrderItemId: mPortResult.data[0].cprResourceOrderItemId,
+              }
+            )
+              .then(() => {
+                if (
+                  componentsIds[i] === componentsIds[componentsIds.length - 1]
+                ) {
+                  useOrderStore().getOrder(
+                    useOrderStore().selectedOrder.cprResourceOrderPoReqId,
+                    useOrderStore().selectedOrder.id
+                  );
+                  this.prepareStore.fetchProductInfo(
+                    this.orderStore.selectedOrder.productOfferRequestId,
+                    this.orderStore.selectedOrder.geoPlace.id
+                  );
                 }
-              )
-                .then(() => {
-                  if (
-                    componentsIds[i] === componentsIds[componentsIds.length - 1]
-                  ) {
-                    useOrderStore().getOrder(
-                      useOrderStore().selectedOrder.cprResourceOrderPoReqId,
-                      useOrderStore().selectedOrder.id
-                    );
-                    this.prepareStore.fetchProductInfo(
-                      this.orderStore.selectedOrder.productOfferRequestId,
-                      this.orderStore.selectedOrder.geoPlace.id
-                    );
-                  }
-                  this.tickedNodes = [];
-                  this.prepareStore.notifyMessage(
-                    'Успешно назначен',
-                    'positive'
-                  );
-                })
-                .catch((error) => {
-                  console.log(error);
-                  this.prepareStore.notifyMessage(
-                    'Ошибка назначения',
-                    'negative'
-                  );
-                });
-            });
-          }
+                this.tickedNodes = [];
+                this.prepareStore.notifyMessage('Успешно назначен', 'positive');
+              })
+              .catch((error) => {
+                console.log(error);
+                this.prepareStore.notifyMessage(
+                  'Ошибка назначения',
+                  'negative'
+                );
+              });
+          });
         }
-      });
+      } else {
+        // ГОТОВО
+        // Если назначающий ресурс отсутствует на других компонентах
+        MP_API.get('/mounted-port', {
+          params: {
+            compositePhysResId: resource.compositePhysResId,
+            limit: 1,
+            offset: 0,
+          },
+        }).then((mPortResult) => {
+          console.log('mPortResult', mPortResult);
+          if (mPortResult.data) {
+            resource.portId = mPortResult.data[0].id;
+            resource.physicalContainerId =
+              mPortResult.data[0].physicalContainerId;
 
-      console.log('resource', resource);
-      console.log(
-        'resource.compositePhysResSpecId',
-        resource.compositePhysResSpecId
-      );
-      // console.log('cprResourceOrderPoReqId', cprResourceOrderPoReqId);
-      // console.log('id', id);
-      // console.log('geoPlace.id', geoPlace.id);
+            this.tickedNodes = [];
+
+            let { cprResourceOrderPoReqId, id, geoPlace } =
+              this.orderStore.selectedOrder;
+
+            this.currentPortId = null;
+            this.openResourceForm = false;
+            this.prepareStore.createPosExisRes({
+              cprRoPoReqId: cprResourceOrderPoReqId,
+              cprRoPoReqWoId: id,
+              cprActionSpecId: 1,
+              compositePhysResSpecId: resource.compositePhysResSpecId,
+              physicalContainerId: resource.physicalContainerId,
+              geoPlaceId: geoPlace.id,
+              transportCpeFuncSpecId: resource.transportCpeFuncSpecId,
+              wiringTypeId: resource.wiringTypeId,
+              compositePhysResId: resource.compositePhysResId,
+              compositePhysResNum: resource.resourceNumber,
+              compositePhysResFullNum: resource.resourceFullNumber,
+              poRequestItemId: positionIds[0], // TODO: need to work with multiple positions,
+              poReqItemCompIds: componentsIds,
+              resourceOrderItemId: resource.resourceOrderItemId,
+            });
+          } else {
+            this.prepareStore.notifyMessage(
+              'Ошибка: Порт не найден',
+              'negative'
+            );
+            console.log('Порт не найден');
+            // this.prepareStore.infoTableLoading = false;
+          }
+        });
+      }
       this.openResourceForm = false;
     },
 
