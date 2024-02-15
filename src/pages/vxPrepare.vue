@@ -241,6 +241,7 @@
       @on-add-new-resource="onAddNewResource"
       @on-edit-component="onEditComponent"
       @on-edit-comp-exst="onEditCompExst"
+      @on-edit-comp-crt="onEditCompCrt"
       @on-prepare-existed="onPrepareExisted"
       @on-prepare-created="onPrepareCreated"
     />
@@ -1608,6 +1609,133 @@ export default {
       }
       this.openEditResourceForm = false;
     },
+
+    onEditCompCrt(resource, currentItem) {
+      let sameResOnOther = false; // in case if currentitem resource also active on other components, therefore no need to unbook port
+      let compCPR = false; // in case if current item with cpr id
+      let resCPR = false; // if resource with cpr id
+      console.log('onEditCompCrt');
+      console.log('resource', resource);
+      console.log('currentItem', currentItem);
+      for (let i = 0; this.prepareStore.preparedComponentsNew.length > i; i++) {
+        if (
+          currentItem.id != this.prepareStore.preparedComponentsNew[i].id &&
+          currentItem.portNumber ===
+            this.prepareStore.preparedComponentsNew[i].portNumber
+        ) {
+          sameResOnOther = true; // other component has same resource as current's edit component
+        }
+        if (currentItem.compositePhysResId != -1) {
+          compCPR = true; // current component has port from existing resource
+        }
+        if (resource.compositePhysResId != -1) {
+          resCPR = true; // resource has port from existing resource
+        }
+      }
+
+      if (resource.portNumber != currentItem.portNumber) {
+        if (sameResOnOther) {
+          console.log('sameResOnOther', sameResOnOther);
+        } else {
+          if (compCPR) {
+            if (resCPR) {
+              console.log('compCPR', compCPR);
+              console.log('resCPR', resCPR);
+              // let { cprResourceOrderPoReqId, id } =
+              //   this.orderStore.selectedOrder;
+              // for (
+              //   let i = 0;
+              //   this.orderStore.selectedOrder.cprResourceOrderPoReqItems
+              //     .length > i;
+              //   i++
+              // ) {
+              //   if (
+              //     this.orderStore.selectedOrder.cprResourceOrderPoReqItems[i]
+              //       .compositePhysResId === currentItem.compositePhysResId
+              //   ) {
+              //     CPR_RO_API.patch(
+              //       `/cpr-resource-order-po-req/${cprResourceOrderPoReqId}/work-order/${id}/item/${this.orderStore.selectedOrder.cprResourceOrderPoReqItems[i].id}`,
+              //       { stateId: 2 }
+              //     )
+              //       .then(() => {
+              //         MP_API.get('/mounted-port', {
+              //           params: {
+              //             compositePhysResId: resource.compositePhysResId,
+              //             limit: 1,
+              //             offset: 0,
+              //           },
+              //         })
+              //           .then((mPortResult) => {
+              //             POR_API.patch(
+              //               `/po-req-item/${currentItem.poReqItemId}/po-req-item-component/${currentItem.id}`,
+              //               {
+              //                 resourceOrderItemId:
+              //                   mPortResult.data[0].cprResourceOrderItemId,
+              //               }
+              //             )
+              //               .then(() => {
+              //                 useOrderStore().getOrder(
+              //                   useOrderStore().selectedOrder
+              //                     .cprResourceOrderPoReqId,
+              //                   useOrderStore().selectedOrder.id
+              //                 );
+              //                 this.prepareStore.fetchProductInfo(
+              //                   this.orderStore.selectedOrder
+              //                     .productOfferRequestId,
+              //                   this.orderStore.selectedOrder.geoPlace.id
+              //                 );
+              //                 this.prepareStore.notifyMessage(
+              //                   'Успешно назначен',
+              //                   'positive'
+              //                 );
+              //               })
+              //               .catch((error) => {
+              //                 console.log(error);
+              //                 this.prepareStore.notifyMessage(
+              //                   'Ошибка назначения ресурса на компонент',
+              //                   'negative'
+              //                 );
+              //               });
+              //           })
+              //           .catch((error) => {
+              //             console.log(error);
+              //             this.prepareStore.notifyMessage(
+              //               'Ошибка получения порта',
+              //               'negative'
+              //             );
+              //           });
+              //       })
+              //       .catch((error) => {
+              //         console.log(error);
+              //         this.prepareStore.notifyMessage(
+              //           'Ошибка отмены позиции',
+              //           'negative'
+              //         );
+              //       });
+              //   }
+              // }
+            } else {
+              console.log('compCPR', compCPR);
+              console.log('resCPR', resCPR);
+            }
+          } else {
+            if (resCPR) {
+              console.log('compCPR', compCPR);
+              console.log('resCPR', resCPR);
+            } else {
+              console.log('compCPR', compCPR);
+              console.log('resCPR', resCPR);
+            }
+          }
+        }
+      } else {
+        this.prepareStore.notifyMessage(
+          'Ошибка назначения: Выбран идентичный ресурс тому что назначен на компоненте',
+          'negative'
+        );
+      }
+    },
+
     rejectProductOfferRequestItem(item, event) {
       event.stopPropagation();
       this.prepareStore.patchPORequest(

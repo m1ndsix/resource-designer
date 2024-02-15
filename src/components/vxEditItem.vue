@@ -255,6 +255,7 @@ export default {
                 physicalContainerId: element.physicalContainerId,
                 transportCpeFuncSpecId: element.transportCpeFuncSpecData.id,
                 wiringTypeId: element.wiringTypeData.id,
+                portNumber: element.portNumber,
               },
             };
 
