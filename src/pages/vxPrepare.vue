@@ -450,7 +450,11 @@ export default {
               const hasAppointed2 = tickedNodes.some(
                 (node) =>
                   node.resourceOrderItemId ===
-                  this.orderStore.selectedOrder.cprResourceOrderPoReqItems[i].id
+                    this.orderStore.selectedOrder.cprResourceOrderPoReqItems[i]
+                      .id ||
+                  node.compositePhysResId ===
+                    this.orderStore.selectedOrder.cprResourceOrderPoReqItems[i]
+                      .compositePhysResId
               );
               if (hasAppointed2) {
                 return hasAppointed2;
