@@ -199,6 +199,7 @@ const emit = defineEmits([
   'onAddNewResource',
   'onEditComponent',
   'onEditCompExst',
+  'onEditCompCrt',
   'onPrepareCreated',
   'onPrepareExisted',
   'onStreetSelected',
@@ -351,14 +352,15 @@ function onEditComponent() {
     console.log('props.currentItem', props.currentItem);
     resetNewResource();
   } else if (state.resourceTab === 'created') {
-    console.log('state.selectedCreatedResource', state.selectedCreatedResource);
-    console.log('prepareStore.editItem', prepareStore.editItem);
-    emit(
-      'onPrepareCreated',
-      state.selectedCreatedResource,
-      prepareStore.editItem
-    );
-    console.log('emit');
+    // console.log('state.selectedCreatedResource', state.selectedCreatedResource);
+    // console.log('prepareStore.editItem', prepareStore.editItem);
+    // emit(
+    //   'onPrepareCreated',
+    //   state.selectedCreatedResource,
+    //   prepareStore.editItem
+    // );
+    emit('onEditCompCrt', state.selectedCreatedResource, prepareStore.editItem);
+
     // console.log('props.currentItem', props.currentItem);
   } else {
     console.log(
