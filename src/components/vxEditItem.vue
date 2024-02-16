@@ -200,6 +200,7 @@ export default {
                 },
               }).then((mPortResult) => {
                 if (mPortResult.data) {
+                  element.portId = mPortResult.data[0].id;
                   element.portNumber = mPortResult.data[0].portNumber;
                   PC_API.get(
                     `/physical-container/${mPortResult.data[0].physicalContainerId}`
@@ -220,6 +221,8 @@ export default {
                 },
               }).then((mPortResult) => {
                 if (mPortResult.data) {
+                  console.log('mPortResult.data', mPortResult.data);
+                  element.portId = mPortResult.data[0].id;
                   element.portNumber = mPortResult.data[0].portNumber;
                   PC_API.get(
                     `/physical-container/${mPortResult.data[0].physicalContainerId}`
@@ -256,6 +259,7 @@ export default {
                 transportCpeFuncSpecId: element.transportCpeFuncSpecData.id,
                 wiringTypeId: element.wiringTypeData.id,
                 portNumber: element.portNumber,
+                portId: element.portId,
               },
             };
 
