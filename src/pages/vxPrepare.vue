@@ -1645,11 +1645,52 @@ export default {
               на компоненте назначен существующий ресурс
              */
             if (resCPR) {
+              // ГОТОВО
               /*
                 назначающий ресурс из существующих
+                редактируемый компонент назначен существующим
+                нужнл отредактировать компонент в продукт оффере новыми данными
               */
               console.log('compCPR', compCPR);
               console.log('resCPR', resCPR);
+
+              MP_API.get('/mounted-port', {
+                params: {
+                  compositePhysResId: resource.compositePhysResId,
+                  limit: 1,
+                  offset: 0,
+                },
+              }).then((mPortResult) => {
+                POR_API.patch(
+                  `/po-req-item/${currentItem.poReqItemId}/po-req-item-component/${currentItem.id}`,
+                  {
+                    resourceOrderItemId:
+                      mPortResult.data[0].cprResourceOrderItemId,
+                  }
+                )
+                  .then(() => {
+                    useOrderStore().getOrder(
+                      useOrderStore().selectedOrder.cprResourceOrderPoReqId,
+                      useOrderStore().selectedOrder.id
+                    );
+                    this.prepareStore.fetchProductInfo(
+                      this.orderStore.selectedOrder.productOfferRequestId,
+                      this.orderStore.selectedOrder.geoPlace.id
+                    );
+                    this.prepareStore.notifyMessage(
+                      'Успешно назначен',
+                      'positive'
+                    );
+                  })
+                  .catch((error) => {
+                    console.log(error);
+                    this.prepareStore.notifyMessage(
+                      'Ошибка назначения ресурса на компонент',
+                      'negative'
+                    );
+                  });
+              });
+
               // let { cprResourceOrderPoReqId, id } =
               //   this.orderStore.selectedOrder;
               // for (
@@ -1728,7 +1769,7 @@ export default {
                 назначающий ресурс из новых
               */
               console.log('compCPR', compCPR);
-              console.log('resCPR', resCPR);
+              console.log('not resCPR', resCPR);
             }
           } else {
             /*
@@ -1738,14 +1779,14 @@ export default {
               /*
                 назначающий ресурс из существующих
               */
-              console.log('compCPR', compCPR);
+              console.log('not compCPR', compCPR);
               console.log('resCPR', resCPR);
             } else {
               /*
                 назначающий ресурс из новых
               */
-              console.log('compCPR', compCPR);
-              console.log('resCPR', resCPR);
+              console.log('not compCPR', compCPR);
+              console.log('not resCPR', resCPR);
             }
           }
         } else {
@@ -2015,7 +2056,7 @@ export default {
                   );
                 });
             } else {
-              // TODO: В Работе
+              // ГОТОВО
               /*
                 назначающий ресурс из новых
                 редактируемый компонент назначен новым
@@ -2025,6 +2066,86 @@ export default {
               */
               console.log('not compCPR', compCPR);
               console.log('not resCPR', resCPR);
+
+              let { cprResourceOrderPoReqId, id } =
+                this.orderStore.selectedOrder;
+
+              CPR_RO_API.patch(
+                `/cpr-resource-order-po-req/${cprResourceOrderPoReqId}/work-order/${id}/item/${currentItem.resourceOrderItemId}`,
+                { stateId: 2 }
+              )
+                .then(() => {
+                  MP_API.get('/mounted-port', {
+                    params: {
+                      cprResourceOrderItemId: currentItem.resourceOrderItemId,
+                      limit: 1,
+                      offset: 0,
+                    },
+                  })
+                    .then((mPortResult) => {
+                      if (mPortResult.data) {
+                        MP_API.patch(
+                          `/mounted-port/${mPortResult.data[0].id}`,
+                          {
+                            usageStateId: 1,
+                            cprResourceOrderItemId: -1,
+                          }
+                        )
+                          .then(() => {
+                            POR_API.patch(
+                              `/po-req-item/${currentItem.poReqItemId}/po-req-item-component/${currentItem.id}`,
+                              {
+                                resourceOrderItemId: resource.id,
+                              }
+                            )
+                              .then(() => {
+                                useOrderStore().getOrder(
+                                  useOrderStore().selectedOrder
+                                    .cprResourceOrderPoReqId,
+                                  useOrderStore().selectedOrder.id
+                                );
+                                this.prepareStore.fetchProductInfo(
+                                  this.orderStore.selectedOrder
+                                    .productOfferRequestId,
+                                  this.orderStore.selectedOrder.geoPlace.id
+                                );
+                                this.prepareStore.notifyMessage(
+                                  'Успешно назначен',
+                                  'positive'
+                                );
+                              })
+                              .catch((error) => {
+                                console.log(error);
+                                this.prepareStore.notifyMessage(
+                                  'Ошибка назначения ресурса на компонент',
+                                  'negative'
+                                );
+                              });
+                          })
+                          .catch((error) => {
+                            console.log(error);
+                            this.prepareStore.notifyMessage(
+                              'Ошибка редактирования порта',
+                              'negative'
+                            );
+                          });
+                      }
+                    })
+                    .catch((error) => {
+                      console.log(error);
+                      this.prepareStore.notifyMessage(
+                        'Ошибка получения порта',
+                        'negative'
+                      );
+                    });
+                })
+                .catch((error) => {
+                  console.log(error);
+                  this.prepareStore.notifyMessage(
+                    'Ошибка отмены позиции',
+                    'negative'
+                  );
+                });
             }
           }
         }
@@ -2034,6 +2155,7 @@ export default {
           'negative'
         );
       }
+      this.openEditResourceForm = false;
     },
 
     rejectProductOfferRequestItem(item, event) {
