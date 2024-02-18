@@ -239,7 +239,7 @@
       @on-street-selected="onStreetSelected"
       @on-address-selected="onAddressSelected"
       @on-add-new-resource="onAddNewResource"
-      @on-edit-component="onEditComponent"
+      @on-edit-comp-new="onEditCompNew"
       @on-edit-comp-exst="onEditCompExst"
       @on-edit-comp-crt="onEditCompCrt"
       @on-prepare-existed="onPrepareExisted"
@@ -1118,25 +1118,83 @@ export default {
       this.openResourceForm = false;
     },
 
-    onEditComponent(resource, currentItem) {
-      let { cprResourceOrderPoReqId, id } = this.orderStore.selectedOrder;
+    onEditCompNew(resource, currentItem) {
+      console.log('resource', resource);
+      console.log('currentItem', currentItem);
 
-      this.prepareStore.editPosition({
-        cprRoPoReqId: cprResourceOrderPoReqId,
-        cprRoPoReqWoId: id,
-        cprRoPoReqWoItemId: currentItem.resourceOrderItemId,
-        compositePhysResSpecId: resource.spec.id,
-        physicalContainerId: resource.equipment.id,
-        transportCpeFuncSpecId: -1,
-        wiringTypeId: resource.equipment.wiringTypeId,
-        compositePhysResId: -1,
-        compositePhysResNum: '7777777',
-        compositePhysResFullNum: '7777776',
-        mountedPortId: resource.port.id,
-        currentPortId: currentItem.portId,
-        poRequestItemId: currentItem.id,
-        poReqItemCompIds: currentItem.poReqItemId,
-      });
+      let sameROItemId = false; // in case if currentitem resource also active on other components, therefore no need to unbook port
+      let compCPR = false; // in case if current item with cpr id
+
+      for (let i = 0; this.prepareStore.preparedComponentsNew.length > i; i++) {
+        if (
+          currentItem.id != this.prepareStore.preparedComponentsNew[i].id &&
+          currentItem.resourceOrderItemId ===
+            this.prepareStore.preparedComponentsNew[i].resourceOrderItemId
+        ) {
+          sameROItemId = true; // other component has same resource as current's edit component
+        }
+
+        if (currentItem.compositePhysResId != -1) {
+          compCPR = true; // current component has port from existing resource
+        }
+      }
+
+      if (sameROItemId) {
+        /*
+          (sameResOnOther)
+          на редактируемом компоненте назначен ресурс который есть на других компонентах
+          отменять позицию не нужно
+          нужно редактировать компонент
+        */
+        console.log('sameROItemId', sameROItemId);
+        if (compCPR) {
+          /*
+            (compCPR)
+            на компоненте назначен существующий ресурс
+          */
+          console.log('compCPR', compCPR);
+        } else {
+          /*
+            (not compCPR)
+            на компоненте назначен новый ресурс
+          */
+          console.log('not compCPR', compCPR);
+        }
+      } else {
+        console.log('not sameROItemId', sameROItemId);
+        if (compCPR) {
+          /*
+            (compCPR)
+            на компоненте назначен существующий ресурс
+          */
+          console.log('compCPR', compCPR);
+        } else {
+          /*
+            (not compCPR)
+            на компоненте назначен новый ресурс
+          */
+          console.log('not compCPR', compCPR);
+        }
+      }
+
+      // let { cprResourceOrderPoReqId, id } = this.orderStore.selectedOrder;
+
+      // this.prepareStore.editPosNewRes({
+      //   cprRoPoReqId: cprResourceOrderPoReqId,
+      //   cprRoPoReqWoId: id,
+      //   cprRoPoReqWoItemId: currentItem.resourceOrderItemId,
+      //   compositePhysResSpecId: resource.spec.id,
+      //   physicalContainerId: resource.equipment.id,
+      //   transportCpeFuncSpecId: -1,
+      //   wiringTypeId: resource.equipment.wiringTypeId,
+      //   compositePhysResId: -1,
+      //   compositePhysResNum: '7777777',
+      //   compositePhysResFullNum: '7777776',
+      //   mountedPortId: resource.port.id,
+      //   currentPortId: currentItem.portId,
+      //   poRequestItemId: currentItem.id,
+      //   poReqItemCompIds: currentItem.poReqItemId,
+      // });
       this.openEditResourceForm = false;
     },
 

@@ -197,7 +197,7 @@ const elementVisible = ref(false);
 const emit = defineEmits([
   'onServiceAreaSelected',
   'onAddNewResource',
-  'onEditComponent',
+  'onEditCompNew',
   'onEditCompExst',
   'onEditCompCrt',
   'onPrepareCreated',
@@ -347,7 +347,7 @@ function onEditComponent() {
     if (!isResourceCreated) {
       emit('onAddNewResource', { ...state.newResource });
     }
-    emit('onEditComponent', newRes, prepareStore.editItem);
+    emit('onEditCompNew', newRes, prepareStore.editItem);
     console.log('newRes', newRes);
     console.log('props.currentItem', props.currentItem);
     resetNewResource();
