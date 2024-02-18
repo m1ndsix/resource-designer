@@ -1635,24 +1635,25 @@ export default {
 
       if (resource.portNumber != currentItem.portNumber) {
         if (sameResOnOther) {
-          // на редактируемом компоненте назначен ресурс который есть на других компонентах
-          // отменять позицию не нужно
-          // нужно редактировать компонент
-          console.log('sameResOnOther', sameResOnOther);
-
+          /*
+            (sameResOnOther)
+            на редактируемом компоненте назначен ресурс который есть на других компонентах
+            отменять позицию не нужно
+            нужно редактировать компонент
+          */
           if (compCPR) {
             /*
+              (compCPR)
               на компоненте назначен существующий ресурс
              */
             if (resCPR) {
               // ГОТОВО
               /*
+                (compCPR, resCPR)
                 назначающий ресурс из существующих
                 редактируемый компонент назначен существующим
                 нужнл отредактировать компонент в продукт оффере новыми данными
               */
-              console.log('compCPR', compCPR);
-              console.log('resCPR', resCPR);
 
               MP_API.get('/mounted-port', {
                 params: {
@@ -1690,125 +1691,152 @@ export default {
                     );
                   });
               });
-
-              // let { cprResourceOrderPoReqId, id } =
-              //   this.orderStore.selectedOrder;
-              // for (
-              //   let i = 0;
-              //   this.orderStore.selectedOrder.cprResourceOrderPoReqItems
-              //     .length > i;
-              //   i++
-              // ) {
-              //   if (
-              //     this.orderStore.selectedOrder.cprResourceOrderPoReqItems[i]
-              //       .compositePhysResId === currentItem.compositePhysResId
-              //   ) {
-              //     CPR_RO_API.patch(
-              //       `/cpr-resource-order-po-req/${cprResourceOrderPoReqId}/work-order/${id}/item/${this.orderStore.selectedOrder.cprResourceOrderPoReqItems[i].id}`,
-              //       { stateId: 2 }
-              //     )
-              //       .then(() => {
-              //         MP_API.get('/mounted-port', {
-              //           params: {
-              //             compositePhysResId: resource.compositePhysResId,
-              //             limit: 1,
-              //             offset: 0,
-              //           },
-              //         })
-              //           .then((mPortResult) => {
-              //             POR_API.patch(
-              //               `/po-req-item/${currentItem.poReqItemId}/po-req-item-component/${currentItem.id}`,
-              //               {
-              //                 resourceOrderItemId:
-              //                   mPortResult.data[0].cprResourceOrderItemId,
-              //               }
-              //             )
-              //               .then(() => {
-              //                 useOrderStore().getOrder(
-              //                   useOrderStore().selectedOrder
-              //                     .cprResourceOrderPoReqId,
-              //                   useOrderStore().selectedOrder.id
-              //                 );
-              //                 this.prepareStore.fetchProductInfo(
-              //                   this.orderStore.selectedOrder
-              //                     .productOfferRequestId,
-              //                   this.orderStore.selectedOrder.geoPlace.id
-              //                 );
-              //                 this.prepareStore.notifyMessage(
-              //                   'Успешно назначен',
-              //                   'positive'
-              //                 );
-              //               })
-              //               .catch((error) => {
-              //                 console.log(error);
-              //                 this.prepareStore.notifyMessage(
-              //                   'Ошибка назначения ресурса на компонент',
-              //                   'negative'
-              //                 );
-              //               });
-              //           })
-              //           .catch((error) => {
-              //             console.log(error);
-              //             this.prepareStore.notifyMessage(
-              //               'Ошибка получения порта',
-              //               'negative'
-              //             );
-              //           });
-              //       })
-              //       .catch((error) => {
-              //         console.log(error);
-              //         this.prepareStore.notifyMessage(
-              //           'Ошибка отмены позиции',
-              //           'negative'
-              //         );
-              //       });
-              //   }
-              // }
             } else {
+              // ГОТОВО
               /*
+                (compCPR, not resCPR)
                 назначающий ресурс из новых
+                редактируемый компонент назначен существующим
+                нужнл отредактировать компонент в продукт оффере новыми данными
               */
-              console.log('compCPR', compCPR);
-              console.log('not resCPR', resCPR);
+
+              POR_API.patch(
+                `/po-req-item/${currentItem.poReqItemId}/po-req-item-component/${currentItem.id}`,
+                {
+                  resourceOrderItemId: resource.id,
+                }
+              )
+                .then(() => {
+                  useOrderStore().getOrder(
+                    useOrderStore().selectedOrder.cprResourceOrderPoReqId,
+                    useOrderStore().selectedOrder.id
+                  );
+                  this.prepareStore.fetchProductInfo(
+                    this.orderStore.selectedOrder.productOfferRequestId,
+                    this.orderStore.selectedOrder.geoPlace.id
+                  );
+                  this.prepareStore.notifyMessage(
+                    'Успешно назначен',
+                    'positive'
+                  );
+                })
+                .catch((error) => {
+                  console.log(error);
+                  this.prepareStore.notifyMessage(
+                    'Ошибка назначения ресурса на компонент',
+                    'negative'
+                  );
+                });
             }
           } else {
             /*
+              (not compCPR)
               на компоненте назначен новый ресурс
              */
             if (resCPR) {
+              // ГОТОВО
               /*
+                (not compCPR, resCPR)
                 назначающий ресурс из существующих
+                редактируемый компонент назначен новым
+                далее отредактировать компонент в продукт оффере новыми данными
               */
-              console.log('not compCPR', compCPR);
-              console.log('resCPR', resCPR);
+
+              MP_API.get('/mounted-port', {
+                params: {
+                  compositePhysResId: resource.compositePhysResId,
+                  limit: 1,
+                  offset: 0,
+                },
+              }).then((mPortResult) => {
+                POR_API.patch(
+                  `/po-req-item/${currentItem.poReqItemId}/po-req-item-component/${currentItem.id}`,
+                  {
+                    resourceOrderItemId:
+                      mPortResult.data[0].cprResourceOrderItemId,
+                  }
+                )
+                  .then(() => {
+                    useOrderStore().getOrder(
+                      useOrderStore().selectedOrder.cprResourceOrderPoReqId,
+                      useOrderStore().selectedOrder.id
+                    );
+                    this.prepareStore.fetchProductInfo(
+                      this.orderStore.selectedOrder.productOfferRequestId,
+                      this.orderStore.selectedOrder.geoPlace.id
+                    );
+                    this.prepareStore.notifyMessage(
+                      'Успешно назначен',
+                      'positive'
+                    );
+                  })
+                  .catch((error) => {
+                    console.log(error);
+                    this.prepareStore.notifyMessage(
+                      'Ошибка назначения ресурса на компонент',
+                      'negative'
+                    );
+                  });
+              });
             } else {
+              // ГОТОВО
               /*
+                (not compCPR, not resCPR)
                 назначающий ресурс из новых
+                редактируемый компонент назначен новым
+                далее отредактировать компонент в продукт оффере новыми данными
               */
-              console.log('not compCPR', compCPR);
-              console.log('not resCPR', resCPR);
+
+              POR_API.patch(
+                `/po-req-item/${currentItem.poReqItemId}/po-req-item-component/${currentItem.id}`,
+                {
+                  resourceOrderItemId: resource.id,
+                }
+              )
+                .then(() => {
+                  useOrderStore().getOrder(
+                    useOrderStore().selectedOrder.cprResourceOrderPoReqId,
+                    useOrderStore().selectedOrder.id
+                  );
+                  this.prepareStore.fetchProductInfo(
+                    this.orderStore.selectedOrder.productOfferRequestId,
+                    this.orderStore.selectedOrder.geoPlace.id
+                  );
+                  this.prepareStore.notifyMessage(
+                    'Успешно назначен',
+                    'positive'
+                  );
+                })
+                .catch((error) => {
+                  console.log(error);
+                  this.prepareStore.notifyMessage(
+                    'Ошибка назначения ресурса на компонент',
+                    'negative'
+                  );
+                });
             }
           }
         } else {
           /*
+            (not sameResOnOther)
             на редактируемом компоненте назначен ресурс которого нет на других компонентах
             нужно отменить позицию
             нужно редактировать компонент
            */
           if (compCPR) {
             /*
+              (compCPR)
               на компоненте назначен существующий ресурс
              */
             if (resCPR) {
               //ГОТОВО
               /*
+                (compCPR, resCPR)
                 назначающий ресурс из существующих
                 редактируемый компонент назначен существующим и назначающий ресурс из существующих
                 нужно отменить позицию на редактируемом компоненте
                 далее отредактировать компонент в продукт оффере новыми данными
               */
-              console.log('compCPR', compCPR);
-              console.log('resCPR', resCPR);
 
               let { cprResourceOrderPoReqId, id } =
                 this.orderStore.selectedOrder;
@@ -1886,13 +1914,12 @@ export default {
             } else {
               // ГОТОВО
               /*
+                (compCPR, not resCPR)
                 назначающий ресурс из новых
                 редактируемый компонент назначен существующим и назначающий ресурс из новых
                 нужно отменить позицию на редактируемом компоненте
                 далее отредактировать компонент в продукт оффере новыми данными
               */
-              console.log('compCPR', compCPR);
-              console.log('not resCPR', resCPR);
 
               let { cprResourceOrderPoReqId, id } =
                 this.orderStore.selectedOrder;
@@ -1952,11 +1979,13 @@ export default {
             }
           } else {
             /*
+              (not compCPR)
               на компоненте назначен новый ресурс
              */
             if (resCPR) {
               // ГОТОВО
               /*
+                (not compCPR, resCPR)
                 назначающий ресурс из существующих
                 редактируемый компонент назначен новым и назначающий ресурс из существующих
                 нужно отменить позицию на редактируемом компоненте
@@ -1964,8 +1993,6 @@ export default {
                 далее отредактировать компонент в продукт оффере новыми данными существующего
                 нужно найти порт и взять оттуда resourceOrderItemId чтобы назначить его на компонент
               */
-              console.log('not compCPR', compCPR);
-              console.log('resCPR', resCPR);
 
               let { cprResourceOrderPoReqId, id } =
                 this.orderStore.selectedOrder;
@@ -2058,14 +2085,13 @@ export default {
             } else {
               // ГОТОВО
               /*
+                (not compCPR, not resCPR)
                 назначающий ресурс из новых
                 редактируемый компонент назначен новым
                 нужно отменить позицию на редактируемом компоненте
                 нужно разбронировать порт
                 далее отредактировать компонент в продукт оффере новыми данными
               */
-              console.log('not compCPR', compCPR);
-              console.log('not resCPR', resCPR);
 
               let { cprResourceOrderPoReqId, id } =
                 this.orderStore.selectedOrder;
