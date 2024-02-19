@@ -1119,9 +1119,6 @@ export default {
     },
 
     onEditCompNew(resource, currentItem) {
-      console.log('resource', resource);
-      console.log('currentItem', currentItem);
-
       let sameROItemId = false; // in case if currentitem resource also active on other components, therefore no need to unbook port
       let compCPR = false; // in case if current item with cpr id
 
@@ -1140,61 +1137,161 @@ export default {
       }
 
       if (sameROItemId) {
+        // ГОТОВО
         /*
           (sameResOnOther)
           на редактируемом компоненте назначен ресурс который есть на других компонентах
           отменять позицию не нужно
           нужно редактировать компонент
         */
-        console.log('sameROItemId', sameROItemId);
-        if (compCPR) {
-          /*
-            (compCPR)
-            на компоненте назначен существующий ресурс
-          */
-          console.log('compCPR', compCPR);
-        } else {
-          /*
-            (not compCPR)
-            на компоненте назначен новый ресурс
-          */
-          console.log('not compCPR', compCPR);
-        }
+
+        let componentsIds = [];
+        componentsIds.push(currentItem.id);
+
+        let { cprResourceOrderPoReqId, id, geoPlace } =
+          this.orderStore.selectedOrder;
+
+        this.prepareStore.createPosition({
+          cprRoPoReqId: cprResourceOrderPoReqId,
+          cprRoPoReqWoId: id,
+          cprActionSpecId: 1,
+          compositePhysResSpecId: resource.spec.id,
+          physicalContainerId: resource.equipment.id,
+          geoPlaceId: geoPlace.id,
+          transportCpeFuncSpecId: -1,
+          wiringTypeId: resource.equipment.wiringTypeId,
+          compositePhysResId: -1,
+          compositePhysResNum: '7777777',
+          compositePhysResFullNum: '7777777',
+          mountedPortId: resource.port.id,
+          poRequestItemId: currentItem.poReqItemId,
+          poReqItemCompIds: componentsIds,
+        });
       } else {
-        console.log('not sameROItemId', sameROItemId);
         if (compCPR) {
+          // ГОТОВО
+          // нужно добивать edit position
+          //  так как компонент из существующих, для указания id позиции нужно взять его из данных selectedOrder
           /*
-            (compCPR)
+            (not sameROItemId, compCPR)
             на компоненте назначен существующий ресурс
+            нужно пропатчить компонент из продукт оффера даными выбранным ресурсом, то есть resourceOrderItemId
+            пропатчить выбранный порт новыми данными
+            порт который на редактируемом компоненте трогать не нужно
           */
-          console.log('compCPR', compCPR);
+
+          let componentsIds = [];
+          componentsIds.push(currentItem.id);
+
+          for (
+            let i = 0;
+            this.orderStore.selectedOrder.cprResourceOrderPoReqItems.length > i;
+            i++
+          ) {
+            if (
+              this.orderStore.selectedOrder.cprResourceOrderPoReqItems[i]
+                .compositePhysResId === currentItem.compositePhysResId
+            ) {
+              POR_API.patch(
+                `/po-req-item/${currentItem.poReqItemId}/po-req-item-component/${currentItem.id}`,
+                {
+                  resourceOrderItemId:
+                    this.orderStore.selectedOrder.cprResourceOrderPoReqItems[i]
+                      .id,
+                }
+              )
+                .then(() => {
+                  MP_API.patch(`/mounted-port/${resource.port.id}`, {
+                    usageStateId: 2,
+                    cprResourceOrderItemId:
+                      this.orderStore.selectedOrder.cprResourceOrderPoReqItems[
+                        i
+                      ].id,
+                  })
+                    .then(() => {
+                      let { cprResourceOrderPoReqId, id } =
+                        this.orderStore.selectedOrder;
+                      this.prepareStore.editPosExRes({
+                        cprRoPoReqId: cprResourceOrderPoReqId,
+                        cprRoPoReqWoId: id,
+                        cprRoPoReqWoItemId:
+                          this.orderStore.selectedOrder
+                            .cprResourceOrderPoReqItems[i].id,
+                        compositePhysResSpecId: resource.spec.id,
+                        physicalContainerId: resource.port.physicalContainerId,
+                        transportCpeFuncSpecId: -1,
+                        compositePhysResId: -1,
+                        compositePhysResNum: '7777777',
+                        compositePhysResFullNum: '7777777',
+                      });
+                    })
+                    .catch((error) => {
+                      usePrepareStore().notifyMessage(
+                        'Ошибка редактирования порта',
+                        'negative'
+                      );
+                      console.log(error);
+                    });
+                })
+                .catch((error) => {
+                  console.log(error);
+                  this.prepareStore.notifyMessage(
+                    'Ошибка назначения ресурса на компонент',
+                    'negative'
+                  );
+                });
+            }
+          }
         } else {
+          // ГОТОВО
           /*
-            (not compCPR)
+            (not sameROItemId, not compCPR)
             на компоненте назначен новый ресурс
+            нужно почистить порт который на редактируемом компоненте
+            так добавить данные на порт который назначается
+            еще нужно сделать редактирование позиции данными выбранного ресурса
           */
-          console.log('not compCPR', compCPR);
+          MP_API.patch(`/mounted-port/${currentItem.portId}`, {
+            usageStateId: 1,
+            cprResourceOrderItemId: -1,
+          })
+            .then(() => {
+              MP_API.patch(`/mounted-port/${resource.port.id}`, {
+                usageStateId: 2,
+                cprResourceOrderItemId: currentItem.resourceOrderItemId,
+              })
+                .then(() => {
+                  let { cprResourceOrderPoReqId, id } =
+                    this.orderStore.selectedOrder;
+                  this.prepareStore.editPosExRes({
+                    cprRoPoReqId: cprResourceOrderPoReqId,
+                    cprRoPoReqWoId: id,
+                    cprRoPoReqWoItemId: currentItem.resourceOrderItemId,
+                    compositePhysResSpecId: resource.spec.id,
+                    physicalContainerId: resource.port.physicalContainerId,
+                    transportCpeFuncSpecId: -1,
+                    compositePhysResId: -1,
+                    compositePhysResNum: '7777777',
+                    compositePhysResFullNum: '7777777',
+                  });
+                })
+                .catch((error) => {
+                  usePrepareStore().notifyMessage(
+                    'Ошибка редактирования порта',
+                    'negative'
+                  );
+                  console.log(error);
+                });
+            })
+            .catch((error) => {
+              usePrepareStore().notifyMessage(
+                'Ошибка редактирования порта',
+                'negative'
+              );
+              console.log(error);
+            });
         }
       }
-
-      // let { cprResourceOrderPoReqId, id } = this.orderStore.selectedOrder;
-
-      // this.prepareStore.editPosNewRes({
-      //   cprRoPoReqId: cprResourceOrderPoReqId,
-      //   cprRoPoReqWoId: id,
-      //   cprRoPoReqWoItemId: currentItem.resourceOrderItemId,
-      //   compositePhysResSpecId: resource.spec.id,
-      //   physicalContainerId: resource.equipment.id,
-      //   transportCpeFuncSpecId: -1,
-      //   wiringTypeId: resource.equipment.wiringTypeId,
-      //   compositePhysResId: -1,
-      //   compositePhysResNum: '7777777',
-      //   compositePhysResFullNum: '7777776',
-      //   mountedPortId: resource.port.id,
-      //   currentPortId: currentItem.portId,
-      //   poRequestItemId: currentItem.id,
-      //   poReqItemCompIds: currentItem.poReqItemId,
-      // });
       this.openEditResourceForm = false;
     },
 
