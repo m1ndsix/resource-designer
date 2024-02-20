@@ -279,10 +279,9 @@ export default {
 
       this.prepareStore.preparedComponentsNew.forEach((element) => {
         if (
-          (row.id != element.id &&
-            row.resourceOrderItemId === element.resourceOrderItemId) ||
-          (row.id != element.id &&
-            row.compositePhysResId === element.compositePhysResId)
+          row.id != element.id &&
+          row.resourceOrderItemId === element.resourceOrderItemId &&
+          row.compositePhysResId === element.compositePhysResId
         ) {
           unBookPort = false;
         }

@@ -261,31 +261,19 @@ export const useOrderStore = defineStore('orderStore', {
       )
         .then(() => {
           if (unBookPort) {
-            console.log('if (unBookPort) {');
-            console.log('cprRoPoReqId', cprRoPoReqId);
-            console.log('cprRoPoReqWoId', cprRoPoReqWoId);
-            console.log('cprRoPoReqWoItemId', cprRoPoReqWoItemId);
-            // Решить проблему с cprRoPoReqWoItemId, когда нужно отменять позицию назначению существующим ресурсом, проблема в том что у существующего ресурса другой айтем айди.
             if (compositePhysResId != -1) {
-              console.log('if (compositePhysResId != -1) {');
+              /*
+                если компонент назначен ресурсом из существующего
+              */
               for (
                 let i = 0;
                 this.selectedOrder.cprResourceOrderPoReqItems.length > i;
                 i++
               ) {
-                console.log(
-                  'this.selectedOrder.cprResourceOrderPoReqItems ' + i + ' ',
-                  this.selectedOrder.cprResourceOrderPoReqItems[i]
-                );
                 if (
                   this.selectedOrder.cprResourceOrderPoReqItems[i]
                     .compositePhysResId === compositePhysResId
                 ) {
-                  console.log('SAME');
-                  console.log(
-                    'this.selectedOrder.cprResourceOrderPoReqItems[i].id',
-                    this.selectedOrder.cprResourceOrderPoReqItems[i].id
-                  );
                   CPR_RO_API.patch(
                     `/cpr-resource-order-po-req/${cprRoPoReqId}/work-order/${cprRoPoReqWoId}/item/${this.selectedOrder.cprResourceOrderPoReqItems[i].id}`,
                     { stateId }
@@ -316,9 +304,9 @@ export const useOrderStore = defineStore('orderStore', {
                 }
               }
             } else if (cprRoPoReqWoItemId != -1 && compositePhysResId == -1) {
-              console.log(
-                '} else if (cprRoPoReqWoItemId != -1 && compositePhysResId == -1) {'
-              );
+              /*
+                если компонент назначен новым созданным ресурсом
+              */
               CPR_RO_API.patch(
                 `/cpr-resource-order-po-req/${cprRoPoReqId}/work-order/${cprRoPoReqWoId}/item/${cprRoPoReqWoItemId}`,
                 { stateId }
@@ -363,7 +351,9 @@ export const useOrderStore = defineStore('orderStore', {
               });
             }
           } else {
-            console.log('} else {');
+            /*
+              если компонент назначен ресурсом который есть на других компонентах
+            */
             this.getOrder(
               this.selectedOrder.cprResourceOrderPoReqId,
               this.selectedOrder.id
