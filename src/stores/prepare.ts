@@ -446,6 +446,7 @@ export const usePrepareStore = defineStore('prepareStore', {
         MP_API.patch(`/mounted-port/${mountedPortId}`, {
           usageStateId: 2,
           cprResourceOrderItemId: this.resourceOrderItemId,
+          expirationDateTime: '2199-12-31T00:00:00Z',
         })
           .then((mountResult) => {
             for (let i = 0; i < poReqItemCompIds.length; i++) {
@@ -579,6 +580,7 @@ export const usePrepareStore = defineStore('prepareStore', {
         MP_API.patch(`/mounted-port/${mountedPortId}`, {
           usageStateId: 2,
           cprResourceOrderItemId: cprRoPoReqWoItemId,
+          expirationDateTime: '2199-12-31T00:00:00Z',
         })
           .then((mountResult) => {
             // TODO: handle success/error
@@ -586,6 +588,7 @@ export const usePrepareStore = defineStore('prepareStore', {
             MP_API.patch(`/mounted-port/${currentPortId}`, {
               usageStateId: 1,
               cprResourceOrderItemId: -1,
+              expirationDateTime: '2006-01-02T15:04:05Z',
             })
               .then((mountResult) => {
                 useOrderStore().getOrder(
@@ -681,6 +684,7 @@ export const usePrepareStore = defineStore('prepareStore', {
         MP_API.patch(`/mounted-port/${mountedPortId}`, {
           usageStateId: 2,
           cprResourceOrderItemId: cprRoPoReqWoItemId,
+          expirationDateTime: '2199-12-31T00:00:00Z',
         })
           .then((mountResult) => {
             // TODO: handle success/error
@@ -688,6 +692,7 @@ export const usePrepareStore = defineStore('prepareStore', {
             MP_API.patch(`/mounted-port/${currentPortId}`, {
               usageStateId: 1,
               cprResourceOrderItemId: -1,
+              expirationDateTime: '2006-01-02T15:04:05Z',
             })
               .then((mountResult) => {
                 useOrderStore().getOrder(

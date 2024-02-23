@@ -97,6 +97,8 @@
             @update:model-value="onNewPortSelect"
             :options="prepareStore.mountedPorts"
             :option-label="(container) => 'Порт ' + container.portNumber"
+            @clear="clearSelectedPort"
+            clearable
             label="Выбор Порта"
           />
         </q-tab-panel>
@@ -164,6 +166,8 @@ import { reactive, ref, watchEffect } from 'vue';
 import { Resource } from './models';
 import { useOrderStore } from 'stores/order';
 import { usePrepareStore } from 'stores/prepare';
+import { MP_API } from 'boot/api';
+import { date } from 'quasar';
 
 /*
   Props
@@ -263,6 +267,10 @@ const initialState: State = {
 };
 const state: State = reactive(initialState);
 
+const previousSelectedPort = ref(null);
+const selectedPort = ref(null);
+const clearPort = ref(null);
+
 /*
   Methods
 */
@@ -332,7 +340,53 @@ function onNewResourceSelect(data) {
 
 function onNewPortSelect(data) {
   if (data) {
+    previousSelectedPort.value = selectedPort.value;
+    selectedPort.value = data;
+    console.log('selectedPort', selectedPort.value);
+    const timeStamp = Date.now() + 15 * 60 * 1000;
+    const formattedDate = date.formatDate(timeStamp, 'YYYY-MM-DDTHH:mm:ss[Z]');
+    console.log('formattedDate', formattedDate);
+    MP_API.patch(`/mounted-port/${selectedPort.value.id}`, {
+      usageStateId: 2,
+      expirationDateTime: formattedDate,
+    }).then(() => {
+      prepareStore.notifyMessage(
+        'Порт под номером ' + selectedPort.value.portNumber + ' забронирован',
+        'positive'
+      );
+    });
+    if (previousSelectedPort.value && clearPort.value == null) {
+      MP_API.patch(`/mounted-port/${previousSelectedPort.value.id}`, {
+        usageStateId: 1,
+        expirationDateTime: '2006-01-02T15:04:05Z',
+      }).then(() => {
+        prepareStore.notifyMessage(
+          'Порт под номером ' +
+            previousSelectedPort.value.portNumber +
+            ' разбронирован',
+          'warning'
+        );
+      });
+    }
+    clearPort.value = null;
+    console.log('previousSelectedPort', previousSelectedPort.value);
+    console.log('selectedPort', selectedPort.value);
+    // console.log('onNewPortSelect', data.portNumber);
   }
+}
+
+function clearSelectedPort(data) {
+  console.log('data', data);
+  clearPort.value = data;
+  MP_API.patch(`/mounted-port/${clearPort.value.id}`, {
+    usageStateId: 1,
+    expirationDateTime: '2006-01-02T15:04:05Z',
+  }).then(() => {
+    prepareStore.notifyMessage(
+      'Порт под номером ' + clearPort.value.portNumber + ' разбронирован',
+      'warning'
+    );
+  });
 }
 
 function onEditComponent() {

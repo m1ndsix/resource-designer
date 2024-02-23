@@ -1207,6 +1207,7 @@ export default {
                       this.orderStore.selectedOrder.cprResourceOrderPoReqItems[
                         i
                       ].id,
+                    expirationDateTime: '2199-12-31T00:00:00Z',
                   })
                     .then(() => {
                       let { cprResourceOrderPoReqId, id } =
@@ -1254,11 +1255,13 @@ export default {
           MP_API.patch(`/mounted-port/${currentItem.portId}`, {
             usageStateId: 1,
             cprResourceOrderItemId: -1,
+            expirationDateTime: '2006-01-02T15:04:05Z',
           })
             .then(() => {
               MP_API.patch(`/mounted-port/${resource.port.id}`, {
                 usageStateId: 2,
                 cprResourceOrderItemId: currentItem.resourceOrderItemId,
+                expirationDateTime: '2199-12-31T00:00:00Z',
               })
                 .then(() => {
                   let { cprResourceOrderPoReqId, id } =
@@ -1547,6 +1550,7 @@ export default {
                           {
                             usageStateId: 1,
                             cprResourceOrderItemId: -1,
+                            expirationDateTime: '2006-01-02T15:04:05Z',
                           }
                         )
                           .then(() => {
@@ -1707,6 +1711,7 @@ export default {
                           {
                             usageStateId: 1,
                             cprResourceOrderItemId: -1,
+                            expirationDateTime: '2006-01-02T15:04:05Z',
                           }
                         )
                           .then(() => {
@@ -2171,6 +2176,7 @@ export default {
                           {
                             usageStateId: 1,
                             cprResourceOrderItemId: -1,
+                            expirationDateTime: '2006-01-02T15:04:05Z',
                           }
                         )
                           .then(() => {
@@ -2270,6 +2276,7 @@ export default {
                           {
                             usageStateId: 1,
                             cprResourceOrderItemId: -1,
+                            expirationDateTime: '2006-01-02T15:04:05Z',
                           }
                         )
                           .then(() => {

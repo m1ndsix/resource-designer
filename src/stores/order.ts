@@ -323,6 +323,7 @@ export const useOrderStore = defineStore('orderStore', {
                       MP_API.patch(`/mounted-port/${mPortResult.data[0].id}`, {
                         usageStateId: 1,
                         cprResourceOrderItemId: -1,
+                        expirationDateTime: '2006-01-02T15:04:05Z',
                       }).then(() => {
                         // TODO: handle success/error
                         this.getOrder(
