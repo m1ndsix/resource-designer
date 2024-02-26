@@ -212,7 +212,7 @@
       </div>
     </div>
   </div>
-  <q-dialog v-model="openResourceForm">
+  <q-dialog v-model="openResourceForm" persistent>
     <vx-resource-form
       :created-resources="prepareStore.createdResources"
       :current-item="currentItem"
@@ -228,7 +228,7 @@
       @on-prepare-existed="onPrepareExisted"
     />
   </q-dialog>
-  <q-dialog v-model="openEditResourceForm">
+  <q-dialog v-model="openEditResourceForm" persistent>
     <vx-edit-resource-form
       :created-resources="prepareStore.createdResources"
       :current-item="currentItem"

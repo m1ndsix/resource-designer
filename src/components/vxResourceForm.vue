@@ -1,178 +1,164 @@
 <template>
-  <q-dialog
-    v-model="persistent"
-    persistent
-    transition-show="scale"
-    transition-hide="scale"
-  >
-    <q-card style="max-width: 650px">
-      <q-card-section class="row">
-        <div class="text-h6">Назначение Ресурса</div>
-        <q-space />
-        <q-btn
-          icon="close"
-          flat
-          round
-          dense
-          v-close-popup
-          @click="onCloseForm"
-        />
-      </q-card-section>
-      <q-card-section>
-        <q-tabs
-          v-model="state.resourceTab"
-          dense
-          class="text-grey"
-          active-color="primary"
-          indicator-color="primary"
-          align="justify"
-          narrow-indicator
-        >
-          <q-tab name="new" label="Создать Новый" />
-          <q-tab name="existing" label="Выбрать существующий" />
-          <q-tab name="created" label="Созданные в проекте" />
-        </q-tabs>
-        <q-separator />
-
-        <q-tab-panels v-model="state.resourceTab" animated>
-          <q-tab-panel name="new">
-            <q-select
-              style="width: 250px"
-              v-model="state.equipmentFilter"
-              @update:model-value="onServiceAreaSelected"
-              :options="state.equipmentFilterOptions"
-              label="Зона поиска"
-            />
-
-            <q-select
-              style="width: 250px"
-              v-model="state.newResource.value.spec"
-              @update:model-value="onNewResourceSelect"
-              :options="orderStore.cprSpecs"
-              option-label="nameRu"
-              option-value="nameRu"
-              label="Выбор Спецификации"
-            />
-            <div class="row">
-              <div class="col">
-                <q-select
-                  style="width: 250px"
-                  v-model="state.newResource.value.equipment"
-                  @update:model-value="onNewResourceSelect"
-                  :options="prepareStore.physicalContainers"
-                  :option-label="
-                    (container) =>
-                      container.specificationData.nameRu +
-                      ' ' +
-                      container.physicalContainerNumber
-                  "
-                  option-value="physicalContainerNumber"
-                  label="Выбор ФК"
-                />
-              </div>
-              <div class="col">
-                <div
-                  v-if="
-                    state.equipmentFilter &&
-                    state.equipmentFilter.value === 'address'
-                  "
-                >
-                  <q-select
-                    style="width: 250px"
-                    use-input
-                    input-debounce="0"
-                    v-model="state.selectedStreet"
-                    @update:model-value="onStreetSelected"
-                    @filter="streetOptionsFilter"
-                    :options="state.filteredStreets"
-                    option-value="id"
-                    option-label="nameRu"
-                    dense
-                    label="Улица"
-                  />
-                  <q-select
-                    v-if="state.selectedStreet"
-                    style="width: 250px"
-                    v-model="state.selectedAddress"
-                    @update:model-value="onAddressSelected"
-                    :options="props.addresses"
-                    option-value="id"
-                    :option-label="makeAddressLabel"
-                    dense
-                    label="Номер дома"
-                  />
-                </div>
-              </div>
-            </div>
-            <q-select
-              style="width: 250px"
-              v-model="state.newResource.value.port"
-              @update:model-value="onNewPortSelect"
-              :options="prepareStore.mountedPorts"
-              :option-label="(container) => 'Порт ' + container.portNumber"
-              @clear="clearSelectedPort"
-              clearable
-              label="Выбор Порта"
-            />
-          </q-tab-panel>
-
-          <q-tab-panel name="existing">
-            <q-option-group
-              v-if="!!prepareStore.existingResources_2"
-              v-model="state.selectedExistingResource"
-              :options="prepareStore.existingResources_2"
-              color="primary"
-            >
-              <template v-slot:label="opt">
-                <div class="column">
-                  <span class="text-bold">{{ opt.label }}</span>
-                  <span class="text-caption">{{ opt.value.lineData }}</span>
-                </div>
-              </template>
-            </q-option-group>
-            <div v-else>Нет данных</div>
-          </q-tab-panel>
-
-          <q-tab-panel name="created">
-            <q-option-group
-              v-if="prepareStore.createdResources_2.length > 0"
-              v-model="state.selectedCreatedResource"
-              :options="prepareStore.createdResources_2"
-              color="primary"
-            />
-            <div v-else>
-              <div v-if="elementVisible">
-                <q-spinner-tail
-                  v-show="elementVisible"
-                  size="40px"
-                  color="primary"
-                />
-              </div>
-              <div v-else>Нет данных...</div>
-            </div>
-          </q-tab-panel>
-        </q-tab-panels>
-      </q-card-section>
-
+  <q-card style="max-width: 650px">
+    <q-card-section class="row">
+      <div class="text-h6">Назначение Ресурса</div>
+      <q-space />
+      <q-btn icon="close" flat round dense v-close-popup @click="onCloseForm" />
+    </q-card-section>
+    <q-card-section>
+      <q-tabs
+        v-model="state.resourceTab"
+        dense
+        class="text-grey"
+        active-color="primary"
+        indicator-color="primary"
+        align="justify"
+        narrow-indicator
+      >
+        <q-tab name="new" label="Создать Новый" />
+        <q-tab name="existing" label="Выбрать существующий" />
+        <q-tab name="created" label="Созданные в проекте" />
+      </q-tabs>
       <q-separator />
 
-      <q-card-actions class="row" align="right">
-        <q-btn
-          label="Подготовить"
-          type="submit"
-          color="primary"
-          :disable="
-            (!state.newResource.value.equipment ||
-              !state.newResource.value.port ||
-              !state.newResource.value.spec) &&
-            !state.selectedExistingResource &&
-            !state.selectedCreatedResource
-          "
-          @click="onPrepareComponent"
-        />
-      </q-card-actions>
-    </q-card>
-  </q-dialog>
+      <q-tab-panels v-model="state.resourceTab" animated>
+        <q-tab-panel name="new">
+          <q-select
+            style="width: 250px"
+            v-model="state.equipmentFilter"
+            @update:model-value="onServiceAreaSelected"
+            :options="state.equipmentFilterOptions"
+            label="Зона поиска"
+          />
+
+          <q-select
+            style="width: 250px"
+            v-model="state.newResource.value.spec"
+            @update:model-value="onNewResourceSelect"
+            :options="orderStore.cprSpecs"
+            option-label="nameRu"
+            option-value="nameRu"
+            label="Выбор Спецификации"
+          />
+          <div class="row">
+            <div class="col">
+              <q-select
+                style="width: 250px"
+                v-model="state.newResource.value.equipment"
+                @update:model-value="onNewResourceSelect"
+                :options="prepareStore.physicalContainers"
+                :option-label="
+                  (container) =>
+                    container.specificationData.nameRu +
+                    ' ' +
+                    container.physicalContainerNumber
+                "
+                option-value="physicalContainerNumber"
+                label="Выбор ФК"
+              />
+            </div>
+            <div class="col">
+              <div
+                v-if="
+                  state.equipmentFilter &&
+                  state.equipmentFilter.value === 'address'
+                "
+              >
+                <q-select
+                  style="width: 250px"
+                  use-input
+                  input-debounce="0"
+                  v-model="state.selectedStreet"
+                  @update:model-value="onStreetSelected"
+                  @filter="streetOptionsFilter"
+                  :options="state.filteredStreets"
+                  option-value="id"
+                  option-label="nameRu"
+                  dense
+                  label="Улица"
+                />
+                <q-select
+                  v-if="state.selectedStreet"
+                  style="width: 250px"
+                  v-model="state.selectedAddress"
+                  @update:model-value="onAddressSelected"
+                  :options="props.addresses"
+                  option-value="id"
+                  :option-label="makeAddressLabel"
+                  dense
+                  label="Номер дома"
+                />
+              </div>
+            </div>
+          </div>
+          <q-select
+            style="width: 250px"
+            v-model="state.newResource.value.port"
+            @update:model-value="onNewPortSelect"
+            :options="prepareStore.mountedPorts"
+            :option-label="(container) => 'Порт ' + container.portNumber"
+            @clear="clearSelectedPort"
+            clearable
+            label="Выбор Порта"
+          />
+        </q-tab-panel>
+
+        <q-tab-panel name="existing">
+          <q-option-group
+            v-if="!!prepareStore.existingResources_2"
+            v-model="state.selectedExistingResource"
+            :options="prepareStore.existingResources_2"
+            color="primary"
+          >
+            <template v-slot:label="opt">
+              <div class="column">
+                <span class="text-bold">{{ opt.label }}</span>
+                <span class="text-caption">{{ opt.value.lineData }}</span>
+              </div>
+            </template>
+          </q-option-group>
+          <div v-else>Нет данных</div>
+        </q-tab-panel>
+
+        <q-tab-panel name="created">
+          <q-option-group
+            v-if="prepareStore.createdResources_2.length > 0"
+            v-model="state.selectedCreatedResource"
+            :options="prepareStore.createdResources_2"
+            color="primary"
+          />
+          <div v-else>
+            <div v-if="elementVisible">
+              <q-spinner-tail
+                v-show="elementVisible"
+                size="40px"
+                color="primary"
+              />
+            </div>
+            <div v-else>Нет данных...</div>
+          </div>
+        </q-tab-panel>
+      </q-tab-panels>
+    </q-card-section>
+
+    <q-separator />
+
+    <q-card-actions class="row" align="right">
+      <q-btn
+        label="Подготовить"
+        type="submit"
+        color="primary"
+        :disable="
+          (!state.newResource.value.equipment ||
+            !state.newResource.value.port ||
+            !state.newResource.value.spec) &&
+          !state.selectedExistingResource &&
+          !state.selectedCreatedResource
+        "
+        @click="onPrepareComponent"
+      />
+    </q-card-actions>
+  </q-card>
 </template>
 
 <script setup lang="ts">
@@ -283,8 +269,6 @@ const state: State = reactive(initialState);
 const previousSelectedPort = ref(null);
 const selectedPort = ref(null);
 const clearPort = ref(null);
-const persistent = ref(true);
-
 /*
   Methods
 */
@@ -306,23 +290,6 @@ function makeAddressLabel({ house, subHouse }) {
   } else {
     return house;
   }
-}
-
-function handleCardClick(event) {
-  console.log('sdasdasd');
-  // Получить элемент, на который был клик
-  const clickedElement = event.target;
-
-  // Проверить, находится ли элемент внутри вашего содержимого карты
-  const isInsideCard = this.$refs.cardContent.contains(clickedElement);
-
-  // Если клик был внутри карты, не предотвращать всплытие
-  if (isInsideCard) {
-    return;
-  }
-
-  // Если клик был вне карты, предотвратить всплытие события
-  event.stopPropagation();
 }
 
 function onCloseForm() {
