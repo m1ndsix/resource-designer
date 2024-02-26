@@ -363,26 +363,40 @@ export const usePrepareStore = defineStore('prepareStore', {
           offset,
           limit,
         },
-      }).then(({ data }) => {
+      }).then(async ({ data }) => {
         console.log('fetchCPRInfo', data);
         console.log('data[1].id', data[1].id);
 
         // TODO: no data spec
         if (data) {
-          this.existingResources_2 = data.map((cpr) => {
-            return {
-              label: `${cpr.compositePhysResSpecData.nameRu} (${cpr.compositePhysResSpecData.id}), ${cpr.resourceFullNumber}`,
-              value: {
-                compositePhysResId: cpr.id,
-                compositePhysResSpecId: cpr.compositePhysResSpecData.id,
-                resourceNumber: cpr.resourceNumber,
-                resourceFullNumber: cpr.resourceFullNumber,
-                resourceOrderItemId: cpr.resourceOrderItemId,
-                wiringTypeId: cpr.wiringTypeData.id,
-                transportCpeFuncSpecId: cpr.transportCpeFuncSpecId,
-              },
-            };
-          });
+          this.existingResources_2 = await Promise.all(
+            data.map(async (cpr) => {
+              const mPortResult = await MP_API.get('/mounted-port', {
+                params: {
+                  compositePhysResId: cpr.id,
+                  limit: 1,
+                  offset: 0,
+                },
+              });
+              const portNumber =
+                mPortResult.data.length > 0
+                  ? mPortResult.data[0].portNumber
+                  : null;
+
+              return {
+                label: `${cpr.compositePhysResSpecData.nameRu} (${cpr.compositePhysResSpecData.id}), ${cpr.resourceFullNumber}, Порт ${portNumber}`,
+                value: {
+                  compositePhysResId: cpr.id,
+                  compositePhysResSpecId: cpr.compositePhysResSpecData.id,
+                  resourceNumber: cpr.resourceNumber,
+                  resourceFullNumber: cpr.resourceFullNumber,
+                  resourceOrderItemId: cpr.resourceOrderItemId,
+                  wiringTypeId: cpr.wiringTypeData.id,
+                  transportCpeFuncSpecId: cpr.transportCpeFuncSpecId,
+                },
+              };
+            })
+          );
         }
       });
     },
