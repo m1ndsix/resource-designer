@@ -3,7 +3,7 @@
     <q-card-section class="row">
       <div class="text-h6">Редактирование Ресурса</div>
       <q-space />
-      <q-btn icon="close" flat round dense v-close-popup />
+      <q-btn icon="close" flat round dense v-close-popup @click="onCloseForm" />
     </q-card-section>
     <q-card-section>
       <q-tabs
@@ -291,6 +291,21 @@ function makeAddressLabel({ house, subHouse }) {
     return house + '/' + subHouse;
   } else {
     return house;
+  }
+}
+
+function onCloseForm() {
+  if (state.newResource.value.port) {
+    const selectedPort = state.newResource.value.port;
+    MP_API.patch(`/mounted-port/${selectedPort.id}`, {
+      usageStateId: 1,
+      expirationDateTime: '2006-01-02T15:04:05Z',
+    }).then(() => {
+      prepareStore.notifyMessage(
+        'Порт под номером ' + selectedPort.portNumber + ' разбронирован',
+        'warning'
+      );
+    });
   }
 }
 
