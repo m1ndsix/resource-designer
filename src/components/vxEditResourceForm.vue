@@ -34,7 +34,7 @@
           <q-select
             style="width: 250px"
             v-model="state.newResource.value.spec"
-            @update:model-value="onNewResourceSelect"
+            @update:model-value="onSpecSelected"
             :options="orderStore.cprSpecs"
             option-label="nameRu"
             option-value="nameRu"
@@ -45,7 +45,7 @@
               <q-select
                 style="width: 250px"
                 v-model="state.newResource.value.equipment"
-                @update:model-value="onNewResourceSelect"
+                @update:model-value="onPCSelected"
                 :options="prepareStore.physicalContainers"
                 :option-label="
                   (container) =>
@@ -310,7 +310,25 @@ function onCloseForm() {
 }
 
 function onServiceAreaSelected({ value }) {
-  resetNewResource();
+  state.newResource.value.spec = null;
+  state.newResource.value.equipment = null;
+
+  if (state.newResource.value.port) {
+    MP_API.patch(`/mounted-port/${state.newResource.value.port.id}`, {
+      usageStateId: 1,
+      expirationDateTime: '2006-01-02T15:04:05Z',
+    }).then(() => {
+      prepareStore.notifyMessage(
+        'Порт под номером ' +
+          state.newResource.value.port.portNumber +
+          ' разбронирован',
+        'warning'
+      );
+      state.newResource.value.port = null;
+      selectedPort.value = null;
+    });
+  }
+
   state.selectedStreet = null;
   state.selectedAddress = null;
   emit('onServiceAreaSelected', value);
@@ -343,10 +361,47 @@ function streetOptionsFilter(val, update) {
   });
 }
 
-function onNewResourceSelect(data) {
+function onSpecSelected(data) {
   state.selectedExistingResource = null;
   state.selectedCreatedResource = null;
-  state.newResource.value.port = null;
+
+  if (state.newResource.value.port) {
+    MP_API.patch(`/mounted-port/${state.newResource.value.port.id}`, {
+      usageStateId: 1,
+      expirationDateTime: '2006-01-02T15:04:05Z',
+    }).then(() => {
+      prepareStore.notifyMessage(
+        'Порт под номером ' +
+          state.newResource.value.port.portNumber +
+          ' разбронирован',
+        'warning'
+      );
+      state.newResource.value.port = null;
+      selectedPort.value = null;
+    });
+  }
+  state.newResource.value.equipment = null;
+}
+
+function onPCSelected(data) {
+  state.selectedExistingResource = null;
+  state.selectedCreatedResource = null;
+
+  if (state.newResource.value.port) {
+    MP_API.patch(`/mounted-port/${state.newResource.value.port.id}`, {
+      usageStateId: 1,
+      expirationDateTime: '2006-01-02T15:04:05Z',
+    }).then(() => {
+      prepareStore.notifyMessage(
+        'Порт под номером ' +
+          state.newResource.value.port.portNumber +
+          ' разбронирован',
+        'warning'
+      );
+      state.newResource.value.port = null;
+      selectedPort.value = null;
+    });
+  }
   if (data.physicalContainerNumber) {
     //prepareStore.fetchMountedPorts(data.id, 1, 10, 0);
     prepareStore.fetchMountedPortsByParentPc(data.id);
