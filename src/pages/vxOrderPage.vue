@@ -236,6 +236,7 @@ watchEffect(() => {
   ) {
     if (state.dateFromInput) {
       state.dateFrom = state.dateFromInput + 'T00:00:00Z';
+      console.log('state.dateFrom', state.dateFrom);
     } else {
       state.dateFrom = '1900-01-01T00:00:00Z';
     }
@@ -253,6 +254,13 @@ function onTableRequest(request) {
   const offset = (newPagination.page - 1) * newPagination.rowsPerPage;
   const limit = newPagination.rowsPerPage;
 
+  orderStore.getOrdersCount(
+    state.dateFrom,
+    state.contactName,
+    state.address,
+    state.state
+  );
+
   orderStore
     .getOrders(
       offset,
@@ -263,14 +271,7 @@ function onTableRequest(request) {
       state.state
     )
     .then(() => {
-      let newRowsNumber =
-        (newPagination.page - 1) * newPagination.rowsPerPage +
-        orderStore.orderCount;
-
-      newRowsNumber =
-        orderStore.orderCount < limit ? newRowsNumber : newRowsNumber + limit;
-
-      pagination.value.rowsNumber = newRowsNumber;
+      pagination.value.rowsNumber = orderStore.ordersCount;
       pagination.value.page = newPagination.page;
       pagination.value.rowsPerPage = newPagination.rowsPerPage;
       isTableLoading.value = false;

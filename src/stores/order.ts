@@ -3,6 +3,7 @@ import { usePrepareStore } from 'stores/prepare';
 import { CPR_RO_API, TE_API, POR_API, MP_API } from 'boot/api';
 interface State {
   orders: WorkOrder[];
+  ordersCount: null;
   selectedOrder: WorkOrder | null;
   baseCfsSpecs: IdName[];
   productSpecs: IdName[];
@@ -117,6 +118,7 @@ export const useOrderStore = defineStore('orderStore', {
   state: (): State => {
     return {
       orders: [],
+      ordersCount: null,
       selectedOrder: null,
       baseCfsSpecs: [],
       productSpecs: [],
@@ -160,6 +162,33 @@ export const useOrderStore = defineStore('orderStore', {
         console.log(error);
       }
     },
+
+    async getOrdersCount(
+      dateFrom: string,
+      contactName: string,
+      addressName: string,
+      state: string
+    ) {
+      try {
+        await CPR_RO_API.get('/cpr-resource-order-po-req/work-order-count', {
+          params: {
+            dateFrom,
+            contactName,
+            addressName,
+            state,
+          },
+        }).then(({ data }) => {
+          if (data) {
+            this.ordersCount = data.count;
+          } else {
+            this.ordersCount = null;
+          }
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    },
+
     async getOrder(cprRoPoReqId: number, cprRoPoReqWoId: number) {
       try {
         await CPR_RO_API.get(
