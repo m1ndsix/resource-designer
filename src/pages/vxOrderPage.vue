@@ -236,7 +236,6 @@ watchEffect(() => {
   ) {
     if (state.dateFromInput) {
       state.dateFrom = state.dateFromInput + 'T00:00:00Z';
-      console.log('state.dateFrom', state.dateFrom);
     } else {
       state.dateFrom = '1900-01-01T00:00:00Z';
     }
