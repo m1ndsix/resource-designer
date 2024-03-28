@@ -283,10 +283,7 @@ function onTableRequest(request) {
 function prepareOrder(order) {
   orderStore.selectedOrder = { ...order };
   orderStore.patchWorkOrder(order.cprResourceOrderPoReqId, order.id, 2);
-  this.prepareStore.patchPORState(
-    this.orderStore.selectedOrder.productOfferRequestId,
-    2
-  );
+  prepareStore.patchPORState(orderStore.selectedOrder.productOfferRequestId, 2);
   router.push('/prepare');
 }
 
