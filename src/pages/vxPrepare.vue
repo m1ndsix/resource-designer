@@ -64,7 +64,7 @@
           class="col"
           ref="qtree"
           node-key="nodeKey"
-          tick-strategy="leaf"
+          tick-strategy="strict"
           v-model:expanded="expanded"
           :nodes="prepareStore.dataTree"
           :filter="treeFilter"

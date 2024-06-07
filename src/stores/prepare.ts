@@ -197,6 +197,7 @@ function makeTree(data) {
     label: data.nameRu,
     nodeKey: data.id,
     nodeType: 'address',
+    noTick: true,
     children: _(data.productOfferReqItems)
       .map((pos) => {
         const components = _(pos.itemComponents)
@@ -216,6 +217,7 @@ function makeTree(data) {
           nodeKey: pos.id,
           nodeType: 'position',
           children: components,
+          noTick: true,
         };
         delete position.itemComponents;
         return position;
